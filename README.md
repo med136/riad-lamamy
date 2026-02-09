@@ -1,56 +1,99 @@
-# Riad Dar Al Andalus - Site Web
+# Riad Dar Al Andalus — Site Web & Admin
 
-Site web moderne pour un riad de luxe à Marrakech, inspiré de riaddarhamid.com.
+Site vitrine et espace d'administration pour le riad "Dar Al Andalus" à Marrakech.
+Le projet combine un front public pour les visiteurs et un back-office pour gérer le contenu,
+les réservations, les médias et les paramètres du site.
 
-## 🚀 Fonctionnalités
+## Fonctionnalités
 
-- 🌐 Site multilingue (prêt pour FR/EN/ES)
-- 🏨 Système de réservation en ligne
-- 📱 Design responsive
-- 🎨 Animations fluides avec Framer Motion
-- 📸 Galerie photos interactive
-- 📞 Intégration WhatsApp
-- 🗺️ Carte interactive
-- 📧 Formulaire de contact avec validation
-- ⭐ Système d'avis clients
-- 🔍 SEO optimisé
+### Site public
+- Pages principales: accueil, chambres, services, galerie, contact, à propos.
+- Réservation en ligne avec calendrier et tarification.
+- Galerie photos et carrousels.
+- Avis clients et témoignages.
+- Intégration WhatsApp et carte interactive.
+- Animations et transitions fluides.
+- SEO et performance optimisés.
 
-## 🏗️ Structure
+### Espace admin
+- Dashboard et statistiques.
+- Gestion des chambres, services, galerie et témoignages.
+- Paramètres généraux du site (nom, contact, maintenance, logos).
+- Upload de médias et logos via Supabase Storage.
+- Gestion du hero (texte, visuels, carrousel).
+
+## Stack technique
+
+- Framework: Next.js 16 (App Router)
+- Langage: TypeScript
+- UI: React 19, Tailwind CSS
+- Animations: Framer Motion
+- Formulaires: React Hook Form + Zod
+- Calendrier: React Datepicker
+- Carrousel: Swiper
+- Notifications: React Hot Toast
+- Icônes: Lucide React
+- Backend: Supabase (Database + Storage + Auth SSR)
+- Tooling: ESLint, Prettier, PostCSS, Autoprefixer
+
+## Architecture (extrait)
+
+```
 src/
-├── app/(site)/ # Pages principales
-│ ├── page.tsx # Accueil
-│ ├── chambres/ # Chambres
-│ ├── services/ # Services
-│ ├── galerie/ # Galerie
-│ ├── contact/ # Contact
-│ ├── reservations/ # Réservations
-│ └── a-propos/ # À propos
-├── components/ # Composants React
-├── lib/ # Utilitaires
-├── types/ # Types TypeScript
-└── middleware.ts # Middleware
-## 📦 Installation
+  app/(site)/          Pages publiques
+  app/admin/           Pages admin
+  app/api/             Routes API (Next.js)
+  components/          Composants UI
+  lib/                 Clients Supabase et utilitaires
+  types/               Types TypeScript
+public/                Assets statiques
+supabase/              Configs et migrations
+```
 
-1. **Cloner le projet**
-   ```bash
-   git clone [url-du-projet]
-   cd riad-dar-al-andalus
+## Configuration
 
-🛠️ Technologies
-    Framework: Next.js 15 (App Router)
+1) Copier l'exemple:
+```
+cp .env.example .env.local
+```
 
-    Langage: TypeScript
+2) Renseigner les clés Supabase (obligatoires):
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
 
-    Styling: Tailwind CSS
+3) Optionnel: Maps, analytics, email, Stripe, etc.
 
-    Animations: Framer Motion
+## Scripts
 
-    Formulaires: React Hook Form + Zod
+```
+npm run dev
+npm run build
+npm run start
+npm run lint
+npm run format
+npm run seed:demo-homepage
+```
 
-    Calendrier: React Datepicker
+### Seed demo (homepage)
 
-    Carrousel: Swiper
+Le script `seed:demo-homepage` crée des données de démonstration **dans la base Supabase** (rooms, services, gallery, testimonials, hero, settings) et upload des images **dans Supabase Storage** (SVG demo) puis enregistre leurs URLs publiques en base.
 
-    Icônes: Lucide React
+Pré-requis (env):
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
 
-    Validation: Zod
+Exécution:
+```
+npm run seed:demo-homepage
+```
+
+Forcer la réinsertion des entrées demo (suppression des entrées `DEMO:*` puis réinsertion):
+```
+npm run seed:demo-homepage -- --force
+```
+
+## Déploiement
+
+Le projet est compatible Vercel. Configurez les variables d'environnement,
+déployez puis vérifiez les routes publiques et l'admin.
