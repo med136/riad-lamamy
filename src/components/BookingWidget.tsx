@@ -381,11 +381,17 @@ export function BookingWidget() {
               type="submit"
               onClick={handleSubmit}
               disabled={!checkIn || !checkOut || !roomId || isChecking}
-              className="btn-primary group mx-auto space-x-3 px-12 py-4 text-base shadow-2xl hover:shadow-[0_25px_70px_-30px_rgba(120,87,71,0.55)] disabled:cursor-not-allowed sm:text-lg"
+              aria-busy={isChecking}
+              className="group relative mx-auto inline-flex w-full items-center justify-center gap-3 overflow-hidden rounded-full bg-[#1b110c] px-10 py-4 text-base font-semibold text-white shadow-[0_22px_70px_-38px_rgba(0,0,0,0.78)] ring-1 ring-white/10 transition-colors hover:bg-[#22140e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-[#1b110c] sm:w-auto sm:px-12 sm:text-lg"
             >
+              <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <span className="absolute -inset-24 bg-[radial-gradient(circle_at_30%_40%,rgba(255,243,199,0.22),transparent_55%)]" />
+              </span>
               {isChecking ? <Loader size={20} className="animate-spin" /> : <Search size={20} />}
               <span className="font-semibold text-lg">Vérifier la disponibilité</span>
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+              <span className="opacity-70 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-100">
+                →
+              </span>
             </button>
           </div>
         </form>

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Connexion — Administration",
-  description: "Accès réservé au personnel.",
+  title: "Inscription — Administration",
+  description: "Création de compte (sur invitation).",
 };
 
-export default function LoginLayout({
+export default function RegisterLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -16,3 +16,4 @@ export default function LoginLayout({
     </div>
   );
 }
+
