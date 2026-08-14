@@ -4,6 +4,9 @@ import { Footer } from "@/components/Footer";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
 import CookieBanner from "@/components/CookieBanner";
 import Analytics from "@/components/Analytics";
+import { LanguageProvider } from "@/components/LanguageProvider";
+import { cookies } from "next/headers";
+import { defaultLanguage, isSupportedLanguage, LANGUAGE_COOKIE } from "@/lib/i18n";
 import "@/app/globals.css";
 
 export const metadata: Metadata = {
@@ -47,21 +50,29 @@ export const metadata: Metadata = {
   },
 };
 
-export default function SiteLayout({
+export default async function SiteLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const langCookie = cookieStore.get(LANGUAGE_COOKIE)?.value;
+  const initialLanguage = isSupportedLanguage(langCookie)
+    ? langCookie
+    : defaultLanguage;
+
   return (
-    <div className="site-shell font-sans text-gray-900">
-      <Navigation />
-      <main id="main-content" className="min-h-screen">
-        {children}
-      </main>
-      <Footer />
-      <WhatsAppFloat />
-      <CookieBanner />
-      <Analytics />
-    </div>
+    <LanguageProvider initialLanguage={initialLanguage}>
+      <div className="site-shell font-sans text-gray-900">
+        <Navigation />
+        <main id="main-content" className="min-h-screen">
+          {children}
+        </main>
+        <Footer />
+        <WhatsAppFloat />
+        <CookieBanner />
+        <Analytics />
+      </div>
+    </LanguageProvider>
   );
 }

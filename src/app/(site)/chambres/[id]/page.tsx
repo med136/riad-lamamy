@@ -55,9 +55,10 @@ const getRoom = async (id: string) => {
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
-  const room = await getRoom(params.id);
+  const { id } = await params;
+  const room = await getRoom(id);
   if (!room) {
     return {
       title: "Chambre | Riad Dar Al Andalus",
@@ -106,9 +107,10 @@ export async function generateMetadata({
 export default async function RoomDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const room = await getRoom(params.id);
+  const { id } = await params;
+  const room = await getRoom(id);
   if (!room) {
     notFound();
   }

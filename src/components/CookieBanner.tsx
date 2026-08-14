@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/components/LanguageProvider";
 
 type ConsentState = {
   necessary: boolean;
@@ -40,6 +41,7 @@ const setConsentCookie = (consent: ConsentState) => {
 };
 
 export default function CookieBanner() {
+  const { t } = useLanguage();
   const [visible, setVisible] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [consent, setConsent] = useState<ConsentState>(DEFAULT_CONSENT);
@@ -95,12 +97,10 @@ export default function CookieBanner() {
           <div className="max-w-2xl">
             <div className="lux-kicker text-amber-700/80 mb-2">COOKIES</div>
             <h3 className="text-xl font-serif font-bold text-gray-900 mb-2">
-              Nous respectons votre vie privee
+              {t("cookies.title")}
             </h3>
             <p className="text-gray-600">
-              Nous utilisons des cookies essentiels pour assurer le bon
-              fonctionnement du site. Vous pouvez accepter, refuser ou
-              personnaliser les cookies.
+              {t("cookies.description")}
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -108,19 +108,19 @@ export default function CookieBanner() {
               onClick={() => setShowSettings((prev) => !prev)}
               className="px-4 py-2 rounded-full border border-amber-300 text-amber-700 hover:bg-amber-50"
             >
-              Personnaliser
+              {t("cookies.customize")}
             </button>
             <button
               onClick={refuseAll}
               className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50"
             >
-              Refuser
+              {t("cookies.refuse")}
             </button>
             <button
               onClick={acceptAll}
               className="px-4 py-2 rounded-full bg-amber-700 text-white hover:bg-amber-800"
             >
-              Accepter tout
+              {t("cookies.accept_all")}
             </button>
           </div>
         </div>
@@ -129,11 +129,11 @@ export default function CookieBanner() {
           <div className="mt-6 border-t border-amber-200/40 pt-4">
             <div className="space-y-3 text-sm text-gray-700">
               <label className="flex items-center justify-between">
-                <span>Cookies essentiels (toujours actifs)</span>
+                <span>{t("cookies.essential")}</span>
                 <input type="checkbox" checked disabled className="accent-amber-700" />
               </label>
               <label className="flex items-center justify-between">
-                <span>Mesure d'audience</span>
+                <span>{t("cookies.analytics")}</span>
                 <input
                   type="checkbox"
                   checked={consent.analytics}
@@ -144,7 +144,7 @@ export default function CookieBanner() {
                 />
               </label>
               <label className="flex items-center justify-between">
-                <span>Marketing et personnalisation</span>
+                <span>{t("cookies.marketing")}</span>
                 <input
                   type="checkbox"
                   checked={consent.marketing}
@@ -160,13 +160,13 @@ export default function CookieBanner() {
                 onClick={saveChoices}
                 className="px-4 py-2 rounded-full bg-amber-700 text-white hover:bg-amber-800"
               >
-                Enregistrer
+                {t("cookies.save")}
               </button>
               <a
                 href="/politique-confidentialite"
                 className="px-4 py-2 rounded-full border border-amber-300 text-amber-700 hover:bg-amber-50"
               >
-                Politique de confidentialite
+                {t("cookies.privacy_policy")}
               </a>
             </div>
           </div>

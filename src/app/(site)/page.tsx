@@ -7,8 +7,21 @@ import { Testimonials, type TestimonialItem } from "@/components/Testimonials";
 import { GalleryPreview } from "@/components/GalleryPreview";
 import { Experience } from "@/components/Experience";
 import Script from "next/script";
+import { cookies } from "next/headers";
+import {
+  defaultLanguage,
+  getLocaleForLanguage,
+  isSupportedLanguage,
+  LANGUAGE_COOKIE,
+} from "@/lib/i18n";
 
 export default async function HomePage() {
+  const cookieStore = await cookies();
+  const langCookie = cookieStore.get(LANGUAGE_COOKIE)?.value;
+  const language = isSupportedLanguage(langCookie) ? langCookie : defaultLanguage;
+  const locale = getLocaleForLanguage(language);
+  const fallbackName = language === "en" ? "Guest" : "Client";
+
   let items: TestimonialItem[] = []
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/api/testimonials`, { cache: 'no-store' })
@@ -16,10 +29,10 @@ export default async function HomePage() {
       const { data } = await res.json()
       if (Array.isArray(data)) {
         items = data.map((t: any, idx: number) => {
-          const name: string = t.guest_name || 'Client'
+          const name: string = t.guest_name || fallbackName
           const country: string = t.guest_country || ''
           const created: string = t.created_at || new Date().toISOString()
-          const date = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(new Date(created))
+          const date = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(new Date(created))
           const initials = name
             .split(' ')
             .filter(Boolean)

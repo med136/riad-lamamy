@@ -3,12 +3,14 @@
 import { MessageCircle } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { useState } from "react";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export function WhatsAppFloat() {
   const [isHovered, setIsHovered] = useState(false);
+  const { t } = useLanguage();
 
   const phoneNumber = "+212661234567";
-  const message = "Bonjour, je souhaite avoir des informations sur le riad.";
+  const message = t("whatsapp.message");
 
   const handleClick = () => {
     trackEvent("click_whatsapp", { source: "float" });
@@ -32,7 +34,7 @@ export function WhatsAppFloat() {
         {/* Tooltip */}
         {isHovered && (
           <div className="absolute right-full top-1/2 -translate-y-1/2 mr-4 bg-gray-900 text-white px-4 py-2 rounded-lg whitespace-nowrap text-sm font-semibold shadow-xl">
-            Contactez-nous sur WhatsApp
+            {t("whatsapp.tooltip")}
             <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2">
               <div className="w-2 h-2 bg-gray-900 rotate-45"></div>
             </div>

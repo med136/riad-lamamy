@@ -5,38 +5,40 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, Globe, Menu, Phone, X } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
+import type { Language, MessageKey } from "@/lib/i18n";
 
 type NavItem = {
   href: string;
-  label: string;
-  submenu?: { href: string; label: string }[];
+  labelKey: MessageKey;
+  submenu?: { href: string; labelKey: MessageKey }[];
 };
 
 const navItems: NavItem[] = [
-  { href: "/", label: "Accueil" },
+  { href: "/", labelKey: "nav.home" },
   {
     href: "/chambres",
-    label: "Chambres",
+    labelKey: "nav.rooms",
     submenu: [
-      { href: "/chambres#standard", label: "Chambre Standard" },
-      { href: "/chambres#deluxe", label: "Chambre Deluxe" },
-      { href: "/chambres#suite", label: "Suite Royale" },
+      { href: "/chambres#standard", labelKey: "nav.room_standard" },
+      { href: "/chambres#deluxe", labelKey: "nav.room_deluxe" },
+      { href: "/chambres#suite", labelKey: "nav.room_royal_suite" },
     ],
   },
-  { href: "/services", label: "Services" },
-  { href: "/galerie", label: "Galerie" },
-  { href: "/a-propos", label: "À propos" },
-  { href: "/contact", label: "Contact" },
+  { href: "/services", labelKey: "nav.services" },
+  { href: "/galerie", labelKey: "nav.gallery" },
+  { href: "/a-propos", labelKey: "nav.about" },
+  { href: "/contact", labelKey: "nav.contact" },
 ];
 
-const languages = [
+const languages: { code: Language; label: string }[] = [
   { code: "fr", label: "FR" },
   { code: "en", label: "EN" },
-  { code: "es", label: "ES" },
 ];
 
 export function Navigation() {
   const pathname = usePathname();
+  const { language, setLanguage, t } = useLanguage();
 
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -158,7 +160,7 @@ export function Navigation() {
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-gray-900 focus:shadow-lg focus:ring-2 focus:ring-amber-400"
         >
-          Aller au contenu
+          {t("nav.skip_to_content")}
         </a>
 
         <nav
@@ -167,7 +169,7 @@ export function Navigation() {
               ? "bg-white/75 backdrop-blur-xl shadow-[0_12px_40px_-28px_rgba(120,87,71,0.9)]"
               : "bg-white/55 backdrop-blur-md"
           }`}
-          aria-label="Navigation principale"
+          aria-label={t("nav.main_navigation")}
         >
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
           <div className="border-b border-amber-200/40">
@@ -239,7 +241,7 @@ export function Navigation() {
                             aria-haspopup={item.submenu ? true : undefined}
                             aria-expanded={item.submenu ? open : undefined}
                           >
-                            <span>{item.label}</span>
+                            <span>{t(item.labelKey)}</span>
                             {item.submenu && (
                               <ChevronDown
                                 size={14}
@@ -264,7 +266,7 @@ export function Navigation() {
                               className="absolute left-1/2 top-full z-50 mt-3 w-64 -translate-x-1/2 rounded-2xl border border-amber-100/70 bg-white/90 p-2 shadow-2xl shadow-black/10 backdrop-blur"
                             >
                               <div className="px-3 pb-2 pt-1">
-                                <p className="lux-kicker">{item.label}</p>
+                                <p className="lux-kicker">{t(item.labelKey)}</p>
                               </div>
                               {item.submenu.map((subItem) => (
                                 <Link
@@ -272,7 +274,7 @@ export function Navigation() {
                                   href={subItem.href}
                                   className="flex items-center justify-between rounded-xl px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-amber-50/70 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2"
                                 >
-                                  <span>{subItem.label}</span>
+                                  <span>{t(subItem.labelKey)}</span>
                                   <span className="text-amber-700/60" aria-hidden="true">
                                     ↗
                                   </span>
@@ -298,7 +300,7 @@ export function Navigation() {
                       aria-expanded={languageOpen}
                     >
                       <Globe size={16} aria-hidden="true" />
-                      <span>FR</span>
+                      <span>{language.toUpperCase()}</span>
                       <ChevronDown
                         size={14}
                         className={`transition-transform duration-200 ${
@@ -317,15 +319,18 @@ export function Navigation() {
                             key={lang.code}
                             type="button"
                             className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-amber-50/70 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2"
-                            onClick={() => setLanguageOpen(false)}
+                            onClick={() => {
+                              setLanguage(lang.code);
+                              setLanguageOpen(false);
+                            }}
                           >
                             <span>{lang.label}</span>
                             <span
                               className={`text-xs ${
-                                lang.code === "fr" ? "text-amber-700" : "text-gray-400"
+                                lang.code === language ? "text-amber-700" : "text-gray-400"
                               }`}
                             >
-                              {lang.code === "fr" ? "Actuel" : ""}
+                              {lang.code === language ? t("nav.current") : ""}
                             </span>
                           </button>
                         ))}
@@ -339,7 +344,7 @@ export function Navigation() {
                     className="btn-primary hidden gap-2 px-5 py-2.5 text-sm shadow-sm sm:inline-flex"
                   >
                     <Phone size={16} aria-hidden="true" />
-                    <span>Réserver</span>
+                    <span>{t("nav.book")}</span>
                   </Link>
 
                   {/* Mobile menu button */}
@@ -347,7 +352,7 @@ export function Navigation() {
                     type="button"
                     className="lg:hidden inline-flex items-center justify-center rounded-full border border-amber-200/60 bg-white/80 p-2 text-gray-800 shadow-sm backdrop-blur transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2"
                     onClick={() => setIsOpen((v) => !v)}
-                    aria-label={isOpen ? "Fermer le menu" : "Ouvrir le menu"}
+                    aria-label={isOpen ? t("nav.close_menu") : t("nav.open_menu")}
                     aria-expanded={isOpen}
                   >
                     {isOpen ? <X size={22} /> : <Menu size={22} />}
@@ -395,7 +400,7 @@ export function Navigation() {
                         {brandTagline}
                       </p>
                     ) : (
-                      <p className="text-sm text-gray-600">Navigation</p>
+                      <p className="text-sm text-gray-600">{t("nav.navigation")}</p>
                     )}
                   </div>
                 </Link>
@@ -403,7 +408,7 @@ export function Navigation() {
                   type="button"
                   className="inline-flex items-center justify-center rounded-full border border-amber-200/60 bg-white p-2 text-gray-800 shadow-sm transition hover:bg-amber-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2"
                   onClick={() => setIsOpen(false)}
-                  aria-label="Fermer"
+                  aria-label={t("nav.close")}
                 >
                   <X size={22} />
                 </button>
@@ -426,7 +431,7 @@ export function Navigation() {
                       }`}
                       onClick={() => setIsOpen(false)}
                     >
-                      <span>{item.label}</span>
+                      <span>{t(item.labelKey)}</span>
                       {item.submenu && (
                         <ChevronDown
                           size={16}
@@ -446,7 +451,7 @@ export function Navigation() {
                               className="block rounded-xl px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-amber-50/70 hover:text-amber-900"
                               onClick={() => setIsOpen(false)}
                             >
-                              {subItem.label}
+                              {t(subItem.labelKey)}
                             </Link>
                           ))}
                         </div>
@@ -458,20 +463,27 @@ export function Navigation() {
 
               <div className="mt-6 rounded-2xl border border-gray-100 bg-white p-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold text-gray-900">Langue</p>
-                  <p className="text-xs font-medium text-amber-700">FR</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {t("nav.language")}
+                  </p>
+                  <p className="text-xs font-medium text-amber-700">
+                    {language.toUpperCase()}
+                  </p>
                 </div>
-                <div className="mt-3 grid grid-cols-3 gap-2">
+                <div className="mt-3 grid grid-cols-2 gap-2">
                   {languages.map((lang) => (
                     <button
                       key={lang.code}
                       type="button"
                       className={`rounded-xl border px-3 py-2 text-sm font-semibold transition-colors ${
-                        lang.code === "fr"
+                        lang.code === language
                           ? "border-amber-300 bg-amber-50/80 text-amber-900"
                           : "border-gray-200 text-gray-700 hover:border-amber-200 hover:bg-amber-50/50"
                       }`}
-                      onClick={() => setIsOpen(false)}
+                      onClick={() => {
+                        setLanguage(lang.code);
+                        setIsOpen(false);
+                      }}
                     >
                       {lang.label}
                     </button>
@@ -485,7 +497,7 @@ export function Navigation() {
                 onClick={() => setIsOpen(false)}
               >
                 <Phone size={16} aria-hidden="true" />
-                Réserver maintenant
+                {t("nav.book_now")}
               </Link>
             </div>
           </div>

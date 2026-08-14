@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, Heart } from "lucide-react";
 import { openCookieBanner } from "@/components/CookieBanner";
+import { useLanguage } from "@/components/LanguageProvider";
 
 type SocialLinks = {
   instagram?: string;
@@ -14,12 +15,11 @@ type SocialLinks = {
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const { t } = useLanguage();
 
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [brandName, setBrandName] = useState<string>("Riad Lamamy");
-  const [brandTagline, setBrandTagline] = useState<string>(
-    "Un havre de paix au c\u0153ur de Marrakech."
-  );
+  const [brandTagline, setBrandTagline] = useState<string | null>(null);
   const [contactEmail, setContactEmail] = useState<string>("contact@riadlamamy.com");
   const [contactPhone, setContactPhone] = useState<string>("+212 5 24 00 00 00");
   const [addressLines, setAddressLines] = useState<string[]>([
@@ -30,24 +30,24 @@ export function Footer() {
 
   const quickLinks = useMemo(
     () => [
-      { href: "/", label: "Accueil" },
-      { href: "/chambres", label: "Nos chambres" },
-      { href: "/services", label: "Services" },
-      { href: "/galerie", label: "Galerie" },
-      { href: "/a-propos", label: "A propos" },
-      { href: "/contact", label: "Contact" },
+      { href: "/", label: t("nav.home") },
+      { href: "/chambres", label: t("footer.rooms_link") },
+      { href: "/services", label: t("nav.services") },
+      { href: "/galerie", label: t("nav.gallery") },
+      { href: "/a-propos", label: t("nav.about") },
+      { href: "/contact", label: t("nav.contact") },
     ],
-    []
+    [t]
   );
 
   const legalLinks = useMemo(
     () => [
-      { href: "/mentions-legales", label: "Mentions l\u00E9gales" },
-      { href: "/politique-confidentialite", label: "Confidentialit\u00E9" },
-      { href: "/cgu", label: "CGU" },
-      { href: "/plan-site", label: "Plan du site" },
+      { href: "/mentions-legales", label: t("footer.legal_notices") },
+      { href: "/politique-confidentialite", label: t("footer.privacy") },
+      { href: "/cgu", label: t("footer.terms") },
+      { href: "/plan-site", label: t("footer.sitemap") },
     ],
-    []
+    [t]
   );
 
   useEffect(() => {
@@ -175,7 +175,7 @@ export function Footer() {
             </Link>
 
             <p className="max-w-sm text-sm leading-relaxed text-gray-700">
-              {brandTagline}
+              {brandTagline ?? t("footer.default_tagline")}
             </p>
 
             {socialLinks.length > 0 && (
@@ -198,7 +198,7 @@ export function Footer() {
 
           <div>
             <p className="lux-kicker mb-6 pb-2 border-b border-amber-200/50">
-              Navigation
+              {t("footer.navigation")}
             </p>
             <ul className="space-y-3 text-sm">
               {quickLinks.map((link) => (
@@ -217,7 +217,7 @@ export function Footer() {
 
           <div>
             <p className="lux-kicker mb-6 pb-2 border-b border-amber-200/50">
-              Contact
+              {t("footer.contact")}
             </p>
             <ul className="space-y-4 text-sm">
               <li className="flex items-start gap-3">
@@ -253,7 +253,7 @@ export function Footer() {
 
           <div>
             <p className="lux-kicker mb-6 pb-2 border-b border-amber-200/50">
-              Informations
+              {t("footer.information")}
             </p>
             <ul className="space-y-3 text-sm">
               {legalLinks.map((link) => (
@@ -272,7 +272,7 @@ export function Footer() {
                   onClick={openCookieBanner}
                   className="text-gray-700 transition-colors hover:text-amber-900"
                 >
-                  G\u00E9rer les cookies
+                  {t("footer.manage_cookies")}
                 </button>
               </li>
             </ul>
@@ -284,13 +284,13 @@ export function Footer() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center justify-between gap-4 text-sm text-gray-600 md:flex-row">
             <div>
-              &copy; {currentYear} {brandName}. {"Tous droits r\u00E9serv\u00E9s."}
+              &copy; {currentYear} {brandName}. {t("footer.all_rights_reserved")}
             </div>
 
             <div className="flex items-center space-x-2">
-              <span>{"Con\u00E7u avec"}</span>
+              <span>{t("footer.made_with")}</span>
               <Heart size={16} className="fill-rose-400 text-rose-400" />
-              <span>{"\u00E0 Marrakech"}</span>
+              <span>{t("footer.in_city")}</span>
             </div>
           </div>
         </div>
