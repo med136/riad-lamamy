@@ -209,7 +209,7 @@ export function Navigation() {
 
                 {/* Center: Navigation links */}
                 <div className="hidden lg:flex flex-1 justify-center">
-                  <ul className="flex items-center gap-1 rounded-full border border-amber-200/50 bg-white/70 px-2 py-1 shadow-sm backdrop-blur">
+                  <ul className="flex items-center gap-1 px-2 py-1">
                     {navItems.map((item) => {
                       const active = isActive(item.href);
                       const open = activeSubmenu === item.href;
