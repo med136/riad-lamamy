@@ -769,7 +769,7 @@ export default function ChambresPage() {
         }}
         onConfirm={confirmDelete}
         itemName="cette chambre"
-        message="Toutes les données associées seront également supprimées. Cette action est irréversible."
+        message="La chambre sera supprimée. Les réservations existantes seront conservées dans l’historique, sans chambre associée. Cette action est irréversible."
       />
       </div>
     </div>

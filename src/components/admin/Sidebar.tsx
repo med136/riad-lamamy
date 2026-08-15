@@ -134,14 +134,14 @@ export default function AdminSidebar() {
             <div className="w-12 h-12 rounded-2xl border border-amber-200/20 bg-white/5 p-2 flex items-center justify-center">
               <img
                 src={adminLogoUrl}
-                alt="Riad Dar Al Andalus - Admin"
+                alt="Riad Dar LaMamy - Admin"
                 className="w-10 h-10 object-contain"
               />
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.35em] text-amber-300/80">Control</p>
-              <h1 className="text-xl font-semibold text-white">Riad Admin</h1>
-              <p className="text-sm text-amber-100/60">Dar Al Andalus</p>
+              <h1 className="text-xl font-semibold text-white">Admin</h1>
+              <p className="text-sm text-amber-100/60">Dar LaMamy</p>
             </div>
           </div>
         </div>

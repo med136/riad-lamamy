@@ -134,8 +134,6 @@ export function Footer() {
   }, []);
 
   const logoSrc = logoUrl || "/logo.svg";
-  const isDefaultLogo = logoSrc === "/logo.svg";
-
   const socialLinks = useMemo(
     () =>
       [
@@ -147,34 +145,35 @@ export function Footer() {
   );
 
   return (
-    <footer className="relative border-t border-amber-200/40 bg-white/40 text-gray-900 backdrop-blur-sm">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_0%,rgba(217,119,6,0.10),transparent_55%)]" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/35 to-transparent" />
+    <footer className="relative overflow-hidden border-t border-[#c6a15b]/20 bg-[#171713] text-stone-200">
+      <div className="pointer-events-none absolute -left-48 -top-64 h-[32rem] w-[32rem] rounded-full bg-[#c6a15b]/[0.07] blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 right-0 h-72 w-72 bg-[radial-gradient(circle,rgba(198,161,91,0.06),transparent_68%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#d8b66d]/70 to-transparent" />
 
-      <div className="relative container mx-auto px-4 py-14">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-6">
-            <Link href="/" className="inline-flex items-center gap-4">
-              <div className="relative h-12 w-12 overflow-hidden rounded-full border border-amber-200/60 bg-white/70 shadow-sm">
+      <div className="relative container mx-auto px-5 py-16 sm:px-6 lg:py-20">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-12 lg:gap-x-10">
+          <div className="space-y-7 lg:col-span-5 lg:pr-10">
+            <Link href="/" className="group inline-flex max-w-full flex-col items-start gap-4">
+              <div className="relative h-24 w-48 overflow-hidden rounded-2xl border border-white/10 bg-white p-3 shadow-[0_18px_55px_rgba(0,0,0,0.28)] transition-transform duration-300 group-hover:-translate-y-1 sm:h-28 sm:w-56">
                 <Image
                   src={logoSrc}
                   alt={brandName}
                   fill
-                  sizes="48px"
-                  className={`object-contain p-2 ${isDefaultLogo ? "brightness-0" : ""}`}
+                  sizes="(max-width: 640px) 192px, 224px"
+                  className="object-contain p-3"
                 />
               </div>
               <div className="leading-tight">
-                <p className="font-serif text-xl font-semibold tracking-tight text-gray-900">
+                <p className="font-serif text-2xl font-semibold tracking-tight text-white">
                   {brandName}
                 </p>
-                <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-amber-700/80">
+                <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.34em] text-[#d8b66d]">
                   Marrakech
                 </p>
               </div>
             </Link>
 
-            <p className="max-w-sm text-sm leading-relaxed text-gray-700">
+            <p className="max-w-md text-sm leading-7 text-stone-400">
               {brandTagline ?? t("footer.default_tagline")}
             </p>
 
@@ -187,7 +186,7 @@ export function Footer() {
                     target="_blank"
                     rel="noreferrer"
                     aria-label={label}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-amber-200/60 bg-white/70 text-amber-900 shadow-sm transition-colors hover:bg-amber-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-stone-300 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#d8b66d]/50 hover:bg-[#d8b66d] hover:text-[#171713] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d8b66d] focus-visible:ring-offset-2 focus-visible:ring-offset-[#171713]"
                   >
                     <Icon size={18} aria-hidden="true" />
                   </a>
@@ -196,18 +195,18 @@ export function Footer() {
             )}
           </div>
 
-          <div>
-            <p className="lux-kicker mb-6 pb-2 border-b border-amber-200/50">
+          <div className="lg:col-span-2">
+            <p className="mb-6 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#d8b66d]">
               {t("footer.navigation")}
             </p>
-            <ul className="space-y-3 text-sm">
+            <ul className="space-y-3.5 text-sm">
               {quickLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="inline-flex items-center gap-3 text-gray-700 transition-colors hover:text-amber-900"
+                    className="group inline-flex items-center gap-3 text-stone-400 transition-colors hover:text-white"
                   >
-                    <span className="h-[2px] w-2 rounded-full bg-amber-700/25" aria-hidden="true" />
+                    <span className="h-px w-3 bg-[#d8b66d]/40 transition-all group-hover:w-5 group-hover:bg-[#d8b66d]" aria-hidden="true" />
                     {link.label}
                   </Link>
                 </li>
@@ -215,14 +214,14 @@ export function Footer() {
             </ul>
           </div>
 
-          <div>
-            <p className="lux-kicker mb-6 pb-2 border-b border-amber-200/50">
+          <div className="lg:col-span-3">
+            <p className="mb-6 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#d8b66d]">
               {t("footer.contact")}
             </p>
-            <ul className="space-y-4 text-sm">
-              <li className="flex items-start gap-3">
-                <MapPin size={18} className="mt-0.5 flex-shrink-0 text-amber-700/70" />
-                <span className="text-gray-700">
+            <ul className="space-y-3 text-sm">
+              <li className="flex items-start gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] p-3.5">
+                <MapPin size={17} className="mt-0.5 flex-shrink-0 text-[#d8b66d]" />
+                <span className="leading-6 text-stone-400">
                   {addressLines.map((line, idx) => (
                     <span key={idx} className="block">
                       {line}
@@ -230,29 +229,29 @@ export function Footer() {
                   ))}
                 </span>
               </li>
-              <li className="flex items-center gap-3">
-                <Phone size={18} className="flex-shrink-0 text-amber-700/70" />
+              <li>
                 <a
                   href={`tel:${contactPhone.replace(/\s+/g, "")}`}
-                  className="text-gray-700 transition-colors hover:text-amber-900"
+                  className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] p-3.5 text-stone-400 transition-colors hover:border-[#d8b66d]/30 hover:text-white"
                 >
+                  <Phone size={17} className="flex-shrink-0 text-[#d8b66d]" />
                   {contactPhone}
                 </a>
               </li>
-              <li className="flex items-center gap-3">
-                <Mail size={18} className="flex-shrink-0 text-amber-700/70" />
+              <li>
                 <a
                   href={`mailto:${contactEmail}`}
-                  className="text-gray-700 transition-colors hover:text-amber-900"
+                  className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] p-3.5 text-stone-400 transition-colors hover:border-[#d8b66d]/30 hover:text-white"
                 >
+                  <Mail size={17} className="flex-shrink-0 text-[#d8b66d]" />
                   {contactEmail}
                 </a>
               </li>
             </ul>
           </div>
 
-          <div>
-            <p className="lux-kicker mb-6 pb-2 border-b border-amber-200/50">
+          <div className="lg:col-span-2">
+            <p className="mb-6 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#d8b66d]">
               {t("footer.information")}
             </p>
             <ul className="space-y-3 text-sm">
@@ -260,7 +259,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-gray-700 transition-colors hover:text-amber-900"
+                    className="text-stone-400 transition-colors hover:text-white"
                   >
                     {link.label}
                   </Link>
@@ -270,7 +269,7 @@ export function Footer() {
                 <button
                   type="button"
                   onClick={openCookieBanner}
-                  className="text-gray-700 transition-colors hover:text-amber-900"
+                  className="text-left text-stone-400 transition-colors hover:text-white"
                 >
                   {t("footer.manage_cookies")}
                 </button>
@@ -280,16 +279,16 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="relative border-t border-amber-200/40 bg-white/30 py-7">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center justify-between gap-4 text-sm text-gray-600 md:flex-row">
+      <div className="relative border-t border-white/[0.07] bg-black/10 py-6">
+        <div className="container mx-auto px-5 sm:px-6">
+          <div className="flex flex-col items-center justify-between gap-4 text-center text-xs text-stone-500 sm:text-sm md:flex-row md:text-left">
             <div>
               &copy; {currentYear} {brandName}. {t("footer.all_rights_reserved")}
             </div>
 
             <div className="flex items-center space-x-2">
               <span>{t("footer.made_with")}</span>
-              <Heart size={16} className="fill-rose-400 text-rose-400" />
+              <Heart size={15} className="fill-[#d8b66d] text-[#d8b66d]" />
               <span>{t("footer.in_city")}</span>
             </div>
           </div>

@@ -39,7 +39,7 @@ const fr = {
   "footer.manage_cookies": "Gérer les cookies",
   "footer.all_rights_reserved": "Tous droits réservés.",
   "footer.made_with": "Conçu avec",
-  "footer.in_city": "à Marrakech",
+  "footer.in_city": "à Fès",
   "footer.rooms_link": "Nos chambres",
   "footer.legal_notices": "Mentions légales",
   "footer.privacy": "Confidentialité",

@@ -439,6 +439,9 @@ type UploadFieldProps = {
   onChange: (nextUrl: string) => void
 }
 
+const MAX_LOGO_SIZE = 4 * 1024 * 1024
+const LOGO_ACCEPT = 'image/jpeg,image/png,image/svg+xml,image/webp'
+
 function UploadField({ title, description, endpoint, value, onChange }: UploadFieldProps) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -446,6 +449,14 @@ function UploadField({ title, description, endpoint, value, onChange }: UploadFi
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
+
+    if (file.size > MAX_LOGO_SIZE) {
+      const message = 'Fichier trop volumineux. La taille maximale est de 4 Mo.'
+      setError(message)
+      toast.error(message)
+      event.target.value = ''
+      return
+    }
 
     setUploading(true)
     setError(null)
@@ -455,7 +466,25 @@ function UploadField({ title, description, endpoint, value, onChange }: UploadFi
       formData.append('file', file)
 
       const res = await fetch(endpoint, { method: 'POST', body: formData })
-      const data = await res.json()
+      const responseText = await res.text()
+      let data: { error?: string; publicUrl?: string; url?: string } = {}
+
+      if (responseText) {
+        try {
+          data = JSON.parse(responseText) as typeof data
+        } catch {
+          if (!res.ok) {
+            const isTooLarge = res.status === 413 || /request entity too large/i.test(responseText)
+            throw new Error(
+              isTooLarge
+                ? 'Fichier trop volumineux. La taille maximale est de 4 Mo.'
+                : `Erreur upload (${res.status})`
+            )
+          }
+
+          throw new Error('Réponse inattendue du serveur')
+        }
+      }
 
       if (!res.ok) {
         throw new Error(data?.error || 'Erreur upload')
@@ -467,9 +496,9 @@ function UploadField({ title, description, endpoint, value, onChange }: UploadFi
       }
 
       onChange(nextUrl)
-      toast.success('Upload reussi')
-    } catch (err: any) {
-      const message = err?.message || 'Erreur upload'
+      toast.success('Upload réussi')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erreur upload'
       setError(message)
       toast.error(message)
     } finally {
@@ -488,7 +517,13 @@ function UploadField({ title, description, endpoint, value, onChange }: UploadFi
         <label className="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50">
           <UploadCloud size={14} />
           {uploading ? 'Upload...' : 'Choisir un fichier'}
-          <input type="file" className="hidden" onChange={handleUpload} disabled={uploading} />
+          <input
+            type="file"
+            accept={LOGO_ACCEPT}
+            className="hidden"
+            onChange={handleUpload}
+            disabled={uploading}
+          />
         </label>
         <input
           className="flex-1 min-w-[220px] rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs text-gray-700"
@@ -497,6 +532,7 @@ function UploadField({ title, description, endpoint, value, onChange }: UploadFi
           placeholder="URL publique"
         />
       </div>
+      <p className="text-[11px] text-gray-500">PNG, JPG, WebP ou SVG — 4 Mo maximum.</p>
       {value ? (
         <div className="relative h-20 w-full overflow-hidden rounded-lg border border-gray-200 bg-white">
           <img src={value} alt={title} className="h-full w-full object-contain" loading="lazy" />

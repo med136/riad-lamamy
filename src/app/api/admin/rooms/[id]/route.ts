@@ -29,9 +29,19 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = createAdminClient()
-  const { data, error } = await supabase.from('rooms').delete().eq('id', id).select().single()
+  const { error } = await supabase.from('rooms').delete().eq('id', id)
 
   if (error) {
+    if (error.code === '23503') {
+      return NextResponse.json(
+        {
+          error:
+            "Cette chambre est liée à des réservations. Appliquez la migration Supabase avant de réessayer afin de conserver leur historique.",
+        },
+        { status: 409 }
+      )
+    }
+
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
