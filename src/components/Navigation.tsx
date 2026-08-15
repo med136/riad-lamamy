@@ -47,6 +47,7 @@ export function Navigation() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [brandName, setBrandName] = useState<string>("Riad Lamamy");
   const [brandTagline, setBrandTagline] = useState<string>("");
+  const [hasWideLogo, setHasWideLogo] = useState(false);
 
   const languageRef = useRef<HTMLDivElement | null>(null);
 
@@ -153,6 +154,12 @@ export function Navigation() {
   const logoSrc = logoUrl || "/logo.svg";
   const isDefaultLogo = logoSrc === "/logo.svg";
 
+  const detectWideLogo = (image: HTMLImageElement) => {
+    setHasWideLogo(
+      !isDefaultLogo && image.naturalWidth >= image.naturalHeight * 2,
+    );
+  };
+
   return (
     <>
       <header className="sticky top-0 z-50">
@@ -182,28 +189,35 @@ export function Navigation() {
                     aria-label={brandName}
                     className="group inline-flex items-center gap-3 rounded-2xl px-1 py-1 transition-colors hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2"
                   >
-                    <div className="relative h-11 w-11 overflow-hidden">
+                    <div
+                      className={`relative h-11 overflow-hidden transition-[width] ${
+                        hasWideLogo ? "w-36" : "w-11"
+                      }`}
+                    >
                       <Image
                         src={logoSrc}
                         alt=""
                         fill
-                        sizes="44px"
+                        sizes={hasWideLogo ? "144px" : "44px"}
+                        onLoad={(event) => detectWideLogo(event.currentTarget)}
                         className={`object-contain object-left p-2 ${
                           isDefaultLogo ? "brightness-0" : ""
                         }`}
                         priority
                       />
                     </div>
-                    <div className="min-w-0 leading-tight">
-                      <p className="truncate font-serif text-sm font-bold tracking-tight text-gray-900 sm:text-base md:text-lg">
-                        {brandName}
-                      </p>
-                      {brandTagline ? (
-                        <p className="hidden md:block truncate text-[11px] font-semibold uppercase tracking-[0.28em] text-amber-700/80">
-                          {brandTagline}
+                    {!hasWideLogo && (
+                      <div className="min-w-0 leading-tight">
+                        <p className="truncate font-serif text-sm font-bold tracking-tight text-gray-900 sm:text-base md:text-lg">
+                          {brandName}
                         </p>
-                      ) : null}
-                    </div>
+                        {brandTagline ? (
+                          <p className="hidden truncate text-[11px] font-semibold uppercase tracking-[0.28em] text-amber-700/80 md:block">
+                            {brandTagline}
+                          </p>
+                        ) : null}
+                      </div>
+                    )}
                   </Link>
                 </div>
 
@@ -263,23 +277,25 @@ export function Navigation() {
 
                           {item.submenu && open && (
                             <div
-                              className="absolute left-1/2 top-full z-50 mt-3 w-64 -translate-x-1/2 rounded-2xl border border-amber-100/70 bg-white/90 p-2 shadow-2xl shadow-black/10 backdrop-blur"
+                              className="absolute left-1/2 top-full z-50 w-64 -translate-x-1/2 pt-3"
                             >
-                              <div className="px-3 pb-2 pt-1">
-                                <p className="lux-kicker">{t(item.labelKey)}</p>
+                              <div className="rounded-2xl border border-amber-100/70 bg-white/90 p-2 shadow-2xl shadow-black/10 backdrop-blur">
+                                <div className="px-3 pb-2 pt-1">
+                                  <p className="lux-kicker">{t(item.labelKey)}</p>
+                                </div>
+                                {item.submenu.map((subItem) => (
+                                  <Link
+                                    key={subItem.href}
+                                    href={subItem.href}
+                                    className="flex items-center justify-between rounded-xl px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-amber-50/70 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2"
+                                  >
+                                    <span>{t(subItem.labelKey)}</span>
+                                    <span className="text-amber-700/60" aria-hidden="true">
+                                      ↗
+                                    </span>
+                                  </Link>
+                                ))}
                               </div>
-                              {item.submenu.map((subItem) => (
-                                <Link
-                                  key={subItem.href}
-                                  href={subItem.href}
-                                  className="flex items-center justify-between rounded-xl px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-amber-50/70 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2"
-                                >
-                                  <span>{t(subItem.labelKey)}</span>
-                                  <span className="text-amber-700/60" aria-hidden="true">
-                                    ↗
-                                  </span>
-                                </Link>
-                              ))}
                             </div>
                           )}
                         </li>
@@ -380,29 +396,40 @@ export function Navigation() {
                   className="inline-flex items-center gap-3 rounded-2xl px-1 py-1"
                   onClick={() => setIsOpen(false)}
                 >
-                  <div className="relative h-10 w-10 overflow-hidden rounded-2xl border border-amber-200/60 bg-white shadow-sm">
+                  <div
+                    className={`relative h-10 overflow-hidden ${
+                      hasWideLogo
+                        ? "w-32"
+                        : "w-10 rounded-2xl border border-amber-200/60 bg-white shadow-sm"
+                    }`}
+                  >
                     <Image
                       src={logoSrc}
                       alt=""
                       fill
-                      sizes="40px"
+                      sizes={hasWideLogo ? "128px" : "40px"}
+                      onLoad={(event) => detectWideLogo(event.currentTarget)}
                       className={`object-contain object-left p-2 ${
                         isDefaultLogo ? "brightness-0" : ""
                       }`}
                     />
                   </div>
-                  <div className="leading-tight">
-                    <p className="font-serif text-base font-bold tracking-tight text-gray-900">
-                      {brandName}
-                    </p>
-                    {brandTagline ? (
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-amber-700/80">
-                        {brandTagline}
+                  {!hasWideLogo && (
+                    <div className="leading-tight">
+                      <p className="font-serif text-base font-bold tracking-tight text-gray-900">
+                        {brandName}
                       </p>
-                    ) : (
-                      <p className="text-sm text-gray-600">{t("nav.navigation")}</p>
-                    )}
-                  </div>
+                      {brandTagline ? (
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-amber-700/80">
+                          {brandTagline}
+                        </p>
+                      ) : (
+                        <p className="text-sm text-gray-600">
+                          {t("nav.navigation")}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </Link>
                 <button
                   type="button"
