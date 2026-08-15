@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/adminClient'
+import { requireAdminSession, UnauthorizedAdminError } from '@/lib/auth/admin'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
+    await requireAdminSession()
     const supabase = createAdminClient()
     
     const { data, error } = await supabase
@@ -19,14 +21,16 @@ export async function GET() {
     }
 
     return NextResponse.json(data || {})
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching hero settings:', err)
-    return NextResponse.json({ error: err?.message || 'Unknown error' }, { status: 500 })
+    const status = err instanceof UnauthorizedAdminError ? 401 : 500
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Unknown error' }, { status })
   }
 }
 
 export async function PUT(req: Request) {
   try {
+    await requireAdminSession()
     const body = await req.json()
     const { 
       title, 
@@ -74,8 +78,9 @@ export async function PUT(req: Request) {
     }
 
     return NextResponse.json(data)
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error updating hero settings:', err)
-    return NextResponse.json({ error: err?.message || 'Unknown error' }, { status: 500 })
+    const status = err instanceof UnauthorizedAdminError ? 401 : 500
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Unknown error' }, { status })
   }
 }

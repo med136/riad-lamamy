@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
+    "test:hero-media": "node --test --experimental-strip-types src/lib/hero-media.test.ts",
     "format": "prettier --write .",
     "seed:demo-homepage": "node scripts/seed-demo-homepage.mjs"
   },

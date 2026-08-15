@@ -5,17 +5,17 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
+import { HeroSlideMedia } from "@/components/HeroSlideMedia";
+import {
+  toHeroMediaItem,
+  type HeroMediaApiItem,
+  type HeroMediaItem,
+} from "@/types/hero-media";
 
 interface HeroSettings {
   background_image?: string;
   cta_primary_link?: string;
   cta_secondary_link?: string;
-}
-
-interface CarouselImage {
-  id: string;
-  image_url: string;
-  display_order: number;
 }
 
 const FALLBACK_IMAGES = [
@@ -24,6 +24,16 @@ const FALLBACK_IMAGES = [
   "/images/hero/hero-3.svg",
 ];
 
+const FALLBACK_MEDIA: HeroMediaItem[] = FALLBACK_IMAGES.map((mediaUrl, position) => ({
+  id: `fallback-${position}`,
+  mediaType: "image",
+  mediaUrl,
+  posterUrl: null,
+  altText: null,
+  position,
+  isActive: true,
+}));
+
 const MAX_SLIDES = 5;
 const AUTOPLAY_MS = 7500; // 6–8s
 const FADE_S = 1.8; // cross-fade ultra douce
@@ -31,12 +41,14 @@ const SWIPE_THRESHOLD_PX = 52;
 
 export function Hero() {
   const [settings, setSettings] = useState<HeroSettings | null>(null);
-  const [slides, setSlides] = useState<string[]>(FALLBACK_IMAGES);
+  const [slides, setSlides] = useState<HeroMediaItem[]>(FALLBACK_MEDIA);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [documentVisible, setDocumentVisible] = useState(true);
 
   const touchStartX = useRef<number | null>(null);
+  const videoRefs = useRef(new Map<string, HTMLVideoElement>());
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -56,24 +68,31 @@ export function Hero() {
         const items = Array.isArray(data?.items) ? data.items : [];
 
         if (res.ok && items.length > 0) {
-          const carouselImages = items
-            .map((img: CarouselImage) => (img?.image_url || "").trim())
-            .filter(Boolean)
+          const carouselMedia = (items as HeroMediaApiItem[])
+            .map(toHeroMediaItem)
+            .filter((item) => item.isActive && item.mediaUrl.trim())
             .slice(0, MAX_SLIDES);
 
-          setSlides(carouselImages.length ? carouselImages : FALLBACK_IMAGES);
+          setSlides(carouselMedia.length ? carouselMedia : FALLBACK_MEDIA);
           return;
         }
 
-        setSlides(FALLBACK_IMAGES);
+        setSlides(FALLBACK_MEDIA);
       } catch (err) {
         console.error("Error fetching carousel images:", err);
-        setSlides(FALLBACK_IMAGES);
+        setSlides(FALLBACK_MEDIA);
       }
     };
 
     fetchSettings();
     fetchCarouselImages();
+  }, []);
+
+  useEffect(() => {
+    const updateVisibility = () => setDocumentVisible(document.visibilityState === "visible");
+    updateVisibility();
+    document.addEventListener("visibilitychange", updateVisibility);
+    return () => document.removeEventListener("visibilitychange", updateVisibility);
   }, []);
 
   useEffect(() => {
@@ -88,48 +107,70 @@ export function Hero() {
   }, []);
 
   useEffect(() => {
-    if (index >= slides.length) setIndex(0);
-  }, [index, slides.length]);
-
-  useEffect(() => {
     if (prefersReducedMotion || paused || slides.length <= 1) return;
 
     const id = window.setInterval(() => {
-      setIndex((prev) => (prev + 1) % slides.length);
+      setIndex((prev) => {
+        videoRefs.current.get(slides[prev]?.id)?.pause();
+        return (prev + 1) % slides.length;
+      });
     }, AUTOPLAY_MS);
 
     return () => window.clearInterval(id);
-  }, [paused, prefersReducedMotion, slides.length]);
+  }, [paused, prefersReducedMotion, slides]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (slides.length <= 1) return;
 
     const next = slides[(index + 1) % slides.length];
+    const preloadUrl = next.mediaType === "image" ? next.mediaUrl : next.posterUrl;
+    if (!preloadUrl) return;
     const img = new window.Image();
     img.decoding = "async";
-    img.src = next;
+    img.src = preloadUrl;
   }, [index, slides]);
+
+  useEffect(() => {
+    const activeVideo = videoRefs.current.get(slides[index]?.id);
+    if (!activeVideo) return;
+    if (!documentVisible || prefersReducedMotion) {
+      activeVideo.pause();
+      return;
+    }
+    void activeVideo.play().catch(() => undefined);
+  }, [documentVisible, index, prefersReducedMotion, slides]);
 
   const primaryHref = settings?.cta_primary_link || "/reservations";
   const secondaryHref = settings?.cta_secondary_link || "/chambres";
   const fallbackBackground = settings?.background_image || FALLBACK_IMAGES[0];
 
-  const activeSrc = slides[index] || fallbackBackground;
+  const activeItem = slides[index] || {
+    ...FALLBACK_MEDIA[0],
+    mediaUrl: fallbackBackground,
+  };
+
+  const registerVideo = (id: string, element: HTMLVideoElement | null) => {
+    if (element) videoRefs.current.set(id, element);
+    else videoRefs.current.delete(id);
+  };
 
   const goTo = (next: number) => {
     if (slides.length <= 1) return;
     if (next === index) return;
+    videoRefs.current.get(activeItem.id)?.pause();
     setIndex(next);
   };
 
   const goPrev = () => {
     if (slides.length <= 1) return;
+    videoRefs.current.get(activeItem.id)?.pause();
     setIndex((prev) => (prev - 1 + slides.length) % slides.length);
   };
 
   const goNext = () => {
     if (slides.length <= 1) return;
+    videoRefs.current.get(activeItem.id)?.pause();
     setIndex((prev) => (prev + 1) % slides.length);
   };
 
@@ -160,14 +201,8 @@ export function Hero() {
       {/* Background carousel (immersion, cross-fade discret) */}
       <div className="absolute inset-0 z-0">
         <AnimatePresence initial={false}>
-          <motion.img
-            key={activeSrc}
-            src={activeSrc}
-            alt=""
-            aria-hidden="true"
-            role="presentation"
-            loading={index === 0 ? "eager" : "lazy"}
-            decoding="async"
+          <motion.div
+            key={activeItem.id}
             className="absolute inset-0 h-full w-full object-cover"
             initial={{
               opacity: prefersReducedMotion ? 1 : 0,
@@ -190,7 +225,15 @@ export function Hero() {
                 ease: "linear",
               },
             }}
-          />
+          >
+            <HeroSlideMedia
+              item={activeItem}
+              isFirst={index === 0}
+              prefersReducedMotion={prefersReducedMotion}
+              documentVisible={documentVisible}
+              registerVideo={registerVideo}
+            />
+          </motion.div>
         </AnimatePresence>
 
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-black/10" />
@@ -276,7 +319,7 @@ export function Hero() {
                       <button
                         type="button"
                         onClick={goPrev}
-                        aria-label={"Image pr\u00E9c\u00E9dente"}
+                        aria-label={"M\u00E9dia pr\u00E9c\u00E9dent"}
                         className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white/90 shadow-sm backdrop-blur transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
                       >
                         <ChevronLeft className="h-5 w-5" />

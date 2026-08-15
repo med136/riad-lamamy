@@ -1,155 +1,150 @@
-import { createClient } from '@supabase/supabase-js'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
+import { requireAdminSession, UnauthorizedAdminError } from "@/lib/auth/admin";
+import { isAllowedHeroStorageUrl } from "@/lib/hero-media";
+import { createAdminClient } from "@/lib/supabase/adminClient";
+import type { HeroMediaApiItem, HeroMediaType } from "@/types/hero-media";
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+type HeroMediaRow = {
+  id: string;
+  image_url: string | null;
+  media_type?: HeroMediaType | null;
+  media_url?: string | null;
+  poster_url?: string | null;
+  alt_text?: string | null;
+  display_order: number | null;
+  is_active?: boolean | null;
+};
 
-// GET - Récupérer toutes les images du carrousel
+const toApiItem = (row: HeroMediaRow): HeroMediaApiItem => ({
+  id: row.id,
+  media_type: row.media_type === "video" ? "video" : "image",
+  media_url: row.media_url || row.image_url || "",
+  poster_url: row.poster_url ?? null,
+  alt_text: row.alt_text ?? null,
+  position: row.display_order ?? 0,
+  is_active: row.is_active ?? true,
+});
+
+const errorResponse = (error: unknown) => {
+  const status = error instanceof UnauthorizedAdminError ? 401 : 500;
+  const message = error instanceof Error ? error.message : "Erreur interne.";
+  return NextResponse.json({ error: message }, { status });
+};
+
 export async function GET() {
   try {
-    // Récupérer d'abord les paramètres hero
+    await requireAdminSession();
+    const supabase = createAdminClient();
     const { data: heroSettings, error: heroError } = await supabase
-      .from('hero_settings')
-      .select('id')
+      .from("hero_settings")
+      .select("id")
       .limit(1)
-      .single()
-
+      .single();
     if (heroError || !heroSettings) {
-      return NextResponse.json(
-        { error: 'Hero settings not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Hero settings not found" }, { status: 404 });
     }
 
-    // Récupérer les images du carrousel triées par order
-    const { data: images, error } = await supabase
-      .from('hero_carousel_images')
-      .select('*')
-      .eq('hero_settings_id', heroSettings.id)
-      .order('display_order', { ascending: true })
-
+    const modernResult = await supabase
+      .from("hero_carousel_images")
+      .select("id, image_url, media_type, media_url, poster_url, alt_text, display_order, is_active")
+      .eq("hero_settings_id", heroSettings.id)
+      .order("display_order", { ascending: true });
+    let data = modernResult.data as HeroMediaRow[] | null;
+    let error = modernResult.error;
     if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      )
+      const legacyResult = await supabase
+        .from("hero_carousel_images")
+        .select("id, image_url, display_order")
+        .eq("hero_settings_id", heroSettings.id)
+        .order("display_order", { ascending: true });
+      data = legacyResult.data as HeroMediaRow[] | null;
+      error = legacyResult.error;
     }
-
-    return NextResponse.json(images || [])
-  } catch (err: any) {
-    console.error('Carousel GET error:', err)
-    return NextResponse.json(
-      { error: err.message || 'Internal server error' },
-      { status: 500 }
-    )
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(((data || []) as HeroMediaRow[]).map(toApiItem));
+  } catch (error) {
+    return errorResponse(error);
   }
 }
 
-// POST - Ajouter une image au carrousel
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const body = await req.json()
-    const { image_url } = body
-
-    if (!image_url) {
-      return NextResponse.json(
-        { error: 'Image URL is required' },
-        { status: 400 }
-      )
+    await requireAdminSession();
+    const body = (await request.json()) as {
+      media_type?: HeroMediaType;
+      media_url?: string;
+      poster_url?: string | null;
+      alt_text?: string | null;
+    };
+    if (!body.media_url || !isAllowedHeroStorageUrl(body.media_url)) {
+      return NextResponse.json({ error: "URL de média Hero non autorisée." }, { status: 400 });
+    }
+    if (body.media_type !== "image" && body.media_type !== "video") {
+      return NextResponse.json({ error: "Type de média invalide." }, { status: 400 });
+    }
+    if (body.poster_url && !isAllowedHeroStorageUrl(body.poster_url)) {
+      return NextResponse.json({ error: "URL de poster non autorisée." }, { status: 400 });
     }
 
-    // Récupérer d'abord les paramètres hero
+    const supabase = createAdminClient();
     const { data: heroSettings, error: heroError } = await supabase
-      .from('hero_settings')
-      .select('id')
+      .from("hero_settings")
+      .select("id")
       .limit(1)
-      .single()
-
+      .single();
     if (heroError || !heroSettings) {
-      return NextResponse.json(
-        { error: 'Hero settings not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Hero settings not found" }, { status: 404 });
     }
 
-    // Compter les images existantes pour définir l'ordre
-    const { count, error: countError } = await supabase
-      .from('hero_carousel_images')
-      .select('*', { count: 'exact', head: true })
-      .eq('hero_settings_id', heroSettings.id)
+    const { data: last } = await supabase
+      .from("hero_carousel_images")
+      .select("display_order")
+      .eq("hero_settings_id", heroSettings.id)
+      .order("display_order", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const position = (last?.display_order ?? 0) + 1;
 
-    const nextOrder = (count || 0) + 1
-
-    // Ajouter la nouvelle image
     const { data, error } = await supabase
-      .from('hero_carousel_images')
-      .insert([{
+      .from("hero_carousel_images")
+      .insert({
         hero_settings_id: heroSettings.id,
-        image_url,
-        display_order: nextOrder
-      }])
-      .select()
-
-    if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      )
-    }
-
-    return NextResponse.json(data?.[0], { status: 201 })
-  } catch (err: any) {
-    console.error('Carousel POST error:', err)
-    return NextResponse.json(
-      { error: err.message || 'Internal server error' },
-      { status: 500 }
-    )
+        image_url: body.media_url,
+        media_type: body.media_type,
+        media_url: body.media_url,
+        poster_url: body.poster_url ?? null,
+        alt_text: body.alt_text?.trim().slice(0, 180) || null,
+        display_order: position,
+        is_active: true,
+      })
+      .select("id, image_url, media_type, media_url, poster_url, alt_text, display_order, is_active")
+      .single();
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(toApiItem(data as HeroMediaRow), { status: 201 });
+  } catch (error) {
+    return errorResponse(error);
   }
 }
 
-// PUT - Mettre à jour l'ordre des images
-export async function PUT(req: NextRequest) {
+export async function PUT(request: Request) {
   try {
-    const body = await req.json()
-    const { images } = body
-
-    if (!Array.isArray(images)) {
-      return NextResponse.json(
-        { error: 'Images array is required' },
-        { status: 400 }
-      )
+    await requireAdminSession();
+    const body = (await request.json()) as { items?: Array<{ id: string }> };
+    if (!Array.isArray(body.items)) {
+      return NextResponse.json({ error: "Liste de médias requise." }, { status: 400 });
     }
-
-    // Mettre à jour l'ordre de chaque image
-    const updates = images.map((image, index) => ({
-      id: image.id,
-      display_order: index + 1
-    }))
-
-    for (const update of updates) {
-      const { error } = await supabase
-        .from('hero_carousel_images')
-        .update({ display_order: update.display_order })
-        .eq('id', update.id)
-
-      if (error) {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 500 }
-        )
-      }
-    }
-
-    return NextResponse.json({ success: true })
-  } catch (err: any) {
-    console.error('Carousel PUT error:', err)
-    return NextResponse.json(
-      { error: err.message || 'Internal server error' },
-      { status: 500 }
-    )
+    const supabase = createAdminClient();
+    const results = await Promise.all(
+      body.items.map((item, index) =>
+        supabase.from("hero_carousel_images").update({ display_order: index + 1 }).eq("id", item.id),
+      ),
+    );
+    const failed = results.find((result) => result.error);
+    if (failed?.error) return NextResponse.json({ error: failed.error.message }, { status: 500 });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return errorResponse(error);
   }
 }

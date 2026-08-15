@@ -7,6 +7,7 @@ export { WhatsAppFloat } from './WhatsAppFloat';
 
 // Homepage components
 export { Hero } from './Hero';
+export { HeroSlideMedia } from './HeroSlideMedia';
 export { BookingWidget } from './BookingWidget';
 export { RoomPreview } from './RoomPreview';
 export { Services } from './Services';

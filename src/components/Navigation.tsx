@@ -151,7 +151,7 @@ export function Navigation() {
     return pathname?.startsWith(normalized || "") || false;
   };
 
-  const logoSrc = logoUrl || "/logo.svg";
+  const logoSrc = logoUrl || "/logo-transparent.png";
   const isDefaultLogo = logoSrc === "/logo.svg";
 
   const detectWideLogo = (image: HTMLImageElement) => {
@@ -190,17 +190,19 @@ export function Navigation() {
                     className="group inline-flex items-center gap-3 rounded-2xl px-1 py-1 transition-colors hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2"
                   >
                     <div
-                      className={`relative h-11 overflow-hidden transition-[width] ${
-                        hasWideLogo ? "w-36" : "w-11"
+                      className={`relative overflow-hidden transition-[width] ${
+                        hasWideLogo ? "h-14 w-48" : "h-11 w-11"
                       }`}
                     >
                       <Image
                         src={logoSrc}
                         alt=""
                         fill
-                        sizes={hasWideLogo ? "144px" : "44px"}
+                        sizes={hasWideLogo ? "192px" : "44px"}
                         onLoad={(event) => detectWideLogo(event.currentTarget)}
-                        className={`object-contain object-left p-2 ${
+                        className={`object-contain object-left ${
+                          hasWideLogo ? "" : "p-2"
+                        } ${
                           isDefaultLogo ? "brightness-0" : ""
                         }`}
                         priority
@@ -397,19 +399,21 @@ export function Navigation() {
                   onClick={() => setIsOpen(false)}
                 >
                   <div
-                    className={`relative h-10 overflow-hidden ${
+                    className={`relative overflow-hidden ${
                       hasWideLogo
-                        ? "w-32"
-                        : "w-10 rounded-2xl border border-amber-200/60 bg-white shadow-sm"
+                        ? "h-12 w-40"
+                        : "h-10 w-10 rounded-2xl border border-amber-200/60 bg-white shadow-sm"
                     }`}
                   >
                     <Image
                       src={logoSrc}
                       alt=""
                       fill
-                      sizes={hasWideLogo ? "128px" : "40px"}
+                      sizes={hasWideLogo ? "160px" : "40px"}
                       onLoad={(event) => detectWideLogo(event.currentTarget)}
-                      className={`object-contain object-left p-2 ${
+                      className={`object-contain object-left ${
+                        hasWideLogo ? "" : "p-2"
+                      } ${
                         isDefaultLogo ? "brightness-0" : ""
                       }`}
                     />

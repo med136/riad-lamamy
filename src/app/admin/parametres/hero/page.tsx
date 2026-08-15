@@ -1,8 +1,17 @@
 'use client'
+/* eslint-disable react/no-unescaped-entities, @next/next/no-img-element */
 
 import { useState, useEffect } from 'react'
-import { Upload, Save, Eye, RotateCcw, Trash2, GripVertical } from 'lucide-react'
+import { Upload, Save, Eye, RotateCcw, Trash2, GripVertical, ImageIcon, Video } from 'lucide-react'
 import toast from 'react-hot-toast'
+import {
+  HERO_IMAGE_MAX_BYTES,
+  HERO_IMAGE_MIME_TYPES,
+  HERO_MEDIA_ACCEPT,
+  HERO_VIDEO_MAX_BYTES,
+  HERO_VIDEO_MIME_TYPES,
+} from '@/lib/hero-media'
+import { toHeroMediaItem, type HeroMediaApiItem, type HeroMediaItem } from '@/types/hero-media'
 
 interface HeroSettings {
   id?: string
@@ -14,12 +23,6 @@ interface HeroSettings {
   cta_secondary_text: string
   cta_secondary_link: string
   display_mode?: 'carousel' | 'static'
-}
-
-interface CarouselImage {
-  id: string
-  image_url: string
-  display_order: number
 }
 
 const defaultSettings: HeroSettings = {
@@ -35,7 +38,7 @@ const defaultSettings: HeroSettings = {
 
 export default function HeroSettingsPage() {
   const [settings, setSettings] = useState<HeroSettings>(defaultSettings)
-  const [carouselImages, setCarouselImages] = useState<CarouselImage[]>([])
+  const [carouselImages, setCarouselImages] = useState<HeroMediaItem[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -69,14 +72,14 @@ export default function HeroSettingsPage() {
       const res = await fetch('/api/admin/hero/carousel')
       const data = await res.json()
       if (res.ok && Array.isArray(data)) {
-        setCarouselImages(data)
+        setCarouselImages((data as HeroMediaApiItem[]).map(toHeroMediaItem))
       }
     } catch (err) {
       console.error('Error fetching carousel:', err)
     }
   }
 
-  const handleInputChange = (field: keyof HeroSettings, value: any) => {
+  const handleInputChange = <K extends keyof HeroSettings>(field: K, value: HeroSettings[K]) => {
     setSettings({ ...settings, [field]: value })
     setHasChanges(true)
   }
@@ -87,11 +90,16 @@ export default function HeroSettingsPage() {
 
     setUploading(true)
     try {
-      const formData = new FormData()
-      formData.append('files', file)
-      formData.append('roomId', 'hero-' + Date.now())
+      const isImage = HERO_IMAGE_MIME_TYPES.includes(file.type as (typeof HERO_IMAGE_MIME_TYPES)[number])
+      const isVideo = HERO_VIDEO_MIME_TYPES.includes(file.type as (typeof HERO_VIDEO_MIME_TYPES)[number])
+      if (!isImage && (!isCarousel || !isVideo)) throw new Error('Format de fichier non autorise.')
+      if (isImage && file.size > HERO_IMAGE_MAX_BYTES) throw new Error("L'image depasse 10 Mo.")
+      if (isVideo && file.size > HERO_VIDEO_MAX_BYTES) throw new Error('La video depasse 50 Mo.')
 
-      const res = await fetch('/api/upload/room-images', {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const res = await fetch('/api/admin/hero/media', {
         method: 'POST',
         body: formData,
       })
@@ -99,13 +107,15 @@ export default function HeroSettingsPage() {
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Erreur upload')
 
-      if (json.urls && json.urls.length > 0) {
+      if (json.media_url) {
         if (isCarousel) {
-          // Ajouter au carrousel
           const carouselRes = await fetch('/api/admin/hero/carousel', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image_url: json.urls[0] })
+            body: JSON.stringify({
+              media_type: json.media_type,
+              media_url: json.media_url,
+            })
           })
 
           if (!carouselRes.ok) {
@@ -114,16 +124,16 @@ export default function HeroSettingsPage() {
           }
 
           await fetchCarouselImages()
-          toast.success('Image ajoutee au carrousel!')
+          toast.success(json.media_type === 'video' ? 'Video ajoutee au carrousel!' : 'Image ajoutee au carrousel!')
         } else {
-          // Ajouter comme image de fond
-          handleInputChange('background_image', json.urls[0])
+          if (json.media_type !== 'image') throw new Error("L'arriere-plan statique doit etre une image.")
+          handleInputChange('background_image', json.media_url)
           toast.success('Image telechargee avec succes!')
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Upload error:', err)
-      toast.error(err.message || 'Erreur lors du telechargement')
+      toast.error(err instanceof Error ? err.message : 'Erreur lors du telechargement')
     } finally {
       setUploading(false)
       if (e.target) e.target.value = ''
@@ -131,7 +141,7 @@ export default function HeroSettingsPage() {
   }
 
   const handleDeleteCarouselImage = async (id: string) => {
-    if (!confirm('Etes-vous sur de vouloir supprimer cette image?')) return
+    if (!confirm('Etes-vous sur de vouloir supprimer ce media?')) return
 
     try {
       const res = await fetch(`/api/admin/hero/carousel/${id}`, {
@@ -140,7 +150,7 @@ export default function HeroSettingsPage() {
 
       if (res.ok) {
         await fetchCarouselImages()
-        toast.success('Image supprimee')
+        toast.success('Media supprime')
       } else {
         toast.error('Erreur lors de la suppression')
       }
@@ -160,12 +170,45 @@ export default function HeroSettingsPage() {
       await fetch('/api/admin/hero/carousel', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ images: newImages })
+        body: JSON.stringify({ items: newImages.map(({ id }) => ({ id })) })
       })
       toast.success('Ordre mis a jour')
     } catch (err) {
       console.error('Reorder error:', err)
       toast.error('Erreur lors de la mise a jour')
+    }
+  }
+
+  const updateCarouselItem = async (
+    id: string,
+    patch: Partial<Pick<HeroMediaApiItem, 'poster_url' | 'alt_text' | 'is_active'>>,
+  ) => {
+    const res = await fetch(`/api/admin/hero/carousel/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(data.error || 'Mise a jour impossible.')
+    await fetchCarouselImages()
+  }
+
+  const handlePosterUpload = async (id: string, file?: File) => {
+    if (!file) return
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('kind', 'poster')
+      const res = await fetch('/api/admin/hero/media', { method: 'POST', body: formData })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Upload du poster impossible.')
+      await updateCarouselItem(id, { poster_url: data.media_url })
+      toast.success('Poster video mis a jour.')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Upload du poster impossible.')
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -190,9 +233,9 @@ export default function HeroSettingsPage() {
 
       toast.success('Parametres sauvegardes avec succes!')
       setHasChanges(false)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Save error:', err)
-      toast.error(err.message || 'Erreur lors de la sauvegarde')
+      toast.error(err instanceof Error ? err.message : 'Erreur lors de la sauvegarde')
     } finally {
       setSaving(false)
     }
@@ -355,7 +398,7 @@ export default function HeroSettingsPage() {
                     <span>{uploading ? 'Telechargement...' : 'Choisir une image'}</span>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept={HERO_IMAGE_MIME_TYPES.join(',')}
                       onChange={(e) => handleImageUpload(e, false)}
                       disabled={uploading}
                       className="hidden"
@@ -384,26 +427,26 @@ export default function HeroSettingsPage() {
                 <hr className="my-8" />
 
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Images du carrousel</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Medias du carrousel</h2>
                   <p className="text-gray-600 mb-4 text-sm">
-                    Ajoutez et organisez les images qui defileront automatiquement. Vous pouvez les reorganiser par glisser-deposer.
+                    Ajoutez des images ou des videos et organisez-les par glisser-deposer.
                   </p>
 
                   <div className="space-y-4">
                     <div className="flex flex-wrap items-center gap-4">
                       <label className="flex items-center gap-2 rounded-full border border-amber-200/60 bg-amber-50 px-4 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-100 transition-colors cursor-pointer">
                         <Upload size={16} className="text-amber-600" />
-                        <span>{uploading ? 'Telechargement...' : 'Ajouter une image'}</span>
+                        <span>{uploading ? 'Telechargement...' : 'Ajouter un media'}</span>
                         <input
                           type="file"
-                          accept="image/*"
+                          accept={HERO_MEDIA_ACCEPT}
                           onChange={(e) => handleImageUpload(e, true)}
                           disabled={uploading}
                           className="hidden"
                         />
                       </label>
                       <span className="text-xs text-gray-600">
-                        {carouselImages.length} image{carouselImages.length !== 1 ? 's' : ''}
+                        {carouselImages.length} media{carouselImages.length !== 1 ? 's' : ''}
                       </span>
                     </div>
 
@@ -421,42 +464,108 @@ export default function HeroSettingsPage() {
                                 handleReorderCarousel(sourceIdx, idx)
                               }
                             }}
-                            className={`relative group rounded-2xl overflow-hidden border transition-all ${
+                            className={`group overflow-hidden rounded-2xl border bg-white transition-all ${
                               draggedId === img.id ? 'border-amber-300 opacity-60' : 'border-gray-200'
                             }`}
                           >
-                            <div className="relative w-full h-40 bg-gray-100">
-                              <img
-                                src={img.image_url}
-                                alt={`Carousel ${idx + 1}`}
-                                className="h-full w-full object-cover"
-                                loading="lazy"
-                              />
-                            </div>
-
-                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-between p-3">
-                              <div className="flex items-center text-white text-sm">
-                                <GripVertical size={18} className="mr-2" />
-                                <span>Reorganiser</span>
+                            <div className="relative h-48 w-full bg-gray-950">
+                              {img.mediaType === 'video' ? (
+                                <video
+                                  src={img.mediaUrl}
+                                  poster={img.posterUrl || undefined}
+                                  className="h-full w-full object-cover"
+                                  muted
+                                  playsInline
+                                  controls
+                                  preload="metadata"
+                                />
+                              ) : (
+                                <img
+                                  src={img.mediaUrl}
+                                  alt={img.altText || `Carousel ${idx + 1}`}
+                                  className="h-full w-full object-cover"
+                                  loading="lazy"
+                                />
+                              )}
+                              <div className="absolute left-2 top-2 flex items-center gap-2">
+                                <span className="rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-white">
+                                  {idx + 1}
+                                </span>
+                                <span className="inline-flex items-center gap-1 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+                                  {img.mediaType === 'video' ? <Video size={13} /> : <ImageIcon size={13} />}
+                                  {img.mediaType === 'video' ? 'VIDEO' : 'IMAGE'}
+                                </span>
+                                {!img.isActive && (
+                                  <span className="rounded-full bg-gray-700 px-3 py-1 text-xs font-semibold text-white">
+                                    INACTIF
+                                  </span>
+                                )}
                               </div>
-                              <button
-                                onClick={() => handleDeleteCarouselImage(img.id)}
-                                className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-xl transition-colors"
-                              >
-                                <Trash2 size={18} />
-                              </button>
+                              <div className="absolute right-2 top-2 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+                                <span className="cursor-grab rounded-xl bg-black/60 p-2 text-white backdrop-blur" title="Reorganiser">
+                                  <GripVertical size={18} />
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteCarouselImage(img.id)}
+                                  className="rounded-xl bg-red-600 p-2 text-white transition-colors hover:bg-red-700"
+                                  aria-label="Supprimer le media"
+                                >
+                                  <Trash2 size={18} />
+                                </button>
+                              </div>
                             </div>
-
-                            <div className="absolute top-2 left-2 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                              {idx + 1}
+                            <div className="space-y-3 p-4">
+                              <label className="block text-xs font-semibold text-gray-700">
+                                Texte alternatif
+                                <input
+                                  type="text"
+                                  defaultValue={img.altText || ''}
+                                  maxLength={180}
+                                  onBlur={(event) =>
+                                    updateCarouselItem(img.id, { alt_text: event.currentTarget.value }).catch((error) =>
+                                      toast.error(error instanceof Error ? error.message : 'Mise a jour impossible.'),
+                                    )
+                                  }
+                                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm font-normal"
+                                  placeholder={img.mediaType === 'image' ? 'Description de la photo' : 'Description du poster'}
+                                />
+                              </label>
+                              <div className="flex flex-wrap items-center justify-between gap-3">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    updateCarouselItem(img.id, { is_active: !img.isActive })
+                                      .then(() => toast.success(img.isActive ? 'Media desactive.' : 'Media active.'))
+                                      .catch((error) => toast.error(error instanceof Error ? error.message : 'Mise a jour impossible.'))
+                                  }
+                                  className={`rounded-full px-3 py-2 text-xs font-semibold ${
+                                    img.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'
+                                  }`}
+                                >
+                                  {img.isActive ? 'Actif' : 'Inactif'}
+                                </button>
+                                {img.mediaType === 'video' && (
+                                  <label className="cursor-pointer rounded-full border border-amber-200 px-3 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-50">
+                                    {img.posterUrl ? 'Remplacer le poster' : 'Ajouter un poster'}
+                                    <input
+                                      type="file"
+                                      accept={HERO_IMAGE_MIME_TYPES.join(',')}
+                                      className="hidden"
+                                      disabled={uploading}
+                                      onChange={(event) => handlePosterUpload(img.id, event.target.files?.[0])}
+                                    />
+                                  </label>
+                                )}
+                              </div>
                             </div>
                           </div>
                         ))}
                       </div>
                     ) : (
                       <div className="text-center py-8 bg-white rounded-2xl border border-dashed border-gray-200">
-                        <p className="text-gray-600 mb-2">Aucune image pour le carrousel</p>
-                        <p className="text-sm text-gray-500">Cliquez sur "Ajouter une image" pour commencer</p>
+                        <p className="text-gray-600 mb-2">Aucun media pour le carrousel</p>
+                        <p className="text-sm text-gray-500">Cliquez sur "Ajouter un media" pour commencer</p>
                       </div>
                     )}
                   </div>
@@ -544,7 +653,9 @@ export default function HeroSettingsPage() {
             <li>- Titre: Maximum 100 caracteres</li>
             <li>- Sous-titre: Maximum 500 caracteres</li>
             <li>- Images recommandees: 1920x1080px ou plus</li>
-            <li>- Formats supportes: JPG, PNG, WebP</li>
+            <li>- Images: JPG, PNG, WebP ou AVIF, maximum 10 Mo</li>
+            <li>- Videos: MP4 ou WebM, maximum 50 Mo</li>
+            <li>- Pour de meilleures performances, utilisez une video courte, sans son, idealement inferieure a 15-20 Mo.</li>
             <li>- URLs des boutons: Utilisez des chemins relatifs (/reservations, /chambres...)</li>
           </ul>
         </div>
