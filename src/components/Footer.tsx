@@ -134,6 +134,7 @@ export function Footer() {
   }, []);
 
   const logoSrc = logoUrl || "/logo.svg";
+  const hasCustomLogo = Boolean(logoUrl);
   const socialLinks = useMemo(
     () =>
       [
@@ -150,30 +151,32 @@ export function Footer() {
       <div className="pointer-events-none absolute bottom-0 right-0 h-72 w-72 bg-[radial-gradient(circle,rgba(198,161,91,0.06),transparent_68%)]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#d8b66d]/70 to-transparent" />
 
-      <div className="relative container mx-auto px-5 py-16 sm:px-6 lg:py-20">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-12 lg:gap-x-10">
-          <div className="space-y-7 lg:col-span-5 lg:pr-10">
-            <Link href="/" className="group inline-flex max-w-full flex-col items-start gap-4">
-              <div className="relative h-24 w-48 overflow-hidden rounded-2xl border border-white/10 bg-white p-3 shadow-[0_18px_55px_rgba(0,0,0,0.28)] transition-transform duration-300 group-hover:-translate-y-1 sm:h-28 sm:w-56">
+      <div className="relative container mx-auto px-5 py-10 sm:px-6 lg:py-12">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-12 lg:gap-x-8">
+          <div className="space-y-5 lg:col-span-5 lg:pr-6">
+            <Link href="/" className="group inline-flex max-w-full flex-col items-start gap-3">
+              <div className="relative h-20 w-44 overflow-hidden rounded-xl border border-white/10 bg-white p-2 shadow-[0_14px_40px_rgba(0,0,0,0.24)] transition-transform duration-300 group-hover:-translate-y-1 sm:h-24 sm:w-52">
                 <Image
                   src={logoSrc}
                   alt={brandName}
                   fill
-                  sizes="(max-width: 640px) 192px, 224px"
-                  className="object-contain p-3"
+                  sizes="(max-width: 640px) 176px, 208px"
+                  className="object-contain p-2"
                 />
               </div>
-              <div className="leading-tight">
-                <p className="font-serif text-2xl font-semibold tracking-tight text-white">
-                  {brandName}
-                </p>
-                <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.34em] text-[#d8b66d]">
-                  Marrakech
-                </p>
-              </div>
+              {!hasCustomLogo && (
+                <div className="leading-tight">
+                  <p className="font-serif text-xl font-semibold tracking-tight text-white">
+                    {brandName}
+                  </p>
+                  <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.34em] text-[#d8b66d]">
+                    Marrakech
+                  </p>
+                </div>
+              )}
             </Link>
 
-            <p className="max-w-md text-sm leading-7 text-stone-400">
+            <p className="max-w-md text-sm leading-6 text-stone-400">
               {brandTagline ?? t("footer.default_tagline")}
             </p>
 
@@ -196,10 +199,10 @@ export function Footer() {
           </div>
 
           <div className="lg:col-span-2">
-            <p className="mb-6 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#d8b66d]">
+            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#d8b66d]">
               {t("footer.navigation")}
             </p>
-            <ul className="space-y-3.5 text-sm">
+            <ul className="space-y-2.5 text-sm">
               {quickLinks.map((link) => (
                 <li key={link.href}>
                   <Link
@@ -215,11 +218,11 @@ export function Footer() {
           </div>
 
           <div className="lg:col-span-3">
-            <p className="mb-6 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#d8b66d]">
+            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#d8b66d]">
               {t("footer.contact")}
             </p>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-start gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] p-3.5">
+            <ul className="space-y-2 text-sm">
+              <li className="flex items-start gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] p-3">
                 <MapPin size={17} className="mt-0.5 flex-shrink-0 text-[#d8b66d]" />
                 <span className="leading-6 text-stone-400">
                   {addressLines.map((line, idx) => (
@@ -232,7 +235,7 @@ export function Footer() {
               <li>
                 <a
                   href={`tel:${contactPhone.replace(/\s+/g, "")}`}
-                  className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] p-3.5 text-stone-400 transition-colors hover:border-[#d8b66d]/30 hover:text-white"
+                  className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] p-3 text-stone-400 transition-colors hover:border-[#d8b66d]/30 hover:text-white"
                 >
                   <Phone size={17} className="flex-shrink-0 text-[#d8b66d]" />
                   {contactPhone}
@@ -241,7 +244,7 @@ export function Footer() {
               <li>
                 <a
                   href={`mailto:${contactEmail}`}
-                  className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] p-3.5 text-stone-400 transition-colors hover:border-[#d8b66d]/30 hover:text-white"
+                  className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] p-3 text-stone-400 transition-colors hover:border-[#d8b66d]/30 hover:text-white"
                 >
                   <Mail size={17} className="flex-shrink-0 text-[#d8b66d]" />
                   {contactEmail}
@@ -251,10 +254,10 @@ export function Footer() {
           </div>
 
           <div className="lg:col-span-2">
-            <p className="mb-6 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#d8b66d]">
+            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#d8b66d]">
               {t("footer.information")}
             </p>
-            <ul className="space-y-3 text-sm">
+            <ul className="space-y-2.5 text-sm">
               {legalLinks.map((link) => (
                 <li key={link.href}>
                   <Link
@@ -279,7 +282,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="relative border-t border-white/[0.07] bg-black/10 py-6">
+      <div className="relative border-t border-white/[0.07] bg-black/10 py-4">
         <div className="container mx-auto px-5 sm:px-6">
           <div className="flex flex-col items-center justify-between gap-4 text-center text-xs text-stone-500 sm:text-sm md:flex-row md:text-left">
             <div>
