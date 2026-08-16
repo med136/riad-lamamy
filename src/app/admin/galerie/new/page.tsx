@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Upload, Image as ImageIcon } from 'lucide-react'
-import { createClient, uploadFile } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/client'
+import UploadProgress from '@/components/admin/UploadProgress'
+import { uploadFormDataWithProgress } from '@/lib/upload-with-progress'
 
 const CATEGORIES = [
   'chambres',
@@ -25,6 +27,7 @@ export default function GalleryNewPage() {
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [error, setError] = useState<string | null>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,9 +50,18 @@ export default function GalleryNewPage() {
     }
 
     setLoading(true)
+    setUploadProgress(0)
     try {
-      const path = `gallery/${Date.now()}_${file.name}`
-      const publicUrl = await uploadFile(file, 'gallery', path)
+      const formData = new FormData()
+      formData.append('files', file)
+      formData.append('roomId', `gallery-${Date.now()}`)
+      const upload = await uploadFormDataWithProgress<{ urls: string[] }>(
+        '/api/upload/room-images',
+        formData,
+        setUploadProgress,
+      )
+      const publicUrl = upload.urls?.[0]
+      if (!publicUrl) throw new Error("L'URL de l'image est manquante.")
 
       const supabase = createClient()
       const { error: dbError } = await supabase.from('gallery').insert([
@@ -72,6 +84,7 @@ export default function GalleryNewPage() {
       setError(err.message || 'Erreur lors de l\'upload')
     } finally {
       setLoading(false)
+      setUploadProgress(0)
     }
   }
 
@@ -134,6 +147,7 @@ export default function GalleryNewPage() {
         </div>
 
         {error && <div className="text-red-600">{error}</div>}
+        {loading && <UploadProgress value={uploadProgress} label="Upload de la photo" />}
 
         <div className="flex items-center justify-end gap-3">
           <button type="button" onClick={() => router.back()} className="px-4 py-2 border rounded-lg">Annuler</button>

@@ -170,16 +170,11 @@ export function Footer() {
                     {brandName}
                   </p>
                   <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.34em] text-[#d8b66d]">
-                    Marrakech
+                    Fes
                   </p>
                 </div>
               )}
             </Link>
-
-            <p className="max-w-md text-sm leading-6 text-stone-400">
-              {brandTagline ?? t("footer.default_tagline")}
-            </p>
-
             {socialLinks.length > 0 && (
               <div className="flex items-center gap-3">
                 {socialLinks.map(({ href, label, Icon }) => (

@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Info, Save, UploadCloud } from 'lucide-react'
 import toast from 'react-hot-toast'
+import UploadProgress from '@/components/admin/UploadProgress'
+import { uploadFormDataWithProgress } from '@/lib/upload-with-progress'
 
 type SettingValue = string | number | boolean | null
 
@@ -444,6 +446,7 @@ const LOGO_ACCEPT = 'image/jpeg,image/png,image/svg+xml,image/webp'
 
 function UploadField({ title, description, endpoint, value, onChange }: UploadFieldProps) {
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [error, setError] = useState<string | null>(null)
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -459,36 +462,18 @@ function UploadField({ title, description, endpoint, value, onChange }: UploadFi
     }
 
     setUploading(true)
+    setUploadProgress(0)
     setError(null)
 
     try {
       const formData = new FormData()
       formData.append('file', file)
 
-      const res = await fetch(endpoint, { method: 'POST', body: formData })
-      const responseText = await res.text()
-      let data: { error?: string; publicUrl?: string; url?: string } = {}
-
-      if (responseText) {
-        try {
-          data = JSON.parse(responseText) as typeof data
-        } catch {
-          if (!res.ok) {
-            const isTooLarge = res.status === 413 || /request entity too large/i.test(responseText)
-            throw new Error(
-              isTooLarge
-                ? 'Fichier trop volumineux. La taille maximale est de 4 Mo.'
-                : `Erreur upload (${res.status})`
-            )
-          }
-
-          throw new Error('Réponse inattendue du serveur')
-        }
-      }
-
-      if (!res.ok) {
-        throw new Error(data?.error || 'Erreur upload')
-      }
+      const data = await uploadFormDataWithProgress<{ publicUrl?: string; url?: string }>(
+        endpoint,
+        formData,
+        setUploadProgress,
+      )
 
       const nextUrl = data?.publicUrl || data?.url
       if (!nextUrl) {
@@ -503,6 +488,7 @@ function UploadField({ title, description, endpoint, value, onChange }: UploadFi
       toast.error(message)
     } finally {
       setUploading(false)
+      setUploadProgress(0)
       event.target.value = ''
     }
   }
@@ -533,6 +519,7 @@ function UploadField({ title, description, endpoint, value, onChange }: UploadFi
         />
       </div>
       <p className="text-[11px] text-gray-500">PNG, JPG, WebP ou SVG — 4 Mo maximum.</p>
+      {uploading && <UploadProgress value={uploadProgress} label={`Upload du ${title.toLowerCase()}`} />}
       {value ? (
         <div className="relative h-20 w-full overflow-hidden rounded-lg border border-gray-200 bg-white">
           <img src={value} alt={title} className="h-full w-full object-contain" loading="lazy" />

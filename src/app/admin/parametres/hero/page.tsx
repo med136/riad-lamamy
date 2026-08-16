@@ -12,6 +12,8 @@ import {
   HERO_VIDEO_MIME_TYPES,
 } from '@/lib/hero-media'
 import { toHeroMediaItem, type HeroMediaApiItem, type HeroMediaItem } from '@/types/hero-media'
+import UploadProgress from '@/components/admin/UploadProgress'
+import { uploadFormDataWithProgress } from '@/lib/upload-with-progress'
 
 interface HeroSettings {
   id?: string
@@ -42,6 +44,7 @@ export default function HeroSettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [hasChanges, setHasChanges] = useState(false)
   const [draggedId, setDraggedId] = useState<string | null>(null)
 
@@ -89,6 +92,7 @@ export default function HeroSettingsPage() {
     if (!file) return
 
     setUploading(true)
+    setUploadProgress(0)
     try {
       const isImage = HERO_IMAGE_MIME_TYPES.includes(file.type as (typeof HERO_IMAGE_MIME_TYPES)[number])
       const isVideo = HERO_VIDEO_MIME_TYPES.includes(file.type as (typeof HERO_VIDEO_MIME_TYPES)[number])
@@ -99,13 +103,10 @@ export default function HeroSettingsPage() {
       const formData = new FormData()
       formData.append('file', file)
 
-      const res = await fetch('/api/admin/hero/media', {
-        method: 'POST',
-        body: formData,
-      })
-
-      const json = await res.json()
-      if (!res.ok) throw new Error(json.error || 'Erreur upload')
+      const json = await uploadFormDataWithProgress<{
+        media_url?: string
+        media_type?: 'image' | 'video'
+      }>('/api/admin/hero/media', formData, setUploadProgress)
 
       if (json.media_url) {
         if (isCarousel) {
@@ -136,6 +137,7 @@ export default function HeroSettingsPage() {
       toast.error(err instanceof Error ? err.message : 'Erreur lors du telechargement')
     } finally {
       setUploading(false)
+      setUploadProgress(0)
       if (e.target) e.target.value = ''
     }
   }
@@ -196,19 +198,24 @@ export default function HeroSettingsPage() {
   const handlePosterUpload = async (id: string, file?: File) => {
     if (!file) return
     setUploading(true)
+    setUploadProgress(0)
     try {
       const formData = new FormData()
       formData.append('file', file)
       formData.append('kind', 'poster')
-      const res = await fetch('/api/admin/hero/media', { method: 'POST', body: formData })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Upload du poster impossible.')
+      const data = await uploadFormDataWithProgress<{ media_url?: string }>(
+        '/api/admin/hero/media',
+        formData,
+        setUploadProgress,
+      )
+      if (!data.media_url) throw new Error("L'URL du poster est manquante.")
       await updateCarouselItem(id, { poster_url: data.media_url })
       toast.success('Poster video mis a jour.')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Upload du poster impossible.')
     } finally {
       setUploading(false)
+      setUploadProgress(0)
     }
   }
 
@@ -304,6 +311,10 @@ export default function HeroSettingsPage() {
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-800">
             Vous avez des modifications non sauvegardees
           </div>
+        )}
+
+        {uploading && (
+          <UploadProgress value={uploadProgress} label="Upload du média hero" />
         )}
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -408,7 +419,6 @@ export default function HeroSettingsPage() {
                     <span className="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-3 py-1">Image configuree</span>
                   ) : null}
                 </div>
-
                 {settings.background_image ? (
                   <div className="relative w-full h-64 bg-gray-100 rounded-2xl overflow-hidden border border-gray-200">
                     <img
@@ -449,7 +459,6 @@ export default function HeroSettingsPage() {
                         {carouselImages.length} media{carouselImages.length !== 1 ? 's' : ''}
                       </span>
                     </div>
-
                     {carouselImages.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {carouselImages.map((img, idx) => (

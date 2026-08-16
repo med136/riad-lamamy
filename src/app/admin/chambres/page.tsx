@@ -6,6 +6,8 @@ import Modal from '@/components/admin/crud/Modal'
 import DeleteConfirmation from '@/components/admin/crud/DeleteConfirmation'
 import Image from 'next/image'
 import toast from 'react-hot-toast'
+import UploadProgress from '@/components/admin/UploadProgress'
+import { uploadFormDataWithProgress } from '@/lib/upload-with-progress'
 
 // Types
 interface Room {
@@ -144,12 +146,14 @@ export default function ChambresPage() {
 
   // Gestion du téléchargement d'images
   const [uploadingImages, setUploadingImages] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files || files.length === 0) return
 
     setUploadingImages(true)
+    setUploadProgress(0)
     try {
       const formData = new FormData()
       Array.from(files).forEach(file => {
@@ -157,13 +161,11 @@ export default function ChambresPage() {
       })
       formData.append('roomId', selectedRoom?.id || 'new-' + Date.now())
 
-      const res = await fetch('/api/upload/room-images', {
-        method: 'POST',
-        body: formData,
-      })
-
-      const json = await res.json()
-      if (!res.ok) throw new Error(json.error || 'Erreur upload')
+      const json = await uploadFormDataWithProgress<{ urls: string[] }>(
+        '/api/upload/room-images',
+        formData,
+        setUploadProgress,
+      )
 
       const newImages = [...roomForm.images, ...json.urls]
       setRoomForm({ ...roomForm, images: newImages })
@@ -173,6 +175,7 @@ export default function ChambresPage() {
       toast.error(err.message || 'Erreur lors du téléchargement')
     } finally {
       setUploadingImages(false)
+      setUploadProgress(0)
       // Reset input
       if (e.target) e.target.value = ''
     }
@@ -565,6 +568,9 @@ export default function ChambresPage() {
                   />
                 </label>
               </div>
+              {uploadingImages && (
+                <UploadProgress value={uploadProgress} label="Upload des images de la chambre" className="mt-3" />
+              )}
 
               {/* Affichage des images téléchargées */}
               {roomForm.images.length > 0 && (
@@ -722,6 +728,9 @@ export default function ChambresPage() {
                   />
                 </label>
               </div>
+              {uploadingImages && (
+                <UploadProgress value={uploadProgress} label="Upload des images de la chambre" className="mt-3" />
+              )}
 
               {/* Affichage des images téléchargées */}
               {roomForm.images.length > 0 && (

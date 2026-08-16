@@ -6,6 +6,8 @@ import { Upload, Search, Grid, List, ImageIcon, Trash2, Star, Plus } from 'lucid
 import Modal from '@/components/admin/crud/Modal'
 import DeleteConfirmation from '@/components/admin/crud/DeleteConfirmation'
 import toast from 'react-hot-toast'
+import UploadProgress from '@/components/admin/UploadProgress'
+import { uploadFormDataWithProgress } from '@/lib/upload-with-progress'
 
 interface GalleryItem {
   id: string
@@ -42,6 +44,7 @@ export default function GaleriePage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<string | null>(null)
   const [uploadingImages, setUploadingImages] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [rooms, setRooms] = useState<Room[]>([])
   const [services, setServices] = useState<Service[]>([])
 
@@ -203,6 +206,7 @@ export default function GaleriePage() {
     if (!files || files.length === 0) return
 
     setUploadingImages(true)
+    setUploadProgress(0)
     try {
       const formData = new FormData()
       Array.from(files).forEach(file => {
@@ -210,13 +214,11 @@ export default function GaleriePage() {
       })
       formData.append('roomId', 'gallery-' + Date.now())
 
-      const res = await fetch('/api/upload/room-images', {
-        method: 'POST',
-        body: formData,
-      })
-
-      const json = await res.json()
-      if (!res.ok) throw new Error(json.error || 'Erreur upload')
+      const json = await uploadFormDataWithProgress<{ urls: string[] }>(
+        '/api/upload/room-images',
+        formData,
+        setUploadProgress,
+      )
 
       // Pré-remplir le formulaire avec la première image
       if (json.urls && json.urls.length > 0) {
@@ -231,6 +233,7 @@ export default function GaleriePage() {
       toast.error(err.message || 'Erreur lors du téléchargement')
     } finally {
       setUploadingImages(false)
+      setUploadProgress(0)
       if (e.target) e.target.value = ''
     }
   }
@@ -599,6 +602,9 @@ export default function GaleriePage() {
                   />
                 </label>
               </div>
+              {uploadingImages && (
+                <UploadProgress value={uploadProgress} label="Upload de l’image de galerie" className="mt-3" />
+              )}
               {itemForm.url && (
                 <p className="text-sm text-green-600 mt-2">✓ Image sélectionnée</p>
               )}
