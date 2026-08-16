@@ -249,9 +249,7 @@ export function Hero() {
               <div className="w-full max-w-xl lg:w-[44%]">
                 {/* Contenu (sans fond de cadre) */}
                 <div className="space-y-7 text-center sm:text-left">
-                  <div className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/10 px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/90 shadow-sm backdrop-blur-sm sm:justify-start">
-                    {"\u2605\u2605\u2605\u2605\u2605 Excellence reconnue"}
-                  </div>
+                  
 
                   <div className="space-y-4">
                     <h1 className="font-serif text-5xl font-semibold leading-[1.02] tracking-tight text-white drop-shadow-[0_14px_28px_rgba(0,0,0,0.55)] sm:text-6xl lg:text-7xl">
