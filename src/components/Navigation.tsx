@@ -110,7 +110,7 @@ export function Navigation() {
         labelKey: "nav.rooms",
         submenu: menuRooms.length
           ? menuRooms.map((room) => ({
-              href: `/chambres/${encodeURIComponent(room.id)}`,
+              href: `/chambres?room=${encodeURIComponent(room.id)}#nos-chambres`,
               label: room.name,
             }))
           : undefined,
