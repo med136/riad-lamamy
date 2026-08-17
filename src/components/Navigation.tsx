@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -11,25 +11,10 @@ import type { Language, MessageKey } from "@/lib/i18n";
 type NavItem = {
   href: string;
   labelKey: MessageKey;
-  submenu?: { href: string; labelKey: MessageKey }[];
+  submenu?: { href: string; label: string }[];
 };
 
-const navItems: NavItem[] = [
-  { href: "/", labelKey: "nav.home" },
-  {
-    href: "/chambres",
-    labelKey: "nav.rooms",
-    submenu: [
-      { href: "/chambres#standard", labelKey: "nav.room_standard" },
-      { href: "/chambres#deluxe", labelKey: "nav.room_deluxe" },
-      { href: "/chambres#suite", labelKey: "nav.room_royal_suite" },
-    ],
-  },
-  { href: "/services", labelKey: "nav.services" },
-  { href: "/galerie", labelKey: "nav.gallery" },
-  { href: "/a-propos", labelKey: "nav.about" },
-  { href: "/contact", labelKey: "nav.contact" },
-];
+type MenuRoom = { id: string; name: string };
 
 const languages: { code: Language; label: string }[] = [
   { code: "fr", label: "FR" },
@@ -48,6 +33,7 @@ export function Navigation() {
   const [brandName, setBrandName] = useState<string>("Riad Lamamy");
   const [brandTagline, setBrandTagline] = useState<string>("");
   const [hasWideLogo, setHasWideLogo] = useState(false);
+  const [menuRooms, setMenuRooms] = useState<MenuRoom[]>([]);
 
   const languageRef = useRef<HTMLDivElement | null>(null);
 
@@ -102,10 +88,40 @@ export function Navigation() {
   }, []);
 
   useEffect(() => {
-    setIsOpen(false);
-    setLanguageOpen(false);
-    setActiveSubmenu(null);
-  }, [pathname]);
+    const fetchMenuRooms = async () => {
+      try {
+        const response = await fetch("/api/rooms/menu", { cache: "no-store" });
+        if (!response.ok) return;
+        const payload = (await response.json()) as { rooms?: MenuRoom[] };
+        setMenuRooms(Array.isArray(payload.rooms) ? payload.rooms : []);
+      } catch {
+        setMenuRooms([]);
+      }
+    };
+
+    fetchMenuRooms();
+  }, []);
+
+  const navItems = useMemo<NavItem[]>(
+    () => [
+      { href: "/", labelKey: "nav.home" },
+      {
+        href: "/chambres",
+        labelKey: "nav.rooms",
+        submenu: menuRooms.length
+          ? menuRooms.map((room) => ({
+              href: `/chambres/${encodeURIComponent(room.id)}`,
+              label: room.name,
+            }))
+          : undefined,
+      },
+      { href: "/services", labelKey: "nav.services" },
+      { href: "/galerie", labelKey: "nav.gallery" },
+      { href: "/a-propos", labelKey: "nav.about" },
+      { href: "/contact", labelKey: "nav.contact" },
+    ],
+    [menuRooms],
+  );
 
   useEffect(() => {
     if (!isOpen) return;
@@ -289,9 +305,10 @@ export function Navigation() {
                                   <Link
                                     key={subItem.href}
                                     href={subItem.href}
+                                    onClick={() => setActiveSubmenu(null)}
                                     className="flex items-center justify-between rounded-xl px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-amber-50/70 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2"
                                   >
-                                    <span>{t(subItem.labelKey)}</span>
+                                    <span>{subItem.label}</span>
                                     <span className="text-amber-700/60" aria-hidden="true">
                                       ↗
                                     </span>
@@ -482,7 +499,7 @@ export function Navigation() {
                               className="block rounded-xl px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-amber-50/70 hover:text-amber-900"
                               onClick={() => setIsOpen(false)}
                             >
-                              {t(subItem.labelKey)}
+                              {subItem.label}
                             </Link>
                           ))}
                         </div>

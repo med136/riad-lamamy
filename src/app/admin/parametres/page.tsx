@@ -36,6 +36,7 @@ type SettingsState = {
   logoText: string
   logoPreviewUrl: string
   adminLogoUrl: string
+  footerLogoUrl: string
   contactEmail: string
   supportEmail: string
   contactPhone: string
@@ -121,6 +122,7 @@ const defaultSettings: SettingsState = {
   logoText: 'Riad Lamamy',
   logoPreviewUrl: '',
   adminLogoUrl: '',
+  footerLogoUrl: '',
   contactEmail: 'contact@riadlamamy.com',
   supportEmail: 'support@riadlamamy.com',
   contactPhone: '+212 5 24 00 00 00',
@@ -207,6 +209,7 @@ function buildSettingMap(settings: SettingsState): SettingRow[] {
     { key: 'logo_text', value: settings.logoText },
     { key: 'logo_preview_url', value: settings.logoPreviewUrl },
     { key: 'admin_logo_url', value: settings.adminLogoUrl },
+    { key: 'footer_logo_url', value: settings.footerLogoUrl },
     { key: 'contact_email', value: settings.contactEmail },
     { key: 'support_email', value: settings.supportEmail },
     { key: 'contact_phone', value: settings.contactPhone },
@@ -311,6 +314,7 @@ function mergeSettings(state: SettingsState, list: SettingRow[]) {
     logoText: (map.get('logo_text') as string) || state.logoText,
     logoPreviewUrl: (map.get('logo_preview_url') as string) || state.logoPreviewUrl,
     adminLogoUrl: (map.get('admin_logo_url') as string) || state.adminLogoUrl,
+    footerLogoUrl: (map.get('footer_logo_url') as string) || state.footerLogoUrl,
     contactEmail: (map.get('contact_email') as string) || state.contactEmail,
     supportEmail: (map.get('support_email') as string) || state.supportEmail,
     contactPhone: (map.get('contact_phone') as string) || state.contactPhone,
@@ -901,8 +905,8 @@ export default function AdminParametersPage() {
 
         <div className="mt-8 space-y-6">
           {activeTab === 'general' ? (
-            <SectionCard title="Logos" description="Upload et URLs pour les logos public et admin.">
-              <div className="grid gap-4 lg:grid-cols-2">
+            <SectionCard title="Logos" description="Upload et URLs pour les logos public, admin et footer.">
+              <div className="grid gap-4 lg:grid-cols-3">
                 <UploadField
                   title="Logo public"
                   description="Affiche dans la navigation et les emails"
@@ -916,6 +920,13 @@ export default function AdminParametersPage() {
                   endpoint="/api/upload/admin-logo"
                   value={settings.adminLogoUrl}
                   onChange={(url) => handleChange('adminLogoUrl', url)}
+                />
+                <UploadField
+                  title="Logo footer"
+                  description="Affiché uniquement dans le pied de page"
+                  endpoint="/api/upload/logo"
+                  value={settings.footerLogoUrl}
+                  onChange={(url) => handleChange('footerLogoUrl', url)}
                 />
               </div>
             </SectionCard>

@@ -79,6 +79,8 @@ export function Footer() {
         }
 
         const nextLogo =
+          data.footer_logo_url ||
+          data.footerLogoUrl ||
           data.logo_preview_url ||
           data.site_logo ||
           data.logo ||
