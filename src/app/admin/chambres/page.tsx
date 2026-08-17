@@ -556,7 +556,7 @@ export default function ChambresPage() {
                     <p className="text-sm text-gray-600">
                       Cliquez ou glissez des images
                     </p>
-                    <p className="text-xs text-gray-500">PNG, JPG, GIF (max 10MB)</p>
+                    <p className="text-xs text-gray-500">PNG, JPG, GIF et WebP</p>
                   </div>
                   <input
                     type="file"
@@ -716,7 +716,7 @@ export default function ChambresPage() {
                     <p className="text-sm text-gray-600">
                       Cliquez ou glissez des images
                     </p>
-                    <p className="text-xs text-gray-500">PNG, JPG, GIF (max 10MB)</p>
+                    <p className="text-xs text-gray-500">PNG, JPG, GIF et WebP</p>
                   </div>
                   <input
                     type="file"

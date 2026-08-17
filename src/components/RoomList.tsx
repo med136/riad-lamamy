@@ -47,8 +47,19 @@ export function RoomList() {
     fetchRooms();
   }, []);
 
+  useEffect(() => {
+    const handleRoomSelection = (event: Event) => {
+      const roomId = (event as CustomEvent<{ roomId: string }>).detail.roomId;
+      setSelectedRoomId(roomId);
+    };
+
+    window.addEventListener("room-selection-change", handleRoomSelection);
+    return () => window.removeEventListener("room-selection-change", handleRoomSelection);
+  }, []);
+
   const selectRoom = (roomId: string) => {
     setSelectedRoomId(roomId);
+    window.dispatchEvent(new CustomEvent("room-selection-change", { detail: { roomId } }));
     const url = new URL(window.location.href);
     url.searchParams.set("room", roomId);
     url.hash = "nos-chambres";

@@ -1,140 +1,148 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  Bed, Bath, Tv, Wifi, Coffee, Wind,
-  Users, Maximize, Shield, Heart
-} from "lucide-react";
+import { Bed, Check, ImageIcon, Users, WalletCards } from "lucide-react";
 
-const roomDetails = {
-  standard: {
-    amenities: [
-      { icon: <Bed size={20} />, text: "Lit double 180x200" },
-      { icon: <Bath size={20} />, text: "Salle de bain privée" },
-      { icon: <Wifi size={20} />, text: "Wi-Fi gratuit" },
-      { icon: <Coffee size={20} />, text: "Thé/Café" },
-      { icon: <Tv size={20} />, text: "TV écran plat" },
-      { icon: <Wind size={20} />, text: "Climatisation" },
-    ],
-    included: [
-      "Petit-déjeuner marocain",
-      "Service de ménage quotidien",
-      "Produits de toilette bio",
-      "Coffre-fort",
-      "Sèche-cheveux",
-    ],
-  },
-  deluxe: {
-    amenities: [
-      { icon: <Bed size={20} />, text: "Lit king size 200x200" },
-      { icon: <Bath size={20} />, text: "Salle de bain en marbre" },
-      { icon: <Wifi size={20} />, text: "Wi-Fi fibre" },
-      { icon: <Coffee size={20} />, text: "Machine à café" },
-      { icon: <Users size={20} />, text: "Terrasse privée" },
-      { icon: <Maximize size={20} />, text: "35m² + terrasse" },
-    ],
-    included: [
-      "Tous les services Standard",
-      "Service en chambre 24h/24",
-      "Mini-bar gratuit",
-      "Plateau de bienvenue",
-      "Vue sur le jardin",
-    ],
-  },
-  suite: {
-    amenities: [
-      { icon: <Bed size={20} />, text: "Lit emperor 220x220" },
-      { icon: <Bath size={20} />, text: "Salle de bain avec jacuzzi" },
-      { icon: <Wifi size={20} />, text: "Wi-Fi ultra-rapide" },
-      { icon: <Coffee size={20} />, text: "Bar privé" },
-      { icon: <Users size={20} />, text: "Salon séparé" },
-      { icon: <Heart size={20} />, text: "Service majordome" },
-    ],
-    included: [
-      "Tous les services Deluxe",
-      "Champagne à l'arrivée",
-      "Accès VIP au spa",
-      "Parking privé",
-      "Transfert aéroport",
-    ],
-  },
+type Room = {
+  id: string;
+  name: string;
+  description: string;
+  base_price: number;
+  max_guests: number;
+  amenities: string[];
+  images: string[];
 };
 
+type RoomSelectionEvent = CustomEvent<{ roomId: string }>;
+
 export default function RoomDetails() {
-  const [selectedRoom, setSelectedRoom] = useState<keyof typeof roomDetails>("standard");
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const response = await fetch("/api/rooms", { cache: "no-store" });
+        if (!response.ok) return;
+        const payload = (await response.json()) as { rooms?: Room[] };
+        const nextRooms = Array.isArray(payload.rooms) ? payload.rooms : [];
+        const requestedRoomId = new URLSearchParams(window.location.search).get("room");
+        setRooms(nextRooms);
+        setSelectedRoomId(
+          nextRooms.some((room) => room.id === requestedRoomId)
+            ? requestedRoomId
+            : nextRooms[0]?.id || null,
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const handleRoomSelection = (event: Event) => {
+      setSelectedRoomId((event as RoomSelectionEvent).detail.roomId);
+    };
+
+    fetchRooms();
+    window.addEventListener("room-selection-change", handleRoomSelection);
+    return () => window.removeEventListener("room-selection-change", handleRoomSelection);
+  }, []);
+
+  const selectRoom = (roomId: string) => {
+    setSelectedRoomId(roomId);
+    window.dispatchEvent(new CustomEvent("room-selection-change", { detail: { roomId } }));
+    const url = new URL(window.location.href);
+    url.searchParams.set("room", roomId);
+    url.hash = "details-chambre";
+    window.history.replaceState(null, "", url);
+  };
+
+  const selectedRoom = rooms.find((room) => room.id === selectedRoomId) ?? rooms[0];
+
+  if (loading) {
+    return <div className="my-16 h-80 animate-pulse rounded-3xl bg-amber-50" />;
+  }
+
+  if (!selectedRoom) return null;
 
   return (
-    <div className="py-16">
-      <div className="text-center mb-12">
-        <h3 className="text-3xl md:text-4xl font-serif font-bold mb-4 text-gray-900">
-          Détails des Chambres
-        </h3>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Tout le confort dont vous avez besoin pour un séjour parfait
+    <section id="details-chambre" className="scroll-mt-28 py-16">
+      <div className="mb-10 text-center">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-amber-700">Votre séjour</p>
+        <h2 className="mb-4 font-serif text-3xl font-bold text-gray-900 md:text-4xl">Détails des Chambres</h2>
+        <p className="mx-auto max-w-3xl text-lg text-gray-600">
+          Équipements et informations enregistrés pour chaque chambre.
         </p>
       </div>
 
-      {/* Sélecteur de chambre */}
-      <div className="flex justify-center mb-12">
-        <div className="inline-flex rounded-2xl bg-gray-100 p-2">
-          {Object.keys(roomDetails).map((roomType) => (
-            <button
-              key={roomType}
-              onClick={() => setSelectedRoom(roomType as keyof typeof roomDetails)}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
-                selectedRoom === roomType
-                  ? "bg-white text-amber-700 shadow-lg"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              {roomType.charAt(0).toUpperCase() + roomType.slice(1)}
-            </button>
-          ))}
-        </div>
+      <div className="mb-10 flex flex-wrap justify-center gap-2">
+        {rooms.map((room) => (
+          <button
+            key={room.id}
+            type="button"
+            onClick={() => selectRoom(room.id)}
+            className={`rounded-full px-5 py-2.5 text-sm font-semibold transition-all ${
+              selectedRoom.id === room.id
+                ? "bg-amber-700 text-white shadow-lg"
+                : "border border-amber-200 bg-white text-gray-700 hover:bg-amber-50"
+            }`}
+          >
+            {room.name}
+          </button>
+        ))}
       </div>
 
-      {/* Détails de la chambre sélectionnée */}
       <motion.div
-        key={selectedRoom}
-        initial={{ opacity: 0, y: 20 }}
+        key={selectedRoom.id}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="grid grid-cols-1 lg:grid-cols-2 gap-12"
+        className="grid gap-8 lg:grid-cols-2"
       >
-        {/* Équipements */}
-        <div className="lux-panel rounded-3xl p-8 border border-amber-200/40 shadow-2xl">
-          <h4 className="text-2xl font-bold mb-6">Équipements</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {roomDetails[selectedRoom].amenities.map((item, index) => (
-              <div key={index} className="flex items-center space-x-4">
-                <div className="text-amber-700">{item.icon}</div>
-                <span className="text-gray-700">{item.text}</span>
-              </div>
-            ))}
+        <div className="rounded-3xl border border-amber-200/50 bg-white p-7 shadow-lg sm:p-8">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="rounded-xl bg-amber-100 p-3 text-amber-700"><Bed size={22} /></div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-amber-700">Équipements</p>
+              <h3 className="text-2xl font-bold text-gray-900">{selectedRoom.name}</h3>
+            </div>
           </div>
+
+          {selectedRoom.amenities.length > 0 ? (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {selectedRoom.amenities.map((amenity) => (
+                <div key={amenity} className="flex items-center gap-3 rounded-xl bg-amber-50/60 p-3 text-gray-700">
+                  <Check size={18} className="shrink-0 text-emerald-600" />
+                  {amenity}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="rounded-xl bg-gray-50 p-5 text-sm text-gray-500">
+              Aucun équipement spécifique n’est encore renseigné dans l’administration.
+            </p>
+          )}
         </div>
 
-        {/* Services inclus */}
-        <div className="lux-panel rounded-3xl p-8 border border-amber-200/40 shadow-2xl bg-gradient-to-br from-amber-50 via-white to-amber-100">
-          <h4 className="text-2xl font-bold mb-6">Services Inclus</h4>
-          <ul className="space-y-4">
-            {roomDetails[selectedRoom].included.map((service, index) => (
-              <li key={index} className="flex items-start space-x-3">
-                <Shield size={20} className="text-green-600 mt-1 flex-shrink-0" />
-                <span className="text-gray-700">{service}</span>
-              </li>
-            ))}
-          </ul>
-
-          {/* Note */}
-          <div className="mt-8 pt-6 border-t border-amber-200">
-            <p className="text-amber-700">
-              <span className="font-bold">Note:</span> Tous nos services sont 
-              inclus dans le prix. Pas de frais cachés.
-            </p>
+        <div className="rounded-3xl border border-amber-200/50 bg-gradient-to-br from-amber-50 via-white to-amber-100 p-7 shadow-lg sm:p-8">
+          <h3 className="mb-6 text-2xl font-bold text-gray-900">Informations de la chambre</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between rounded-xl bg-white/80 p-4">
+              <span className="flex items-center gap-3 text-gray-600"><Users size={19} className="text-amber-700" />Capacité</span>
+              <strong>{selectedRoom.max_guests} personne{selectedRoom.max_guests > 1 ? "s" : ""}</strong>
+            </div>
+            <div className="flex items-center justify-between rounded-xl bg-white/80 p-4">
+              <span className="flex items-center gap-3 text-gray-600"><WalletCards size={19} className="text-amber-700" />Tarif</span>
+              <strong>{selectedRoom.base_price.toLocaleString("fr-FR")} MAD / nuit</strong>
+            </div>
+            <div className="flex items-center justify-between rounded-xl bg-white/80 p-4">
+              <span className="flex items-center gap-3 text-gray-600"><ImageIcon size={19} className="text-amber-700" />Galerie</span>
+              <strong>{selectedRoom.images.length} image{selectedRoom.images.length !== 1 ? "s" : ""}</strong>
+            </div>
           </div>
+          <p className="mt-6 border-t border-amber-200 pt-5 leading-7 text-gray-600">{selectedRoom.description}</p>
         </div>
       </motion.div>
-    </div>
+    </section>
   );
 }

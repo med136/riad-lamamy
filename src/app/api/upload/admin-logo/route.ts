@@ -19,12 +19,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Type de fichier non autorisé' }, { status: 400 })
     }
 
-    // Stay below common serverless request limits (the multipart envelope adds overhead).
-    const maxSize = 4 * 1024 * 1024
-    if (file.size > maxSize) {
-      return NextResponse.json({ error: 'Fichier trop volumineux (max 4 Mo)' }, { status: 413 })
-    }
-
     const buffer = await file.arrayBuffer()
 
     const fileExt = (file.name.split('.').pop() || '').toLowerCase()

@@ -445,7 +445,6 @@ type UploadFieldProps = {
   onChange: (nextUrl: string) => void
 }
 
-const MAX_LOGO_SIZE = 4 * 1024 * 1024
 const LOGO_ACCEPT = 'image/jpeg,image/png,image/svg+xml,image/webp'
 
 function UploadField({ title, description, endpoint, value, onChange }: UploadFieldProps) {
@@ -456,14 +455,6 @@ function UploadField({ title, description, endpoint, value, onChange }: UploadFi
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
-
-    if (file.size > MAX_LOGO_SIZE) {
-      const message = 'Fichier trop volumineux. La taille maximale est de 4 Mo.'
-      setError(message)
-      toast.error(message)
-      event.target.value = ''
-      return
-    }
 
     setUploading(true)
     setUploadProgress(0)
@@ -522,7 +513,7 @@ function UploadField({ title, description, endpoint, value, onChange }: UploadFi
           placeholder="URL publique"
         />
       </div>
-      <p className="text-[11px] text-gray-500">PNG, JPG, WebP ou SVG — 4 Mo maximum.</p>
+      <p className="text-[11px] text-gray-500">PNG, JPG, WebP ou SVG.</p>
       {uploading && <UploadProgress value={uploadProgress} label={`Upload du ${title.toLowerCase()}`} />}
       {value ? (
         <div className="relative h-20 w-full overflow-hidden rounded-lg border border-gray-200 bg-white">
@@ -574,9 +565,9 @@ export default function AdminParametersPage() {
         const rows = Object.entries(data).map(([key, value]) => ({ key, value }))
         setSettings((prev) => mergeSettings(prev, rows))
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setSaveMessage('Impossible de charger les parametres.')
-      toast.error(err?.message || 'Impossible de charger les parametres')
+      toast.error(err instanceof Error ? err.message : 'Impossible de charger les parametres')
     } finally {
       setIsLoading(false)
     }
@@ -835,8 +826,8 @@ export default function AdminParametersPage() {
       }
       setSaveMessage('Parametres enregistres.')
       toast.success('Parametres enregistres')
-    } catch (err: any) {
-      const message = err?.message || 'Erreur lors de la sauvegarde'
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erreur lors de la sauvegarde'
       setSaveMessage(message)
       toast.error(message)
     } finally {
