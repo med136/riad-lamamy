@@ -157,13 +157,13 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-12 lg:gap-x-8">
           <div className="space-y-5 lg:col-span-5 lg:pr-6">
             <Link href="/" className="group inline-flex max-w-full flex-col items-start gap-3">
-              <div className="relative h-20 w-44 overflow-hidden rounded-xl border border-white/10 bg-white p-2 shadow-[0_14px_40px_rgba(0,0,0,0.24)] transition-transform duration-300 group-hover:-translate-y-1 sm:h-24 sm:w-52">
+              <div className="relative h-20 w-44 overflow-hidden transition-transform duration-300 group-hover:-translate-y-1 sm:h-24 sm:w-52">
                 <Image
                   src={logoSrc}
                   alt={brandName}
                   fill
                   sizes="(max-width: 640px) 176px, 208px"
-                  className="object-contain p-2"
+                  className="object-contain"
                 />
               </div>
               {!hasCustomLogo && (
