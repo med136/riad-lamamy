@@ -376,7 +376,7 @@ export function Navigation() {
                   {/* Primary CTA */}
                   <Link
                     href="/reservations"
-                    className="btn-primary hidden gap-2 px-5 py-2.5 text-sm shadow-sm sm:inline-flex"
+                    className="btn-zellige-green hidden gap-2 px-5 py-2.5 text-sm sm:inline-flex"
                   >
                     <Phone size={16} aria-hidden="true" />
                     <span>{t("nav.book")}</span>
@@ -541,7 +541,7 @@ export function Navigation() {
 
               <Link
                 href="/reservations"
-                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-center text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/20 transition hover:bg-primary/95"
+                className="btn-zellige-green mt-5 w-full rounded-2xl px-5 py-3 text-center"
                 onClick={() => setIsOpen(false)}
               >
                 <Phone size={16} aria-hidden="true" />
