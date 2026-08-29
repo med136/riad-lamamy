@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -21,7 +21,6 @@ export default function LoginClient() {
 
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [brandName, setBrandName] = useState<string>("Riad Lamamy");
-  const [brandTagline, setBrandTagline] = useState<string>("");
 
   useEffect(() => {
     const prefillEmail = searchParams.get("email");
@@ -46,16 +45,6 @@ export default function LoginClient() {
           setBrandName(nextBrandName.trim());
         }
 
-        const nextTagline =
-          data.site_tagline ||
-          data.siteTagline ||
-          data.tagline ||
-          data.site_tag_line ||
-          null;
-        if (typeof nextTagline === "string" && nextTagline.trim()) {
-          setBrandTagline(nextTagline.trim());
-        }
-
         const url =
           data.logo_preview_url ||
           data.site_logo ||
@@ -73,12 +62,6 @@ export default function LoginClient() {
   }, []);
 
   const logoSrc = logoUrl || "/logo.svg";
-  const isDefaultLogo = logoSrc === "/logo.svg";
-
-  const subtitle = useMemo(() => {
-    if (brandTagline) return brandTagline;
-    return "Accès réservé au personnel.";
-  }, [brandTagline]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,24 +118,16 @@ export default function LoginClient() {
           </Link>
         </div>
 
-        <div className="mt-6 flex items-center gap-4">
-          <div className="relative h-12 w-12 overflow-hidden rounded-full border border-amber-200/60 bg-white/70 shadow-sm">
+        <div className="mt-6 flex justify-center">
+          <div className="relative h-24 w-24 rounded-2xl border border-amber-200/60 bg-white shadow-md">
             <Image
               src={logoSrc}
               alt={brandName}
               fill
-              sizes="48px"
-              className={`object-contain p-2 ${isDefaultLogo ? "brightness-0" : ""}`}
+              sizes="96px"
+              className="object-contain p-1.5"
+              priority
             />
-          </div>
-
-          <div className="leading-tight">
-            <p className="font-serif text-xl font-semibold tracking-tight text-gray-900">
-              {brandName}
-            </p>
-            <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-amber-700/80">
-              Administration
-            </p>
           </div>
         </div>
 
@@ -160,7 +135,9 @@ export default function LoginClient() {
           <h1 className="font-serif text-3xl font-bold tracking-tight text-gray-900">
             Connexion
           </h1>
-          <p className="text-sm leading-relaxed text-gray-600">{subtitle}</p>
+          <p className="text-sm leading-relaxed text-gray-600">
+            Accès réservé au personnel.
+          </p>
         </div>
 
         {error && (
@@ -240,4 +217,3 @@ export default function LoginClient() {
     </div>
   );
 }
-
