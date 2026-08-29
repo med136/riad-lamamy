@@ -4,7 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { KeyRound, Lock, Mail } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Eye,
+  EyeOff,
+  KeyRound,
+  Lock,
+  Mail,
+  ShieldCheck,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import { signIn } from "@/lib/supabase/client";
 
@@ -20,15 +29,23 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [showInviteCode, setShowInviteCode] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [brandName, setBrandName] = useState<string>("Riad Lamamy");
+  const [brandName, setBrandName] = useState<string>("DarLaMamy");
   const [brandTagline, setBrandTagline] = useState<string>("");
 
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const res = await fetch("/api/public/settings", { cache: "no-store" });
+        const res = await fetch("/api/public/settings", {
+          cache: "no-store",
+        });
+
         if (!res.ok) return;
+
         const data = (await res.json()) as PublicSettings;
 
         const nextBrandName =
@@ -38,7 +55,11 @@ export default function RegisterPage() {
           data.siteName ||
           data.site_name ||
           null;
-        if (typeof nextBrandName === "string" && nextBrandName.trim()) {
+
+        if (
+          typeof nextBrandName === "string" &&
+          nextBrandName.trim()
+        ) {
           setBrandName(nextBrandName.trim());
         }
 
@@ -48,7 +69,11 @@ export default function RegisterPage() {
           data.tagline ||
           data.site_tag_line ||
           null;
-        if (typeof nextTagline === "string" && nextTagline.trim()) {
+
+        if (
+          typeof nextTagline === "string" &&
+          nextTagline.trim()
+        ) {
           setBrandTagline(nextTagline.trim());
         }
 
@@ -59,7 +84,10 @@ export default function RegisterPage() {
           data.logoPreviewUrl ||
           data.admin_logo_url ||
           null;
-        if (typeof url === "string" && url.trim()) setLogoUrl(url.trim());
+
+        if (typeof url === "string" && url.trim()) {
+          setLogoUrl(url.trim());
+        }
       } catch {
         // ignore
       }
@@ -68,12 +96,12 @@ export default function RegisterPage() {
     fetchSettings();
   }, []);
 
-  const logoSrc = logoUrl || "/logo.svg";
-  const isDefaultLogo = logoSrc === "/logo.svg";
+  const logoSrc = logoUrl || "/logo-mark-green.png";
 
   const subtitle = useMemo(() => {
     if (brandTagline) return brandTagline;
-    return "Création de compte sur invitation.";
+
+    return "Créez votre compte administrateur avec votre code d’invitation.";
   }, [brandTagline]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -81,13 +109,21 @@ export default function RegisterPage() {
     setError(null);
 
     const trimmedEmail = email.trim();
-    if (!inviteCode.trim() || !trimmedEmail || !password || !passwordConfirm) {
+
+    if (
+      !inviteCode.trim() ||
+      !trimmedEmail ||
+      !password ||
+      !passwordConfirm
+    ) {
       setError("Veuillez remplir tous les champs.");
       return;
     }
 
     if (password.length < 8) {
-      setError("Le mot de passe doit contenir au moins 8 caractères.");
+      setError(
+        "Le mot de passe doit contenir au moins 8 caractères."
+      );
       return;
     }
 
@@ -97,10 +133,13 @@ export default function RegisterPage() {
     }
 
     setIsSubmitting(true);
+
     try {
       const res = await fetch("/api/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           inviteCode: inviteCode.trim(),
           email: trimmedEmail,
@@ -109,25 +148,38 @@ export default function RegisterPage() {
       });
 
       const json = await res.json().catch(() => ({}));
+
       if (!res.ok) {
         const message =
           (typeof json?.error === "string" && json.error) ||
           "Inscription impossible.";
+
         setError(message);
         toast.error(message);
         return;
       }
 
       toast.success("Compte créé. Connexion en cours…");
-      const { data, error } = await signIn(trimmedEmail, password);
+
+      const { data, error } = await signIn(
+        trimmedEmail,
+        password
+      );
+
       if (error || !data?.session?.user) {
-        router.push(`/admin/login?email=${encodeURIComponent(trimmedEmail)}`);
+        router.push(
+          `/admin/login?email=${encodeURIComponent(trimmedEmail)}`
+        );
         return;
       }
 
       router.push("/admin/dashboard");
-    } catch (err: any) {
-      const message = err?.message || "Erreur lors de l'inscription.";
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Erreur lors de l'inscription.";
+
       setError(message);
       toast.error(message);
     } finally {
@@ -136,179 +188,405 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="w-full max-w-md">
-      <div className="lux-panel rounded-3xl border border-amber-200/50 p-6 shadow-2xl sm:p-8">
-        <div className="flex items-start justify-between gap-4">
-          <Link
-            href="/admin/login"
-            className="text-xs font-semibold uppercase tracking-[0.28em] text-gray-700 hover:text-amber-900"
-          >
-            Connexion
-          </Link>
+    <main className="grid min-h-screen bg-[#f7f3eb] lg:h-screen lg:grid-cols-[minmax(320px,39%)_1fr]">
+      {/* =====================================================
+          PARTIE GAUCHE — VIDÉO
+      ====================================================== */}
+      <section className="relative hidden min-h-screen overflow-hidden bg-[#10251f] lg:block">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="/riad-login-courtyard.png"
+          className="absolute inset-0 h-full w-full object-cover"
+          aria-hidden="true"
+        >
+          <source
+            src="/video/darlamamy.mp4"
+            type="video/mp4"
+          />
+        </video>
 
+        {/* Overlay */}
+        <div
+          className="pointer-events-none absolute inset-0 bg-[#10251f]/15"
+          aria-hidden="true"
+        />
+
+        <div
+          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#071c17]/35 via-transparent to-[#071c17]/10"
+          aria-hidden="true"
+        />
+
+        {/* Retour au site */}
+        <Link
+          href="/"
+          className="absolute left-8 top-8 z-10 inline-flex items-center gap-2 rounded-[13px] border border-white/20 bg-[#17231f]/45 px-4 py-3 text-sm font-medium text-white shadow-lg backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-[#17231f]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d8bd86] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+        >
+          <ArrowLeft
+            size={17}
+            className="text-[#dec48f]"
+            aria-hidden="true"
+          />
+          Retour au site
+        </Link>
+
+        {/* Accès sécurisé */}
+        <div className="absolute bottom-8 right-8 z-10 max-w-[270px] rounded-[14px] border border-white/15 bg-[#0b3f34]/45 p-4 text-white shadow-xl backdrop-blur-md">
+          <div className="flex items-start gap-3">
+            <ShieldCheck
+              size={22}
+              className="mt-0.5 shrink-0 text-[#d8bd86]"
+              aria-hidden="true"
+            />
+
+            <div>
+              <p className="text-sm font-semibold">
+                Inscription sécurisée
+              </p>
+
+              <p className="mt-1 text-xs leading-relaxed text-white/75">
+                Création de compte réservée
+                <br />
+                aux personnes invitées.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================
+          PARTIE DROITE
+      ====================================================== */}
+      <section className="relative flex min-h-screen justify-center overflow-x-hidden overflow-y-auto px-5 py-7 sm:px-10 lg:h-screen lg:px-14 lg:py-6 xl:px-16">
+        {/* Zellige */}
+        <div
+          className="pointer-events-none absolute inset-0 bg-[url('/patterns/zellige-darlamamy.svg')] bg-repeat opacity-[0.04] [background-size:220px_220px] [mask-image:radial-gradient(ellipse_at_center,transparent_10%,black_78%)] sm:opacity-[0.05] lg:opacity-[0.06]"
+          aria-hidden="true"
+        />
+
+        {/* Retour mobile */}
+        <div className="absolute left-5 top-5 z-10 lg:hidden">
           <Link
             href="/"
-            className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-800/80 hover:text-amber-900"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[#d8c7a8] bg-[#fbf8f2]/90 px-3 py-2 text-xs font-semibold text-[#075847] shadow-sm backdrop-blur focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#075847]/40"
           >
+            <ArrowLeft size={15} aria-hidden="true" />
             Retour au site
           </Link>
         </div>
 
-        <div className="mt-6 flex items-center gap-4">
-          <div className="relative h-12 w-12 overflow-hidden rounded-full border border-amber-200/60 bg-white/70 shadow-sm">
-            <Image
-              src={logoSrc}
-              alt={brandName}
-              fill
-              sizes="48px"
-              className={`object-contain p-2 ${isDefaultLogo ? "brightness-0" : ""}`}
-            />
-          </div>
+        {/* Connexion desktop */}
+        <div className="absolute right-5 top-6 z-10 hidden items-center gap-1.5 text-xs text-[#5f5c56] sm:flex lg:right-8 xl:right-10">
+          <span>Déjà un compte ?</span>
 
-          <div className="leading-tight">
-            <p className="font-serif text-xl font-semibold tracking-tight text-gray-900">
-              {brandName}
-            </p>
-            <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-amber-700/80">
-              Administration
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-6 space-y-2">
-          <h1 className="font-serif text-3xl font-bold tracking-tight text-gray-900">
-            Inscription
-          </h1>
-          <p className="text-sm leading-relaxed text-gray-600">{subtitle}</p>
-        </div>
-
-        {error && (
-          <div className="mt-6 rounded-2xl border border-rose-200/60 bg-rose-50/70 p-4 text-sm text-rose-900">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <div>
-            <label
-              htmlFor="inviteCode"
-              className="mb-2 block text-sm font-semibold text-gray-800"
-            >
-              Code d'invitation
-            </label>
-            <div className="relative">
-              <KeyRound
-                size={18}
-                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                aria-hidden="true"
-              />
-              <input
-                id="inviteCode"
-                type="password"
-                autoComplete="one-time-code"
-                value={inviteCode}
-                onChange={(e) => setInviteCode(e.target.value)}
-                placeholder="••••••••"
-                className="w-full rounded-2xl border border-amber-200/60 bg-white/70 py-3 pl-11 pr-4 text-sm text-gray-900 shadow-sm outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="email"
-              className="mb-2 block text-sm font-semibold text-gray-800"
-            >
-              Adresse email
-            </label>
-            <div className="relative">
-              <Mail
-                size={18}
-                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                aria-hidden="true"
-              />
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                inputMode="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@exemple.com"
-                className="w-full rounded-2xl border border-amber-200/60 bg-white/70 py-3 pl-11 pr-4 text-sm text-gray-900 shadow-sm outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="mb-2 block text-sm font-semibold text-gray-800"
-            >
-              Mot de passe
-            </label>
-            <div className="relative">
-              <Lock
-                size={18}
-                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                aria-hidden="true"
-              />
-              <input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Au moins 8 caractères"
-                className="w-full rounded-2xl border border-amber-200/60 bg-white/70 py-3 pl-11 pr-4 text-sm text-gray-900 shadow-sm outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="passwordConfirm"
-              className="mb-2 block text-sm font-semibold text-gray-800"
-            >
-              Confirmer le mot de passe
-            </label>
-            <div className="relative">
-              <Lock
-                size={18}
-                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                aria-hidden="true"
-              />
-              <input
-                id="passwordConfirm"
-                type="password"
-                autoComplete="new-password"
-                value={passwordConfirm}
-                onChange={(e) => setPasswordConfirm(e.target.value)}
-                placeholder="Répétez le mot de passe"
-                className="w-full rounded-2xl border border-amber-200/60 bg-white/70 py-3 pl-11 pr-4 text-sm text-gray-900 shadow-sm outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                required
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            aria-busy={isSubmitting}
-            className="btn-primary w-full py-3.5 text-base shadow-2xl hover:shadow-[0_25px_70px_-40px_rgba(120,87,71,0.65)] disabled:cursor-not-allowed"
+          <Link
+            href="/admin/login"
+            className="font-semibold text-[#075847] underline decoration-[#075847]/35 underline-offset-4 transition hover:decoration-[#075847] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#075847]/35"
           >
-            {isSubmitting ? "Création…" : "Créer le compte"}
-          </button>
-        </form>
+            Connexion
+          </Link>
+        </div>
 
-        <p className="mt-6 text-center text-xs text-gray-500">
-          {"L'inscription est réservée au personnel, via un code d'invitation."}
-        </p>
-      </div>
-    </div>
+        {/* =================================================
+            CONTENU
+        ================================================== */}
+        <div className="relative my-auto w-full max-w-[520px] py-12 sm:py-10 lg:py-6">
+          {/* Logo */}
+          <div className="flex justify-center">
+            <div className="relative h-24 w-24 sm:h-28 sm:w-28">
+              <Image
+                src="/logo-mark-green.png"
+                alt={brandName}
+                fill
+                sizes="112px"
+                className="object-contain"
+                priority
+              />
+            </div>
+          </div>
+
+          <p className="mt-1 text-center font-serif text-[1.55rem] font-semibold tracking-[0.055em] text-[#111111] sm:text-[1.7rem]">
+            {brandName}
+          </p>
+
+          <p className="mt-1 text-center text-[9px] font-semibold uppercase tracking-[0.36em] text-[#9b6a20]">
+            FÈS • MAROC
+          </p>
+
+          {/* Header */}
+          <header className="mt-5 text-center">
+            <h1 className="font-serif text-[2rem] font-medium leading-tight tracking-[-0.025em] text-[#20211e] sm:text-[2.35rem] lg:text-[2.5rem]">
+              Créer un compte
+            </h1>
+
+            <div
+              className="my-3 flex items-center justify-center gap-2 text-[#b28a47]"
+              aria-hidden="true"
+            >
+              <span className="h-px w-8 bg-[#c9a865]/60" />
+
+              <span className="block h-2 w-2 rotate-45 border border-[#b28a47]/80" />
+
+              <span className="h-px w-8 bg-[#c9a865]/60" />
+            </div>
+
+            
+          </header>
+
+          {/* Erreur */}
+          {error && (
+            <div
+              role="alert"
+              className="mt-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900"
+            >
+              {error}
+            </div>
+          )}
+
+          {/* =================================================
+              FORMULAIRE
+          ================================================== */}
+          <form
+            onSubmit={handleSubmit}
+            className="mt-6 space-y-4"
+          >
+            {/* Code invitation */}
+            <div>
+              <label
+                htmlFor="inviteCode"
+                className="mb-2 block text-sm font-semibold text-[#33352f]"
+              >
+                Code d&apos;invitation
+              </label>
+
+              <div className="relative">
+                <KeyRound
+                  size={19}
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#0b5a47]"
+                  aria-hidden="true"
+                />
+
+                <input
+                  id="inviteCode"
+                  type={showInviteCode ? "text" : "password"}
+                  autoComplete="one-time-code"
+                  value={inviteCode}
+                  onChange={(e) => setInviteCode(e.target.value)}
+                  placeholder="••••••••"
+                  className="h-[58px] w-full rounded-xl border border-[#d8c7a8] bg-[#fbf8f2] pl-12 pr-12 text-[15px] text-[#202020] shadow-[0_5px_18px_-16px_rgba(70,50,25,0.5)] outline-none transition duration-300 placeholder:text-[#99958d] hover:border-[#c8b48f] focus:border-[#0b5a47] focus:ring-4 focus:ring-[#0b5a47]/10"
+                  required
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowInviteCode((value) => !value)
+                  }
+                  aria-label={
+                    showInviteCode
+                      ? "Masquer le code d'invitation"
+                      : "Afficher le code d'invitation"
+                  }
+                  className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-[#686b65] transition hover:bg-[#085040]/8 hover:text-[#085040] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#085040]/40"
+                >
+                  {showInviteCode ? (
+                    <EyeOff size={19} />
+                  ) : (
+                    <Eye size={19} />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Email */}
+            <div>
+              <label
+                htmlFor="email"
+                className="mb-2 block text-sm font-semibold text-[#33352f]"
+              >
+                Adresse email
+              </label>
+
+              <div className="relative">
+                <Mail
+                  size={19}
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#0b5a47]"
+                  aria-hidden="true"
+                />
+
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  inputMode="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@exemple.com"
+                  className="h-[58px] w-full rounded-xl border border-[#d8c7a8] bg-[#fbf8f2] pl-12 pr-4 text-[15px] text-[#202020] shadow-[0_5px_18px_-16px_rgba(70,50,25,0.5)] outline-none transition duration-300 placeholder:text-[#99958d] hover:border-[#c8b48f] focus:border-[#0b5a47] focus:ring-4 focus:ring-[#0b5a47]/10"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Mot de passe */}
+            <div>
+              <label
+                htmlFor="password"
+                className="mb-2 block text-sm font-semibold text-[#33352f]"
+              >
+                Mot de passe
+              </label>
+
+              <div className="relative">
+                <Lock
+                  size={19}
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#0b5a47]"
+                  aria-hidden="true"
+                />
+
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Au moins 8 caractères"
+                  className="h-[58px] w-full rounded-xl border border-[#d8c7a8] bg-[#fbf8f2] pl-12 pr-12 text-[15px] text-[#202020] shadow-[0_5px_18px_-16px_rgba(70,50,25,0.5)] outline-none transition duration-300 placeholder:text-[#99958d] hover:border-[#c8b48f] focus:border-[#0b5a47] focus:ring-4 focus:ring-[#0b5a47]/10"
+                  required
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowPassword((value) => !value)
+                  }
+                  aria-label={
+                    showPassword
+                      ? "Masquer le mot de passe"
+                      : "Afficher le mot de passe"
+                  }
+                  className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-[#686b65] transition hover:bg-[#085040]/8 hover:text-[#085040] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#085040]/40"
+                >
+                  {showPassword ? (
+                    <EyeOff size={19} />
+                  ) : (
+                    <Eye size={19} />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Confirmation */}
+            <div>
+              <label
+                htmlFor="passwordConfirm"
+                className="mb-2 block text-sm font-semibold text-[#33352f]"
+              >
+                Confirmer le mot de passe
+              </label>
+
+              <div className="relative">
+                <Lock
+                  size={19}
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#0b5a47]"
+                  aria-hidden="true"
+                />
+
+                <input
+                  id="passwordConfirm"
+                  type={
+                    showPasswordConfirm
+                      ? "text"
+                      : "password"
+                  }
+                  autoComplete="new-password"
+                  value={passwordConfirm}
+                  onChange={(e) =>
+                    setPasswordConfirm(e.target.value)
+                  }
+                  placeholder="Répétez le mot de passe"
+                  className="h-[58px] w-full rounded-xl border border-[#d8c7a8] bg-[#fbf8f2] pl-12 pr-12 text-[15px] text-[#202020] shadow-[0_5px_18px_-16px_rgba(70,50,25,0.5)] outline-none transition duration-300 placeholder:text-[#99958d] hover:border-[#c8b48f] focus:border-[#0b5a47] focus:ring-4 focus:ring-[#0b5a47]/10"
+                  required
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowPasswordConfirm(
+                      (value) => !value
+                    )
+                  }
+                  aria-label={
+                    showPasswordConfirm
+                      ? "Masquer la confirmation"
+                      : "Afficher la confirmation"
+                  }
+                  className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-[#686b65] transition hover:bg-[#085040]/8 hover:text-[#085040] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#085040]/40"
+                >
+                  {showPasswordConfirm ? (
+                    <EyeOff size={19} />
+                  ) : (
+                    <Eye size={19} />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Bouton */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              aria-busy={isSubmitting}
+              className="premium-login-button group mt-2 flex h-[58px] w-full items-center justify-center gap-3 rounded-xl bg-[#075847] px-6 text-base font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#075847] focus-visible:ring-offset-4 focus-visible:ring-offset-[#f7f3eb] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <span>
+                {isSubmitting
+                  ? "Création…"
+                  : "Créer le compte"}
+              </span>
+
+              {!isSubmitting && (
+                <ArrowRight
+                  size={19}
+                  className="text-[#dec48f] transition-transform duration-300 group-hover:translate-x-1.5"
+                  aria-hidden="true"
+                />
+              )}
+            </button>
+          </form>
+
+          {/* Séparateur */}
+          <div
+            className="mt-5 flex items-center justify-center gap-2 text-[#b28a47]"
+            aria-hidden="true"
+          >
+            <span className="h-px flex-1 bg-[#c9a865]/35" />
+
+            <span className="block h-1.5 w-1.5 rotate-45 border border-[#b28a47]/65" />
+
+            <span className="h-px flex-1 bg-[#c9a865]/35" />
+          </div>
+
+          <p className="mt-4 text-center text-xs leading-relaxed text-[#8b877e]">
+            L&apos;inscription est réservée au personnel disposant
+            d&apos;un code d&apos;invitation.
+          </p>
+
+          {/* Connexion mobile */}
+          <p className="mt-5 text-center text-xs text-[#5f5c56] sm:hidden">
+            Déjà un compte ?{" "}
+            <Link
+              href="/admin/login"
+              className="font-semibold text-[#075847] underline decoration-[#075847]/35 underline-offset-4"
+            >
+              Connexion
+            </Link>
+          </p>
+        </div>
+      </section>
+    </main>
   );
 }
-

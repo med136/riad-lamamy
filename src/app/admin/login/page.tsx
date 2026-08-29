@@ -5,15 +5,8 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="w-full max-w-md">
-          <div className="lux-panel rounded-3xl border border-amber-200/50 p-6 shadow-2xl sm:p-8">
-            <div className="h-6 w-40 rounded-full bg-amber-200/30" />
-            <div className="mt-6 h-10 w-64 rounded-2xl bg-amber-200/20" />
-            <div className="mt-3 h-4 w-56 rounded-2xl bg-amber-200/20" />
-            <div className="mt-10 h-11 w-full rounded-2xl bg-amber-200/20" />
-            <div className="mt-4 h-11 w-full rounded-2xl bg-amber-200/20" />
-            <div className="mt-6 h-12 w-full rounded-full bg-amber-200/30" />
-          </div>
+        <div className="flex min-h-screen items-center justify-center bg-[#f7f3eb]">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#085040]/20 border-t-[#085040]" />
         </div>
       }
     >
@@ -21,4 +14,3 @@ export default function LoginPage() {
     </Suspense>
   );
 }
-
