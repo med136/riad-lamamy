@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminSession, UnauthorizedAdminError } from "@/lib/auth/admin";
-import { getHeroStorageObjectPath, isAllowedHeroStorageUrl } from "@/lib/hero-media";
+import { getHeroStorageObject, isAllowedHeroStorageUrl } from "@/lib/hero-media";
 import { createAdminClient } from "@/lib/supabase/adminClient";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -46,8 +46,10 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
     if (previousPosterUrl && previousPosterUrl !== body.poster_url) {
-      const previousPath = getHeroStorageObjectPath(previousPosterUrl);
-      if (previousPath) await supabase.storage.from("room-images").remove([previousPath]);
+      const previousObject = getHeroStorageObject(previousPosterUrl);
+      if (previousObject) {
+        await supabase.storage.from(previousObject.bucket).remove([previousObject.path]);
+      }
     }
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -89,13 +91,16 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
     const { error } = await supabase.from("hero_carousel_images").delete().eq("id", id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-    const paths = [data.media_url || data.image_url, data.poster_url]
-      .map((url) => (url ? getHeroStorageObjectPath(url) : null))
-      .filter((path): path is string => Boolean(path));
-    if (paths.length > 0) {
-      const { error: storageError } = await supabase.storage.from("room-images").remove(paths);
-      if (storageError && process.env.NODE_ENV === "development") {
-        console.warn("Hero media cleanup failed:", storageError.message);
+    const objects = [data.media_url || data.image_url, data.poster_url]
+      .map((url) => (url ? getHeroStorageObject(url) : null))
+      .filter((item): item is NonNullable<typeof item> => Boolean(item));
+    for (const bucket of ["room-images", "videos"] as const) {
+      const paths = objects.filter((item) => item.bucket === bucket).map((item) => item.path);
+      if (paths.length > 0) {
+        const { error: storageError } = await supabase.storage.from(bucket).remove(paths);
+        if (storageError && process.env.NODE_ENV === "development") {
+          console.warn(`Hero media cleanup failed in ${bucket}:`, storageError.message);
+        }
       }
     }
     return NextResponse.json({ success: true });

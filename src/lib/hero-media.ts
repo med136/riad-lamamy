@@ -103,27 +103,44 @@ export const validateHeroFile = async (
   return { mediaType, extension };
 };
 
-export const isAllowedHeroStorageUrl = (value: string) => {
+export type HeroStorageObject = {
+  bucket: "room-images" | "videos";
+  path: string;
+};
+
+export const getHeroStorageObject = (value: string): HeroStorageObject | null => {
   try {
     const storageBase = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "");
     const candidate = new URL(value);
     const secureProtocol =
       candidate.protocol === "https:" ||
       (candidate.protocol === "http:" && ["localhost", "127.0.0.1"].includes(storageBase.hostname));
-    return (
-      secureProtocol &&
-      candidate.host === storageBase.host &&
-      candidate.pathname.includes("/storage/v1/object/public/room-images/hero/")
+    if (!secureProtocol || candidate.host !== storageBase.host) return null;
+
+    const marker = "/storage/v1/object/public/";
+    const markerIndex = candidate.pathname.indexOf(marker);
+    if (markerIndex < 0) return null;
+
+    const objectLocation = decodeURIComponent(
+      candidate.pathname.slice(markerIndex + marker.length),
     );
+    const separatorIndex = objectLocation.indexOf("/");
+    if (separatorIndex < 0) return null;
+
+    const bucket = objectLocation.slice(0, separatorIndex);
+    const path = objectLocation.slice(separatorIndex + 1);
+    if ((bucket !== "room-images" && bucket !== "videos") || !path.startsWith("hero/")) {
+      return null;
+    }
+
+    return { bucket, path };
   } catch {
-    return false;
+    return null;
   }
 };
 
+export const isAllowedHeroStorageUrl = (value: string) => Boolean(getHeroStorageObject(value));
+
 export const getHeroStorageObjectPath = (value: string) => {
-  if (!isAllowedHeroStorageUrl(value)) return null;
-  const marker = "/storage/v1/object/public/room-images/";
-  const pathname = new URL(value).pathname;
-  const markerIndex = pathname.indexOf(marker);
-  return markerIndex >= 0 ? decodeURIComponent(pathname.slice(markerIndex + marker.length)) : null;
+  return getHeroStorageObject(value)?.path ?? null;
 };

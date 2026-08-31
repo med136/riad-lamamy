@@ -18,15 +18,13 @@ export async function POST(request: Request) {
     }
 
     const validated = await validateHeroFile(file, kind === "poster" ? "image" : undefined);
-    const folder =
-      kind === "poster"
-        ? "posters"
-        : validated.mediaType === "video"
-          ? "videos"
-          : "images";
-    const objectPath = `hero/${folder}/${randomUUID()}.${validated.extension}`;
+    const bucket = validated.mediaType === "video" ? "videos" : "room-images";
+    const folder = kind === "poster" ? "posters" : validated.mediaType === "image" ? "images" : null;
+    const objectPath = folder
+      ? `hero/${folder}/${randomUUID()}.${validated.extension}`
+      : `hero/${randomUUID()}.${validated.extension}`;
     const supabase = createAdminClient();
-    const { error } = await supabase.storage.from("room-images").upload(
+    const { error } = await supabase.storage.from(bucket).upload(
       objectPath,
       await file.arrayBuffer(),
       {
@@ -40,7 +38,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const { data } = supabase.storage.from("room-images").getPublicUrl(objectPath);
+    const { data } = supabase.storage.from(bucket).getPublicUrl(objectPath);
     return NextResponse.json({
       media_type: validated.mediaType,
       media_url: data.publicUrl,
@@ -52,4 +50,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status });
   }
 }
-
