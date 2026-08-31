@@ -1,102 +1,508 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Compass, Moon, Sunrise, Coffee } from "lucide-react";
+import {
+  Coffee,
+  Compass,
+  Moon,
+  Sunrise,
+} from "lucide-react";
 
 const experiences = [
   {
     time: "MATIN",
-    icon: <Sunrise size={28} />,
-    title: "Réveil Marrakchi",
-    description: "Petit-déjeuner sur la terrasse avec vue sur les toits de la médina.",
-    color: "from-amber-400 to-orange-400",
+    icon: Sunrise,
+    title: "Réveil fassi",
+    description:
+      "Commencez la journée autour d’un petit-déjeuner marocain, dans le calme de la maison et l’atmosphère unique de la médina.",
   },
   {
     time: "APRÈS-MIDI",
-    icon: <Compass size={28} />,
-    title: "Exploration",
-    description: "Visite guidée des souks et monuments historiques avec notre guide.",
-    color: "from-blue-400 to-cyan-400",
+    icon: Compass,
+    title: "Au cœur de la médina",
+    description:
+      "Partez à la découverte des ruelles de Fès, de ses artisans, de son patrimoine et de ses adresses emblématiques.",
   },
   {
     time: "SOIRÉE",
-    icon: <Coffee size={28} />,
-    title: "Détente",
-    description: "Thé à la menthe au bord de la piscine avant le dîner aux chandelles.",
-    color: "from-purple-400 to-pink-400",
+    icon: Coffee,
+    title: "Un moment de détente",
+    description:
+      "Retrouvez la sérénité de Dar LaMamy autour d’un thé à la menthe après une journée de découverte.",
   },
   {
     time: "NUIT",
-    icon: <Moon size={28} />,
-    title: "Magie Nocturne",
-    description: "Nuit paisible dans le silence de la médina endormie.",
-    color: "from-indigo-400 to-purple-400",
+    icon: Moon,
+    title: "Le calme retrouvé",
+    description:
+      "Profitez d’une nuit paisible dans l’atmosphère intime de la médina, loin de l’agitation de la journée.",
   },
 ];
 
 export function Experience() {
   return (
-    <section className="py-20 bg-gradient-to-b from-white via-stone-50 to-white">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+    <section
+      className="
+        relative
+        overflow-hidden
+        bg-[#FFFDF8]
+        py-14
+        sm:py-16
+        lg:py-18
+      "
+    >
+      {/* Background decoration */}
+      <div
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          bg-[radial-gradient(circle_at_12%_20%,rgba(178,138,71,0.055),transparent_34%)]
+        "
+        aria-hidden="true"
+      />
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          bg-[radial-gradient(circle_at_88%_75%,rgba(15,90,70,0.045),transparent_34%)]
+        "
+        aria-hidden="true"
+      />
+
+      <div className="site-container relative">
+        {/* HEADER */}
+
+        <motion.div
+          initial={{
+            opacity: 0,
+            y: 18,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+            amount: 0.3,
+          }}
+          transition={{
+            duration: 0.55,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          className="
+            mx-auto
+            mb-10
+            max-w-3xl
+            text-center
+            lg:mb-12
+          "
+        >
+          <div
+            className="
+              mb-4
+              flex
+              items-center
+              justify-center
+              gap-3
+            "
           >
-            <div className="lux-kicker mb-3">EXPERIENCE</div>
-            <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
-              Une Journée Typique
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Découvrez le rythme enchanteur d&apos;une journée dans notre riad
-            </p>
-          </motion.div>
-        </div>
+            <span
+              className="
+                h-px
+                w-9
+                bg-[#B28A47]/50
+              "
+            />
 
-        <div className="relative">
-          {/* Ligne de temps */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-px bg-gradient-to-b from-amber-300 via-amber-500 to-stone-400 hidden md:block"></div>
+            <span
+              className="
+                text-[10px]
+                font-semibold
+                uppercase
+                tracking-[0.3em]
+                text-[#B28A47]
+              "
+            >
+              L’expérience Dar LaMamy
+            </span>
 
-          {/* Expériences */}
-          <div className="space-y-12 md:space-y-0">
-            {experiences.map((exp, index) => (
-              <motion.div
-                key={exp.time}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.2 }}
-                className={`flex flex-col md:flex-row items-center ${
-                  index % 2 === 0 ? "md:flex-row-reverse" : ""
-                }`}
-              >
-                {/* Cercle sur la timeline */}
-                <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
-                  <div className="w-6 h-6 rounded-full bg-white border-4 border-amber-500"></div>
-                </div>
+            <span
+              className="
+                h-px
+                w-9
+                bg-[#B28A47]/50
+              "
+            />
+          </div>
 
-                {/* Contenu */}
-                <div className={`md:w-5/12 ${
-                  index % 2 === 0 ? "md:pr-12" : "md:pl-12"
-                }`}>
-                  <div className="lux-panel rounded-2xl p-8 border border-amber-200/40 hover:shadow-2xl transition-shadow">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className={`p-3 rounded-xl bg-gradient-to-r ${exp.color} text-white shadow-lg`}>
-                        {exp.icon}
-                      </div>
-                      <div>
-                        <div className="text-xs font-semibold text-amber-700 tracking-widest">{exp.time}</div>
-                        <h3 className="text-xl font-bold">{exp.title}</h3>
+          <h2
+            className="
+              font-serif
+              text-[2.45rem]
+              font-medium
+              leading-[1.05]
+              tracking-[-0.025em]
+              text-[#201A17]
+              sm:text-[2.9rem]
+              lg:text-[3.2rem]
+            "
+          >
+            Une journée à
+            <span className="text-[#0F5A46]">
+              {" "}
+              Dar LaMamy
+            </span>
+          </h2>
+
+          <p
+            className="
+              mx-auto
+              mt-4
+              max-w-2xl
+              text-[15px]
+              font-light
+              leading-[1.7]
+              text-gray-600
+              sm:text-[16px]
+            "
+          >
+            Du premier café du matin au silence de la nuit, découvrez le
+            rythme d’un séjour au cœur de Fès.
+          </p>
+
+          <div
+            className="
+              mx-auto
+              mt-5
+              flex
+              w-[150px]
+              items-center
+            "
+            aria-hidden="true"
+          >
+            <span className="h-px flex-1 bg-[#B28A47]/35" />
+
+            <span
+              className="
+                mx-3
+                h-[6px]
+                w-[6px]
+                rotate-45
+                border
+                border-[#B28A47]/60
+              "
+            />
+
+            <span className="h-px flex-1 bg-[#B28A47]/35" />
+          </div>
+        </motion.div>
+
+        {/* TIMELINE */}
+
+        <div
+          className="
+            relative
+            mx-auto
+            max-w-5xl
+          "
+        >
+          {/* Central line */}
+
+          <div
+            className="
+              absolute
+              bottom-4
+              left-1/2
+              top-4
+              hidden
+              w-px
+              -translate-x-1/2
+              bg-gradient-to-b
+              from-transparent
+              via-[#B28A47]/45
+              to-transparent
+              md:block
+            "
+            aria-hidden="true"
+          />
+
+          <div className="space-y-5 md:space-y-4">
+            {experiences.map(
+              (experience, index) => {
+                const Icon =
+                  experience.icon;
+
+                const reverse =
+                  index % 2 === 0;
+
+                return (
+                  <motion.article
+                    key={experience.time}
+                    initial={{
+                      opacity: 0,
+                      y: 18,
+                    }}
+                    whileInView={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    viewport={{
+                      once: true,
+                      amount: 0.25,
+                    }}
+                    transition={{
+                      duration: 0.5,
+                      delay:
+                        index * 0.07,
+                      ease: [
+                        0.22,
+                        1,
+                        0.36,
+                        1,
+                      ],
+                    }}
+                    className={`
+                      relative
+                      flex
+                      flex-col
+                      md:flex-row
+                      md:items-center
+                      ${
+                        reverse
+                          ? "md:flex-row-reverse"
+                          : ""
+                      }
+                    `}
+                  >
+                    {/* Center point */}
+
+                    <div
+                      className="
+                        absolute
+                        left-1/2
+                        top-1/2
+                        z-20
+                        hidden
+                        h-3.5
+                        w-3.5
+                        -translate-x-1/2
+                        -translate-y-1/2
+                        items-center
+                        justify-center
+                        rounded-full
+                        border
+                        border-[#B28A47]
+                        bg-[#FFFDF8]
+                        shadow-[0_0_0_5px_rgba(255,253,248,0.95)]
+                        md:flex
+                      "
+                      aria-hidden="true"
+                    >
+                      <span
+                        className="
+                          h-1.5
+                          w-1.5
+                          rounded-full
+                          bg-[#0F5A46]
+                        "
+                      />
+                    </div>
+
+                    {/* Empty half */}
+
+                    <div className="hidden md:block md:w-1/2" />
+
+                    {/* Card */}
+
+                    <div
+                      className={`
+                        w-full
+                        md:w-1/2
+                        ${
+                          reverse
+                            ? "md:pr-10 lg:pr-14"
+                            : "md:pl-10 lg:pl-14"
+                        }
+                      `}
+                    >
+                      <div
+                        className="
+                          group
+                          relative
+                          overflow-hidden
+                          rounded-[22px]
+
+                          border
+                          border-[#B28A47]/18
+
+                          bg-white/80
+
+                          p-5
+
+                          shadow-[0_16px_45px_-38px_rgba(35,20,12,0.32)]
+
+                          backdrop-blur-sm
+
+                          transition-all
+                          duration-300
+
+                          hover:-translate-y-0.5
+                          hover:border-[#B28A47]/30
+                          hover:shadow-[0_20px_55px_-36px_rgba(35,20,12,0.38)]
+
+                          sm:p-6
+                        "
+                      >
+                        <div
+                          className="
+                            relative
+                            z-10
+                            flex
+                            items-start
+                            gap-4
+                          "
+                        >
+                          {/* Icon */}
+
+                          <div
+                            className="
+                              inline-flex
+                              h-11
+                              w-11
+                              shrink-0
+                              items-center
+                              justify-center
+                              rounded-xl
+
+                              border
+                              border-[#B28A47]/25
+
+                              bg-[#0F5A46]/5
+
+                              text-[#0F5A46]
+                            "
+                          >
+                            <Icon
+                              size={20}
+                              strokeWidth={1.6}
+                            />
+                          </div>
+
+                          <div className="min-w-0">
+                            <p
+                              className="
+                                mb-1
+                                text-[9px]
+                                font-semibold
+                                uppercase
+                                tracking-[0.25em]
+                                text-[#B28A47]
+                              "
+                            >
+                              {
+                                experience.time
+                              }
+                            </p>
+
+                            <h3
+                              className="
+                                font-serif
+                                text-[21px]
+                                font-medium
+                                leading-tight
+                                tracking-[-0.015em]
+                                text-[#201A17]
+                              "
+                            >
+                              {
+                                experience.title
+                              }
+                            </h3>
+
+                            <p
+                              className="
+                                mt-2
+                                text-[14px]
+                                font-light
+                                leading-[1.65]
+                                text-gray-600
+                              "
+                            >
+                              {
+                                experience.description
+                              }
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* subtle accent */}
+
+                        <div
+                          className="
+                            absolute
+                            bottom-0
+                            left-8
+                            right-8
+                            h-px
+                            scale-x-0
+                            bg-gradient-to-r
+                            from-transparent
+                            via-[#B28A47]/45
+                            to-transparent
+                            transition-transform
+                            duration-300
+                            group-hover:scale-x-100
+                          "
+                        />
                       </div>
                     </div>
-                    <p className="text-gray-600">{exp.description}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                  </motion.article>
+                );
+              },
+            )}
           </div>
         </div>
+
+        {/* CLOSING */}
+
+        <motion.div
+          initial={{
+            opacity: 0,
+            y: 12,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+          }}
+          transition={{
+            duration: 0.5,
+          }}
+          className="
+            mx-auto
+            mt-9
+            max-w-xl
+            text-center
+          "
+        >
+          <p
+            className="
+              font-serif
+              text-[18px]
+              font-normal
+              leading-relaxed
+              text-[#0F5A46]/85
+              sm:text-[19px]
+            "
+          >
+            Chaque moment trouve naturellement sa place à Dar LaMamy.
+          </p>
+        </motion.div>
       </div>
     </section>
   );

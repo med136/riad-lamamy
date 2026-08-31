@@ -4,57 +4,120 @@
 
 @layer base {
   :root {
-    --brand-green: #085040;
-    --brand-green-dark: #063f33;
-    --brand-ivory: #f7f3eb;
+    /* =========================================================
+       DAR LAMAMY — BRAND COLORS
+       ========================================================= */
+
+    --brand-green: #0f5a46;
+    --brand-green-hover: #12604b;
+    --brand-green-dark: #0b493a;
+
+    --brand-gold: #b28a47;
+    --brand-gold-soft: #d2aa5a;
+
+    --brand-ivory: #fffdf8;
+    --brand-ivory-soft: #f7f3eb;
+
     --scrollbar-track: #f3efe7;
+
+    /* =========================================================
+       SHADCN / GLOBAL THEME
+       ========================================================= */
+
     --background: 0 0% 100%;
     --foreground: 20 14.3% 4.1%;
-    /* Couleur principale = rgb(121, 87, 71) ≈ hsl(19, 26%, 38%) */
+
+    /*
+      Primary actuel conservé volontairement.
+      On pourra plus tard migrer entièrement vers le vert Dar LaMamy.
+    */
     --primary: 19 26% 38%;
     --primary-foreground: 60 9.1% 97.8%;
+
     --secondary: 60 4.8% 95.9%;
     --secondary-foreground: 24 9.8% 10%;
+
     --muted: 60 4.8% 95.9%;
     --muted-foreground: 25 5.3% 44.7%;
+
     --accent: 60 4.8% 95.9%;
     --accent-foreground: 24 9.8% 10%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 60 9.1% 97.8%;
+
     --border: 20 5.9% 90%;
     --input: 20 5.9% 90%;
     --ring: 19 26% 38%;
+
     --radius: 0.75rem;
-    --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
-    --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+
+    /* =========================================================
+       TYPOGRAPHY
+       ========================================================= */
+
+    --font-sans:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      "Segoe UI",
+      Roboto,
+      "Helvetica Neue",
+      Arial,
+      "Noto Sans",
+      "Liberation Sans",
+      sans-serif;
+
+    --font-serif:
+      ui-serif,
+      Georgia,
+      Cambria,
+      "Times New Roman",
+      Times,
+      serif;
   }
 
   * {
     @apply border-border;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--brand-green) var(--scrollbar-track);
   }
 
   html {
     @apply scroll-smooth;
-    scrollbar-width: thin;
-    scrollbar-color: var(--brand-green) var(--scrollbar-track);
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
 
+  /* =========================================================
+     GLOBAL PAGE BACKGROUND
+     ========================================================= */
+
   .site-shell {
     background:
-      radial-gradient(1200px 700px at 10% -10%, rgba(120, 87, 71, 0.10), transparent 60%),
-      radial-gradient(900px 500px at 90% 10%, rgba(217, 119, 6, 0.08), transparent 55%),
-      linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(249, 247, 243, 1) 100%);
+      radial-gradient(
+        1200px 700px at 10% -10%,
+        rgba(120, 87, 71, 0.1),
+        transparent 60%
+      ),
+      radial-gradient(
+        900px 500px at 90% 10%,
+        rgba(217, 119, 6, 0.08),
+        transparent 55%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(249, 247, 243, 1) 100%
+      );
   }
 
-  /* Global Dar LaMamy scrollbar — page and internal scroll containers */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--brand-green) var(--scrollbar-track);
-  }
+  /* =========================================================
+     SCROLLBAR
+     ========================================================= */
 
   ::-webkit-scrollbar {
     width: 10px;
@@ -82,96 +145,248 @@
 }
 
 @layer components {
-  .container {
-    @apply mx-auto px-4 sm:px-6 lg:px-8;
+  /* =========================================================
+     SITE CONTAINER
+     ========================================================= */
+
+  .site-container {
+    @apply mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-10;
   }
+
+  /* =========================================================
+     PRIMARY BUTTON
+     ========================================================= */
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full
-      bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground
-      shadow-lg shadow-primary/20 transition
+    @apply inline-flex items-center justify-center gap-2
+      whitespace-nowrap rounded-full
+      bg-primary px-8 py-4
+      text-sm font-semibold
+      text-primary-foreground
+      shadow-lg shadow-primary/20
+      transition
       hover:bg-primary/95
-      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2
-      disabled:pointer-events-none disabled:opacity-50;
+      focus-visible:outline-none
+      focus-visible:ring-2
+      focus-visible:ring-amber-400/60
+      focus-visible:ring-offset-2
+      disabled:pointer-events-none
+      disabled:opacity-50;
   }
+
+  /* =========================================================
+     DAR LAMAMY — PREMIUM ZELLIGE BUTTON
+     ========================================================= */
 
   .btn-zellige-green {
-    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full
-      px-8 py-4 text-sm font-semibold text-white
-      transition duration-300
-      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700/50 focus-visible:ring-offset-2
-      disabled:pointer-events-none disabled:opacity-50;
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    background-color: #085040;
-    background-image:
-      linear-gradient(45deg, transparent 42%, rgba(255, 255, 255, 0.13) 42% 50%, transparent 50% 92%, rgba(255, 255, 255, 0.13) 92%),
-      linear-gradient(-45deg, transparent 42%, rgba(255, 255, 255, 0.1) 42% 50%, transparent 50% 92%, rgba(255, 255, 255, 0.1) 92%);
-    background-position: 0 0, 9px 9px;
-    background-size: 18px 18px;
-    box-shadow: 0 8px 20px rgba(8, 80, 64, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  }
+  @apply inline-flex h-[44px]
+    items-center
+    justify-center
+    gap-2
+    whitespace-nowrap
+    rounded-full
+    px-5
+    text-[14px]
+    font-semibold
+    transition
+    duration-200
+    ease-out
+    focus-visible:outline-none
+    focus-visible:ring-2
+    focus-visible:ring-[#b28a47]/50
+    focus-visible:ring-offset-2
+    disabled:pointer-events-none
+    disabled:opacity-50;
+
+  color: var(--brand-ivory);
+
+  border: 1px solid rgba(178, 138, 71, 0.28);
+
+  background-color: var(--brand-green);
+
+  box-shadow:
+    0 6px 18px rgba(15, 90, 70, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.btn-zellige-green:hover {
+  background-color: var(--brand-green-hover);
+
+  box-shadow:
+    0 8px 22px rgba(15, 90, 70, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+
+  transform: translateY(-1px);
+}
+
+.btn-zellige-green:active {
+  background-color: var(--brand-green-dark);
+
+  box-shadow:
+    0 4px 12px rgba(15, 90, 70, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  transform: translateY(0);
+}
 
   .btn-zellige-green:hover {
-    background-color: #063f34;
-    box-shadow: 0 10px 24px rgba(8, 80, 64, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    background-color: var(--brand-green-hover);
+
+    box-shadow:
+      0 10px 26px rgba(15, 90, 70, 0.23),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
     transform: translateY(-1px);
   }
 
-  .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full
-      border border-amber-200/70 bg-white/70 px-8 py-4 text-sm font-semibold text-gray-900
-      shadow-sm backdrop-blur transition
-      hover:bg-amber-50
-      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2
-      disabled:pointer-events-none disabled:opacity-50;
+  .btn-zellige-green:active {
+    background-color: var(--brand-green-dark);
+
+    box-shadow:
+      0 5px 16px rgba(15, 90, 70, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+    transform: translateY(0);
   }
 
-  .card {
-    @apply bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 
-           border border-gray-100 overflow-hidden;
+  /* =========================================================
+     SECONDARY BUTTON
+     ========================================================= */
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2
+      whitespace-nowrap rounded-full
+      border border-amber-200/70
+      bg-white/70
+      px-8 py-4
+      text-sm font-semibold
+      text-gray-900
+      shadow-sm
+      backdrop-blur
+      transition
+      hover:bg-amber-50
+      focus-visible:outline-none
+      focus-visible:ring-2
+      focus-visible:ring-amber-400/60
+      focus-visible:ring-offset-2
+      disabled:pointer-events-none
+      disabled:opacity-50;
   }
+
+  /* =========================================================
+     CARD
+     ========================================================= */
+
+  .card {
+    @apply overflow-hidden
+      rounded-2xl
+      border
+      border-gray-100
+      bg-white
+      shadow-lg
+      transition-shadow
+      duration-300
+      hover:shadow-xl;
+  }
+
+  /* =========================================================
+     SECTION SPACING
+     ========================================================= */
 
   .section-padding {
     @apply py-12 md:py-20 lg:py-24;
   }
 
+  /* =========================================================
+     TYPOGRAPHY
+     ========================================================= */
+
   .heading-1 {
-    @apply text-4xl md:text-5xl lg:text-6xl font-serif font-bold tracking-tight;
+    @apply font-serif
+      text-4xl
+      font-bold
+      tracking-tight
+      md:text-5xl
+      lg:text-6xl;
   }
 
   .heading-2 {
-    @apply text-3xl md:text-4xl lg:text-5xl font-serif font-bold tracking-tight;
+    @apply font-serif
+      text-3xl
+      font-bold
+      tracking-tight
+      md:text-4xl
+      lg:text-5xl;
   }
 
   .heading-3 {
-    @apply text-2xl md:text-3xl font-serif font-bold;
+    @apply font-serif
+      text-2xl
+      font-bold
+      md:text-3xl;
   }
+
+  /* =========================================================
+     TEXT / GRADIENTS
+     ========================================================= */
 
   .text-gradient {
-    @apply bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent;
-  }
-
-  .glass-effect {
-    @apply backdrop-blur-md bg-white/80 border border-white/20;
+    @apply bg-gradient-to-r
+      from-primary
+      to-primary/80
+      bg-clip-text
+      text-transparent;
   }
 
   .gradient-bg {
-    @apply bg-gradient-to-br from-primary/5 via-white to-primary/10;
+    @apply bg-gradient-to-br
+      from-primary/5
+      via-white
+      to-primary/10;
   }
 
+  /* =========================================================
+     GLASS
+     ========================================================= */
+
+  .glass-effect {
+    @apply border
+      border-white/20
+      bg-white/80
+      backdrop-blur-md;
+  }
+
+  /* =========================================================
+     LUXURY DESIGN SYSTEM
+     ========================================================= */
+
   .lux-kicker {
-    @apply text-xs tracking-[0.32em] uppercase text-amber-800 font-semibold;
+    @apply text-xs
+      font-semibold
+      uppercase
+      tracking-[0.32em]
+      text-amber-800;
   }
 
   .lux-panel {
-    @apply bg-white/70 border border-amber-200/40 shadow-[0_22px_70px_-48px_rgba(35,20,12,0.55)] backdrop-blur-lg;
+    @apply border
+      border-amber-200/40
+      bg-white/70
+      shadow-[0_22px_70px_-48px_rgba(35,20,12,0.55)]
+      backdrop-blur-lg;
   }
 
   .lux-frame {
-    @apply rounded-3xl border border-amber-200/45 shadow-[0_22px_70px_-50px_rgba(120,87,71,0.6)];
+    @apply rounded-3xl
+      border
+      border-amber-200/45
+      shadow-[0_22px_70px_-50px_rgba(120,87,71,0.6)];
   }
 
-  /* Animations */
+  /* =========================================================
+     SIMPLE ANIMATIONS
+     ========================================================= */
+
   .fade-in {
     animation: fadeIn 0.5s ease-in-out;
   }
@@ -184,49 +399,81 @@
     animation: pulseSubtle 2s infinite;
   }
 
+  /* =========================================================
+     PREMIUM LOGIN BUTTON
+     ========================================================= */
+
   .premium-login-button {
-    box-shadow: 0 12px 30px -14px rgba(8, 80, 64, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.22);
-    transition: transform 300ms ease, background-color 300ms ease, box-shadow 300ms ease;
+    box-shadow:
+      0 12px 30px -14px rgba(15, 90, 70, 0.85),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22);
+
+    transition:
+      transform 300ms ease,
+      background-color 300ms ease,
+      box-shadow 300ms ease;
+
     animation: loginButtonBreathe 3.6s ease-in-out infinite;
   }
 
   .premium-login-button:hover {
-    background-color: #063f34;
-    box-shadow: 0 19px 38px -15px rgba(8, 80, 64, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    background-color: var(--brand-green-dark);
+
+    box-shadow:
+      0 19px 38px -15px rgba(15, 90, 70, 0.95),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25);
+
     transform: translateY(-2px);
   }
 
   .premium-login-button:active {
-    box-shadow: 0 8px 20px -12px rgba(8, 80, 64, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    box-shadow:
+      0 8px 20px -12px rgba(15, 90, 70, 0.8),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+
     transform: translateY(0) scale(0.99);
   }
 }
 
 @layer utilities {
+  /* =========================================================
+     TEXT
+     ========================================================= */
+
   .text-balance {
     text-wrap: balance;
   }
 
+  /* =========================================================
+     LINE CLAMP
+     ========================================================= */
+
   .line-clamp-2 {
-    overflow: hidden;
     display: -webkit-box;
+    overflow: hidden;
+
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
   }
 
   .line-clamp-3 {
-    overflow: hidden;
     display: -webkit-box;
+    overflow: hidden;
+
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
   }
 }
 
-/* Animations */
+/* =========================================================
+   KEYFRAMES
+   ========================================================= */
+
 @keyframes fadeIn {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -237,6 +484,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -244,36 +492,75 @@
 }
 
 @keyframes pulseSubtle {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.8;
   }
 }
 
 @keyframes loginButtonBreathe {
-  0%, 100% {
-    box-shadow: 0 12px 30px -14px rgba(8, 80, 64, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  0%,
+  100% {
+    box-shadow:
+      0 12px 30px -14px rgba(15, 90, 70, 0.8),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22);
   }
+
   50% {
-    box-shadow: 0 16px 38px -14px rgba(8, 80, 64, 1), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    box-shadow:
+      0 16px 38px -14px rgba(15, 90, 70, 1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25);
   }
 }
 
+/* =========================================================
+   ACCESSIBILITY — REDUCED MOTION
+   ========================================================= */
+
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .fade-in,
+  .slide-up,
+  .pulse-subtle {
+    animation: none;
+  }
+
+  .btn-zellige-green {
+    transition-duration: 0.01ms;
+  }
+
+  .btn-zellige-green:hover,
+  .btn-zellige-green:active {
+    transform: none;
+  }
+
   .premium-login-button {
     animation: none;
     transition-duration: 0.01ms;
   }
+
+  .premium-login-button:hover,
+  .premium-login-button:active {
+    transform: none;
+  }
 }
 
-/* Print styles */
+/* =========================================================
+   PRINT
+   ========================================================= */
+
 @media print {
   .no-print {
     display: none !important;
   }
-  
+
   body {
     font-size: 12pt;
   }

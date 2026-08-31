@@ -1,9 +1,24 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import Image from "next/image";
 import Link from "next/link";
-import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, Heart } from "lucide-react";
+
+import {
+  Facebook,
+  Heart,
+  Instagram,
+  Mail,
+  MapPin,
+  Phone,
+  Youtube,
+} from "lucide-react";
+
 import { openCookieBanner } from "@/components/CookieBanner";
 import { useLanguage } from "@/components/LanguageProvider";
 
@@ -14,264 +29,935 @@ type SocialLinks = {
 };
 
 export function Footer() {
-  const currentYear = new Date().getFullYear();
+  const currentYear =
+    new Date().getFullYear();
+
   const { t } = useLanguage();
 
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [brandName, setBrandName] = useState<string>("Riad Lamamy");
-  const [brandTagline, setBrandTagline] = useState<string | null>(null);
-  const [contactEmail, setContactEmail] = useState<string>("contact@riadlamamy.com");
-  const [contactPhone, setContactPhone] = useState<string>("+212 5 24 00 00 00");
-  const [addressLines, setAddressLines] = useState<string[]>([
-    "M\u00E9dina",
-    "Marrakech, Maroc",
+  const [logoUrl, setLogoUrl] =
+    useState<string | null>(null);
+
+  const [brandName, setBrandName] =
+    useState("Dar LaMamy");
+
+  const [
+    brandTagline,
+    setBrandTagline,
+  ] = useState<string | null>(
+    "Un havre de paix au cœur de Fès",
+  );
+
+  const [
+    contactEmail,
+    setContactEmail,
+  ] = useState(
+    "contact@darlamamy.com",
+  );
+
+  const [
+    contactPhone,
+    setContactPhone,
+  ] = useState(
+    "+212 5 00 00 00 00",
+  );
+
+  const [
+    addressLines,
+    setAddressLines,
+  ] = useState<string[]>([
+    "Médina de Fès",
+    "Fès, Maroc",
   ]);
-  const [social, setSocial] = useState<SocialLinks>({});
+
+  const [social, setSocial] =
+    useState<SocialLinks>({});
+
+  /* =========================================================
+     LINKS
+     ========================================================= */
 
   const quickLinks = useMemo(
     () => [
-      { href: "/", label: t("nav.home") },
-      { href: "/chambres", label: t("footer.rooms_link") },
-      { href: "/services", label: t("nav.services") },
-      { href: "/galerie", label: t("nav.gallery") },
-      { href: "/a-propos", label: t("nav.about") },
-      { href: "/contact", label: t("nav.contact") },
+      {
+        href: "/",
+        label: t("nav.home"),
+      },
+      {
+        href: "/chambres",
+        label: t(
+          "footer.rooms_link",
+        ),
+      },
+      {
+        href: "/services",
+        label: t(
+          "nav.services",
+        ),
+      },
+      {
+        href: "/galerie",
+        label: t(
+          "nav.gallery",
+        ),
+      },
+      {
+        href: "/a-propos",
+        label: t(
+          "nav.about",
+        ),
+      },
+      {
+        href: "/contact",
+        label: t(
+          "nav.contact",
+        ),
+      },
     ],
-    [t]
+    [t],
   );
 
   const legalLinks = useMemo(
     () => [
-      { href: "/mentions-legales", label: t("footer.legal_notices") },
-      { href: "/politique-confidentialite", label: t("footer.privacy") },
-      { href: "/cgu", label: t("footer.terms") },
-      { href: "/plan-site", label: t("footer.sitemap") },
+      {
+        href:
+          "/mentions-legales",
+        label: t(
+          "footer.legal_notices",
+        ),
+      },
+      {
+        href:
+          "/politique-confidentialite",
+        label: t(
+          "footer.privacy",
+        ),
+      },
+      {
+        href: "/cgu",
+        label: t(
+          "footer.terms",
+        ),
+      },
+      {
+        href: "/plan-site",
+        label: t(
+          "footer.sitemap",
+        ),
+      },
     ],
-    [t]
+    [t],
   );
+
+  /* =========================================================
+     SETTINGS
+     ========================================================= */
 
   useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const res = await fetch("/api/public/settings", { cache: "no-store" });
-        if (!res.ok) return;
-        const data = await res.json();
+    const controller =
+      new AbortController();
 
-        const nextBrandName =
-          data.logo_text ||
-          data.logoText ||
-          data.site_title ||
-          data.siteName ||
-          data.site_name ||
-          null;
-        if (typeof nextBrandName === "string" && nextBrandName.trim()) {
-          setBrandName(nextBrandName.trim());
+    const fetchSettings =
+      async () => {
+        try {
+          const res = await fetch(
+            "/api/public/settings",
+            {
+              cache: "no-store",
+              signal:
+                controller.signal,
+            },
+          );
+
+          if (!res.ok) {
+            return;
+          }
+
+          const data =
+            await res.json();
+
+          /* Brand */
+
+          const nextBrandName =
+            data.logo_text ||
+            data.logoText ||
+            data.site_title ||
+            data.siteName ||
+            data.site_name ||
+            null;
+
+          if (
+            typeof nextBrandName ===
+              "string" &&
+            nextBrandName.trim()
+          ) {
+            setBrandName(
+              nextBrandName.trim(),
+            );
+          }
+
+          /* Tagline */
+
+          const nextTagline =
+            data.site_tagline ||
+            data.siteTagline ||
+            data.tagline ||
+            data.site_tag_line ||
+            null;
+
+          if (
+            typeof nextTagline ===
+              "string" &&
+            nextTagline.trim()
+          ) {
+            setBrandTagline(
+              nextTagline.trim(),
+            );
+          }
+
+          /* Logo */
+
+          const nextLogo =
+            data.footer_logo_url ||
+            data.footerLogoUrl ||
+            data.logo_preview_url ||
+            data.site_logo ||
+            data.logo ||
+            data.logoPreviewUrl ||
+            null;
+
+          if (
+            typeof nextLogo ===
+              "string" &&
+            nextLogo.trim()
+          ) {
+            setLogoUrl(
+              nextLogo.trim(),
+            );
+          }
+
+          /* Email */
+
+          const nextEmail =
+            data.contact_email ||
+            data.support_email ||
+            null;
+
+          if (
+            typeof nextEmail ===
+              "string" &&
+            nextEmail.trim()
+          ) {
+            setContactEmail(
+              nextEmail.trim(),
+            );
+          }
+
+          /* Phone */
+
+          const nextPhone =
+            data.contact_phone ||
+            data.whatsapp_phone ||
+            null;
+
+          if (
+            typeof nextPhone ===
+              "string" &&
+            nextPhone.trim()
+          ) {
+            setContactPhone(
+              nextPhone.trim(),
+            );
+          }
+
+          /* Address */
+
+          const parts: string[] =
+            [];
+
+          const line1 =
+            data.address_line_1;
+
+          const line2 =
+            data.address_line_2;
+
+          const city =
+            data.address_city;
+
+          const postal =
+            data.address_postal_code;
+
+          const country =
+            data.address_country;
+
+          if (
+            typeof line1 ===
+              "string" &&
+            line1.trim()
+          ) {
+            parts.push(
+              line1.trim(),
+            );
+          }
+
+          if (
+            typeof line2 ===
+              "string" &&
+            line2.trim()
+          ) {
+            parts.push(
+              line2.trim(),
+            );
+          }
+
+          const locality = [
+            postal,
+            city,
+          ]
+            .filter(
+              (
+                value: unknown,
+              ) =>
+                typeof value ===
+                  "string" &&
+                value.trim(),
+            )
+            .map((value) =>
+              String(
+                value,
+              ).trim(),
+            )
+            .join(" ");
+
+          if (locality) {
+            parts.push(
+              locality,
+            );
+          }
+
+          if (
+            typeof country ===
+              "string" &&
+            country.trim()
+          ) {
+            parts.push(
+              country.trim(),
+            );
+          }
+
+          if (parts.length) {
+            setAddressLines(
+              parts,
+            );
+          }
+
+          /* Social */
+
+          const instagram =
+            data.social_instagram;
+
+          const facebook =
+            data.social_facebook;
+
+          const youtube =
+            data.social_youtube;
+
+          setSocial({
+            instagram:
+              typeof instagram ===
+                "string" &&
+              instagram.trim()
+                ? instagram.trim()
+                : undefined,
+
+            facebook:
+              typeof facebook ===
+                "string" &&
+              facebook.trim()
+                ? facebook.trim()
+                : undefined,
+
+            youtube:
+              typeof youtube ===
+                "string" &&
+              youtube.trim()
+                ? youtube.trim()
+                : undefined,
+          });
+        } catch (error) {
+          if (
+            (error as Error)
+              .name !==
+            "AbortError"
+          ) {
+            console.error(
+              "Footer settings error:",
+              error,
+            );
+          }
         }
+      };
 
-        const nextTagline =
-          data.site_tagline ||
-          data.siteTagline ||
-          data.tagline ||
-          data.site_tag_line ||
-          null;
-        if (typeof nextTagline === "string" && nextTagline.trim()) {
-          setBrandTagline(nextTagline.trim());
-        }
+    void fetchSettings();
 
-        const nextLogo =
-          data.footer_logo_url ||
-          data.footerLogoUrl ||
-          data.logo_preview_url ||
-          data.site_logo ||
-          data.logo ||
-          data.logoPreviewUrl ||
-          null;
-        if (typeof nextLogo === "string" && nextLogo.trim()) {
-          setLogoUrl(nextLogo.trim());
-        }
-
-        const nextEmail = data.contact_email || data.support_email || null;
-        if (typeof nextEmail === "string" && nextEmail.trim()) {
-          setContactEmail(nextEmail.trim());
-        }
-
-        const nextPhone = data.contact_phone || data.whatsapp_phone || null;
-        if (typeof nextPhone === "string" && nextPhone.trim()) {
-          setContactPhone(nextPhone.trim());
-        }
-
-        const parts: string[] = [];
-        const line1 = data.address_line_1;
-        const line2 = data.address_line_2;
-        const city = data.address_city;
-        const postal = data.address_postal_code;
-        const country = data.address_country;
-
-        if (typeof line1 === "string" && line1.trim()) parts.push(line1.trim());
-        if (typeof line2 === "string" && line2.trim()) parts.push(line2.trim());
-
-        const locality = [postal, city]
-          .filter((v: unknown) => typeof v === "string" && v.trim())
-          .map((v: unknown) => String(v).trim())
-          .join(" ");
-        if (locality) parts.push(locality);
-
-        if (typeof country === "string" && country.trim()) parts.push(country.trim());
-        if (parts.length) setAddressLines(parts);
-
-        const instagram = data.social_instagram;
-        const facebook = data.social_facebook;
-        const youtube = data.social_youtube;
-        setSocial({
-          instagram: typeof instagram === "string" ? instagram.trim() : undefined,
-          facebook: typeof facebook === "string" ? facebook.trim() : undefined,
-          youtube: typeof youtube === "string" ? youtube.trim() : undefined,
-        });
-      } catch {
-        // ignore
-      }
-    };
-
-    fetchSettings();
+    return () =>
+      controller.abort();
   }, []);
 
-  const logoSrc = logoUrl || "/logo.svg";
-  const hasCustomLogo = Boolean(logoUrl);
-  const socialLinks = useMemo(
-    () =>
+  /* =========================================================
+     COMPUTED VALUES
+     ========================================================= */
+
+  const logoSrc =
+    logoUrl || "/logo.svg";
+
+  const hasCustomLogo =
+    Boolean(logoUrl);
+
+  const socialLinks =
+    useMemo(
+      () =>
+        [
+          {
+            href:
+              social.instagram,
+            label:
+              "Instagram",
+            Icon:
+              Instagram,
+          },
+          {
+            href:
+              social.facebook,
+            label:
+              "Facebook",
+            Icon:
+              Facebook,
+          },
+          {
+            href:
+              social.youtube,
+            label:
+              "YouTube",
+            Icon:
+              Youtube,
+          },
+        ].filter(
+          (
+            item,
+          ): item is {
+            href: string;
+            label: string;
+            Icon: typeof Instagram;
+          } =>
+            Boolean(
+              item.href,
+            ),
+        ),
       [
-        { href: social.instagram, label: "Instagram", Icon: Instagram },
-        { href: social.facebook, label: "Facebook", Icon: Facebook },
-        { href: social.youtube, label: "YouTube", Icon: Youtube },
-      ].filter((item) => Boolean(item.href)),
-    [social.facebook, social.instagram, social.youtube]
-  );
+        social.facebook,
+        social.instagram,
+        social.youtube,
+      ],
+    );
+
+  const phoneHref =
+    contactPhone.replace(
+      /[^\d+]/g,
+      "",
+    );
+
+  /* =========================================================
+     RENDER
+     ========================================================= */
 
   return (
-    <footer className="relative overflow-hidden border-t border-[#c6a15b]/20 bg-[#171713] text-stone-200">
-      <div className="pointer-events-none absolute -left-48 -top-64 h-[32rem] w-[32rem] rounded-full bg-[#c6a15b]/[0.07] blur-3xl" />
-      <div className="pointer-events-none absolute bottom-0 right-0 h-72 w-72 bg-[radial-gradient(circle,rgba(198,161,91,0.06),transparent_68%)]" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#d8b66d]/70 to-transparent" />
+    <footer
+      className="
+        relative
+        overflow-hidden
+        border-t
+        border-[#B28A47]/20
+        bg-[#083D31]
+        text-[#FFFDF8]
+      "
+    >
+      {/* =====================================================
+          BACKGROUND DECORATION
+          ===================================================== */}
 
-      <div className="relative container mx-auto px-5 py-10 sm:px-6 lg:py-12">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-12 lg:gap-x-8">
-          <div className="space-y-5 lg:col-span-5 lg:pr-6">
-            <Link href="/" className="group inline-flex max-w-full flex-col items-start gap-3">
-              <div className="relative h-20 w-44 overflow-hidden transition-transform duration-300 group-hover:-translate-y-1 sm:h-24 sm:w-52">
+      <div
+        className="
+          pointer-events-none
+          absolute
+          -left-52
+          -top-64
+          h-[34rem]
+          w-[34rem]
+          rounded-full
+          bg-[#D2AA5A]/[0.055]
+          blur-3xl
+        "
+        aria-hidden="true"
+      />
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          -bottom-48
+          right-0
+          h-[30rem]
+          w-[30rem]
+          rounded-full
+          bg-[#12604B]/25
+          blur-3xl
+        "
+        aria-hidden="true"
+      />
+
+      {/* Fine gold line */}
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          inset-x-0
+          top-0
+          h-px
+          bg-gradient-to-r
+          from-transparent
+          via-[#D2AA5A]/70
+          to-transparent
+        "
+        aria-hidden="true"
+      />
+
+      {/* =====================================================
+          MAIN FOOTER
+          ===================================================== */}
+
+      <div
+        className="
+          site-container
+          relative
+          py-10
+          lg:py-12
+        "
+      >
+        <div
+          className="
+            grid
+            grid-cols-1
+            gap-9
+            md:grid-cols-2
+            lg:grid-cols-12
+            lg:gap-x-10
+          "
+        >
+          {/* =================================================
+              BRAND
+              ================================================= */}
+
+          <div
+            className="
+              lg:col-span-5
+              lg:pr-8
+            "
+          >
+            <Link
+              href="/"
+              className="
+                group
+                inline-flex
+                flex-col
+                items-start
+              "
+            >
+              <div
+                className="
+                  relative
+                  h-[84px]
+                  w-[190px]
+                  transition-transform
+                  duration-300
+                  group-hover:-translate-y-0.5
+                  sm:h-[94px]
+                  sm:w-[215px]
+                "
+              >
                 <Image
                   src={logoSrc}
                   alt={brandName}
                   fill
-                  sizes="(max-width: 640px) 176px, 208px"
-                  className="object-contain"
+                  sizes="
+                    (max-width: 640px) 190px,
+                    215px
+                  "
+                  className="
+                    object-contain
+                    object-left
+                  "
                 />
               </div>
+
               {!hasCustomLogo && (
-                <div className="leading-tight">
-                  <p className="font-serif text-xl font-semibold tracking-tight text-white">
+                <div className="mt-2">
+                  <p
+                    className="
+                      font-serif
+                      text-[24px]
+                      font-medium
+                      tracking-[-0.02em]
+                      text-[#FFFDF8]
+                    "
+                  >
                     {brandName}
                   </p>
-                  <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.34em] text-[#d8b66d]">
-                    Fes
+
+                  <p
+                    className="
+                      mt-1
+                      text-[9px]
+                      font-semibold
+                      uppercase
+                      tracking-[0.32em]
+                      text-[#D2AA5A]
+                    "
+                  >
                   </p>
                 </div>
               )}
             </Link>
-            {socialLinks.length > 0 && (
-              <div className="flex items-center gap-3">
-                {socialLinks.map(({ href, label, Icon }) => (
-                  <a
-                    key={label}
-                    href={href as string}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={label}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-stone-300 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#d8b66d]/50 hover:bg-[#d8b66d] hover:text-[#171713] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d8b66d] focus-visible:ring-offset-2 focus-visible:ring-offset-[#171713]"
-                  >
-                    <Icon size={18} aria-hidden="true" />
-                  </a>
-                ))}
+
+            {/* TAGLINE */}
+
+            {brandTagline && (
+              <p
+                className="
+                  mt-4
+                  max-w-sm
+                  font-serif
+                  text-[17px]
+                  font-normal
+                  leading-relaxed
+                  text-white/70
+                "
+              >
+                {brandTagline}
+              </p>
+            )}
+
+            {/* SOCIAL */}
+
+            {socialLinks.length >
+              0 && (
+              <div
+                className="
+                  mt-5
+                  flex
+                  items-center
+                  gap-2.5
+                "
+              >
+                {socialLinks.map(
+                  ({
+                    href,
+                    label,
+                    Icon,
+                  }) => (
+                    <a
+                      key={
+                        label
+                      }
+                      href={
+                        href
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={
+                        label
+                      }
+                      className="
+                        inline-flex
+                        h-10
+                        w-10
+                        items-center
+                        justify-center
+                        rounded-full
+
+                        border
+                        border-white/10
+
+                        bg-white/[0.035]
+
+                        text-white/65
+
+                        transition-all
+                        duration-200
+
+                        hover:-translate-y-0.5
+                        hover:border-[#D2AA5A]/45
+                        hover:bg-[#D2AA5A]
+                        hover:text-[#083D31]
+
+                        focus-visible:outline-none
+                        focus-visible:ring-2
+                        focus-visible:ring-[#D2AA5A]
+                        focus-visible:ring-offset-2
+                        focus-visible:ring-offset-[#083D31]
+                      "
+                    >
+                      <Icon
+                        size={17}
+                        strokeWidth={
+                          1.7
+                        }
+                        aria-hidden="true"
+                      />
+                    </a>
+                  ),
+                )}
               </div>
             )}
           </div>
 
+          {/* =================================================
+              NAVIGATION
+              ================================================= */}
+
           <div className="lg:col-span-2">
-            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#d8b66d]">
-              {t("footer.navigation")}
-            </p>
-            <ul className="space-y-2.5 text-sm">
-              {quickLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="group inline-flex items-center gap-3 text-stone-400 transition-colors hover:text-white"
+            <FooterTitle>
+              {t(
+                "footer.navigation",
+              )}
+            </FooterTitle>
+
+            <ul className="space-y-2.5">
+              {quickLinks.map(
+                (link) => (
+                  <li
+                    key={
+                      link.href
+                    }
                   >
-                    <span className="h-px w-3 bg-[#d8b66d]/40 transition-all group-hover:w-5 group-hover:bg-[#d8b66d]" aria-hidden="true" />
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+                    <Link
+                      href={
+                        link.href
+                      }
+                      className="
+                        group
+                        inline-flex
+                        items-center
+                        gap-2.5
+                        text-[13px]
+                        text-white/55
+                        transition-colors
+                        duration-200
+                        hover:text-white
+                      "
+                    >
+                      <span
+                        className="
+                          h-px
+                          w-2.5
+                          bg-[#D2AA5A]/35
+                          transition-all
+                          duration-200
+                          group-hover:w-4
+                          group-hover:bg-[#D2AA5A]
+                        "
+                      />
+
+                      {
+                        link.label
+                      }
+                    </Link>
+                  </li>
+                ),
+              )}
             </ul>
           </div>
 
+          {/* =================================================
+              CONTACT
+              ================================================= */}
+
           <div className="lg:col-span-3">
-            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#d8b66d]">
-              {t("footer.contact")}
-            </p>
-            <ul className="space-y-2 text-sm">
-              <li className="flex items-start gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] p-3">
-                <MapPin size={17} className="mt-0.5 flex-shrink-0 text-[#d8b66d]" />
-                <span className="leading-6 text-stone-400">
-                  {addressLines.map((line, idx) => (
-                    <span key={idx} className="block">
-                      {line}
-                    </span>
-                  ))}
+            <FooterTitle>
+              {t(
+                "footer.contact",
+              )}
+            </FooterTitle>
+
+            <ul className="space-y-4">
+              <li
+                className="
+                  flex
+                  items-start
+                  gap-3
+                "
+              >
+                <MapPin
+                  size={16}
+                  strokeWidth={
+                    1.6
+                  }
+                  className="
+                    mt-0.5
+                    shrink-0
+                    text-[#D2AA5A]
+                  "
+                />
+
+                <span
+                  className="
+                    text-[13px]
+                    leading-[1.7]
+                    text-white/55
+                  "
+                >
+                  {addressLines.map(
+                    (
+                      line,
+                      index,
+                    ) => (
+                      <span
+                        key={
+                          index
+                        }
+                        className="block"
+                      >
+                        {
+                          line
+                        }
+                      </span>
+                    ),
+                  )}
                 </span>
               </li>
+
               <li>
                 <a
-                  href={`tel:${contactPhone.replace(/\s+/g, "")}`}
-                  className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] p-3 text-stone-400 transition-colors hover:border-[#d8b66d]/30 hover:text-white"
+                  href={`tel:${phoneHref}`}
+                  className="
+                    group
+                    flex
+                    items-center
+                    gap-3
+                    text-[13px]
+                    text-white/55
+                    transition-colors
+                    hover:text-white
+                  "
                 >
-                  <Phone size={17} className="flex-shrink-0 text-[#d8b66d]" />
-                  {contactPhone}
+                  <Phone
+                    size={16}
+                    strokeWidth={
+                      1.6
+                    }
+                    className="
+                      shrink-0
+                      text-[#D2AA5A]
+                    "
+                  />
+
+                  {
+                    contactPhone
+                  }
                 </a>
               </li>
+
               <li>
                 <a
                   href={`mailto:${contactEmail}`}
-                  className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] p-3 text-stone-400 transition-colors hover:border-[#d8b66d]/30 hover:text-white"
+                  className="
+                    group
+                    flex
+                    items-center
+                    gap-3
+                    text-[13px]
+                    text-white/55
+                    transition-colors
+                    hover:text-white
+                  "
                 >
-                  <Mail size={17} className="flex-shrink-0 text-[#d8b66d]" />
-                  {contactEmail}
+                  <Mail
+                    size={16}
+                    strokeWidth={
+                      1.6
+                    }
+                    className="
+                      shrink-0
+                      text-[#D2AA5A]
+                    "
+                  />
+
+                  <span className="break-all">
+                    {
+                      contactEmail
+                    }
+                  </span>
                 </a>
               </li>
             </ul>
           </div>
 
+          {/* =================================================
+              LEGAL
+              ================================================= */}
+
           <div className="lg:col-span-2">
-            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#d8b66d]">
-              {t("footer.information")}
-            </p>
-            <ul className="space-y-2.5 text-sm">
-              {legalLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-stone-400 transition-colors hover:text-white"
+            <FooterTitle>
+              {t(
+                "footer.information",
+              )}
+            </FooterTitle>
+
+            <ul className="space-y-2.5">
+              {legalLinks.map(
+                (link) => (
+                  <li
+                    key={
+                      link.href
+                    }
                   >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+                    <Link
+                      href={
+                        link.href
+                      }
+                      className="
+                        text-[13px]
+                        text-white/50
+                        transition-colors
+                        duration-200
+                        hover:text-white
+                      "
+                    >
+                      {
+                        link.label
+                      }
+                    </Link>
+                  </li>
+                ),
+              )}
+
               <li>
                 <button
                   type="button"
-                  onClick={openCookieBanner}
-                  className="text-left text-stone-400 transition-colors hover:text-white"
+                  onClick={
+                    openCookieBanner
+                  }
+                  className="
+                    text-left
+                    text-[13px]
+                    text-white/50
+                    transition-colors
+                    hover:text-white
+                  "
                 >
-                  {t("footer.manage_cookies")}
+                  {t(
+                    "footer.manage_cookies",
+                  )}
                 </button>
               </li>
             </ul>
@@ -279,21 +965,109 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="relative border-t border-white/[0.07] bg-black/10 py-4">
-        <div className="container mx-auto px-5 sm:px-6">
-          <div className="flex flex-col items-center justify-between gap-4 text-center text-xs text-stone-500 sm:text-sm md:flex-row md:text-left">
-            <div>
-              &copy; {currentYear} {brandName}. {t("footer.all_rights_reserved")}
-            </div>
+      {/* =====================================================
+          BOTTOM BAR
+          ===================================================== */}
 
-            <div className="flex items-center space-x-2">
-              <span>{t("footer.made_with")}</span>
-              <Heart size={15} className="fill-[#d8b66d] text-[#d8b66d]" />
-              <span>{t("footer.in_city")}</span>
-            </div>
+      <div
+        className="
+          relative
+          border-t
+          border-white/[0.07]
+          bg-black/[0.08]
+        "
+      >
+        <div
+          className="
+            site-container
+            flex
+            flex-col
+            items-center
+            justify-between
+            gap-3
+            py-4
+            text-center
+            text-[11px]
+            text-white/40
+            sm:flex-row
+            sm:text-left
+          "
+        >
+          <p>
+            © {currentYear}{" "}
+            {brandName}.{" "}
+            {t(
+              "footer.all_rights_reserved",
+            )}
+          </p>
+
+          <div
+            className="
+              flex
+              items-center
+              gap-1.5
+            "
+          >
+            <span>
+              {t(
+                "footer.made_with",
+              )}
+            </span>
+
+            <Heart
+              size={13}
+              strokeWidth={1.5}
+              className="
+                fill-[#D2AA5A]
+                text-[#D2AA5A]
+              "
+              aria-hidden="true"
+            />
+
+            <span>
+              {t(
+                "footer.in_city",
+              )}
+            </span>
           </div>
         </div>
       </div>
     </footer>
+  );
+}
+
+/* ===========================================================
+   FOOTER TITLE
+   =========================================================== */
+
+function FooterTitle({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="mb-4">
+      <p
+        className="
+          text-[10px]
+          font-semibold
+          uppercase
+          tracking-[0.26em]
+          text-[#D2AA5A]
+        "
+      >
+        {children}
+      </p>
+
+      <div
+        className="
+          mt-2
+          h-px
+          w-7
+          bg-[#B28A47]/45
+        "
+        aria-hidden="true"
+      />
+    </div>
   );
 }

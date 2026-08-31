@@ -1,14 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import {
-  Star,
-  Quote,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import { motion } from "framer-motion";
+
+import {
   Calendar,
-  MapPin,
   ChevronLeft,
   ChevronRight,
+  MapPin,
+  Quote,
+  Star,
 } from "lucide-react";
 
 export type TestimonialItem = {
@@ -30,7 +36,8 @@ const defaultTestimonials: TestimonialItem[] = [
     location: "Paris, France",
     date: "Janvier 2024",
     rating: 5,
-    text: "Un sejour absolument magique. Le riad est encore plus beau qu'en photo. L'accueil est chaleureux, les chambres spacieuses et le petit-dejeuner sur la terrasse etait un reve.",
+    text:
+      "Un séjour absolument magique. Le riad est encore plus beau qu’en photo. L’accueil est chaleureux, les chambres spacieuses et le petit-déjeuner était un vrai moment de plaisir.",
     avatar: "ST",
     stay: "7 nuits en Suite Royale",
   },
@@ -38,9 +45,10 @@ const defaultTestimonials: TestimonialItem[] = [
     id: 2,
     name: "Maria Rodriguez",
     location: "Madrid, Espagne",
-    date: "Decembre 2023",
+    date: "Décembre 2023",
     rating: 5,
-    text: "Le service est exceptionnel. L'equipe a tout fait pour rendre notre voyage de noces inoubliable. Les diners aux chandelles et les recommandations personnalisees... tout etait parfait.",
+    text:
+      "Le service est exceptionnel. L’équipe a tout fait pour rendre notre voyage de noces inoubliable. Les attentions personnalisées et les recommandations étaient parfaites.",
     avatar: "MR",
     stay: "5 nuits en Chambre Deluxe",
     featured: true,
@@ -51,7 +59,8 @@ const defaultTestimonials: TestimonialItem[] = [
     location: "Londres, Royaume-Uni",
     date: "Novembre 2023",
     rating: 4,
-    text: "Excellent rapport qualite-prix. L'emplacement est ideal pour explorer la medina. Le hammam etait incroyable apres une journee de visite.",
+    text:
+      "Excellent séjour. L’emplacement est idéal pour explorer la médina et retrouver ensuite le calme du riad. Une adresse que nous recommandons volontiers.",
     avatar: "JW",
     stay: "4 nuits en Chambre Standard",
   },
@@ -61,283 +70,1146 @@ const defaultTestimonials: TestimonialItem[] = [
     location: "Berlin, Allemagne",
     date: "Octobre 2023",
     rating: 5,
-    text: "Une oasis de paix au coeur de Marrakech. Le jardin et la piscine sont magnifiques. Le personnel est aux petits soins. Une experience authentique.",
+    text:
+      "Une véritable oasis de paix au cœur de Fès. Le personnel est attentionné et l’atmosphère très agréable. Une expérience authentique et reposante.",
     avatar: "AS",
     stay: "6 nuits en Suite Royale",
   },
 ];
 
-export function Testimonials({ items: initialItems }: { items?: TestimonialItem[] }) {
-  const [items, setItems] = useState<TestimonialItem[]>(
-    initialItems && initialItems.length ? initialItems : defaultTestimonials
-  );
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [autoplay, setAutoplay] = useState(true);
+type TestimonialsProps = {
+  items?: TestimonialItem[];
+};
+
+const AUTOPLAY_MS = 6500;
+
+export function Testimonials({
+  items: initialItems,
+}: TestimonialsProps) {
+  const [items, setItems] =
+    useState<TestimonialItem[]>(
+      initialItems &&
+        initialItems.length
+        ? initialItems
+        : defaultTestimonials,
+    );
+
+  const [
+    currentIndex,
+    setCurrentIndex,
+  ] = useState(0);
+
+  const [paused, setPaused] =
+    useState(false);
+
+  /* =========================================================
+     FETCH
+     ========================================================= */
 
   useEffect(() => {
-    if (initialItems && initialItems.length) return;
-    const fetchTestimonials = async () => {
-      try {
-        const res = await fetch("/api/testimonials", { cache: "no-store" });
-        if (!res.ok) throw new Error("Failed to load testimonials");
-        const { data } = await res.json();
-        if (Array.isArray(data)) {
-          const transformed = data.map((t: any, idx: number) => {
-            const name: string = t.guest_name || t.name || "Client";
-            const country: string = t.guest_country || t.location || "";
-            const created: string = t.created_at || new Date().toISOString();
-            const date = new Intl.DateTimeFormat("fr-FR", {
-              month: "long",
-              year: "numeric",
-            }).format(new Date(created));
-            const initials = name
-              .split(" " )
-              .filter(Boolean)
-              .map((part: string) => part[0])
-              .slice(0, 2)
-              .join("")
-              .toUpperCase();
+    if (
+      initialItems &&
+      initialItems.length
+    ) {
+      return;
+    }
 
-            return {
-              id: t.id ?? idx,
-              name,
-              location: country,
-              date,
-              rating: t.rating ?? 5,
-              text: t.content ?? t.text ?? "",
-              avatar: initials,
-              stay: "",
-              featured: !!t.featured,
-            } as TestimonialItem;
-          });
-          if (transformed.length) setItems(transformed);
+    const controller =
+      new AbortController();
+
+    const fetchTestimonials =
+      async () => {
+        try {
+          const res = await fetch(
+            "/api/testimonials",
+            {
+              cache: "no-store",
+              signal:
+                controller.signal,
+            },
+          );
+
+          if (!res.ok) {
+            throw new Error(
+              "Failed to load testimonials",
+            );
+          }
+
+          const payload =
+            await res.json();
+
+          const data =
+            Array.isArray(
+              payload?.data,
+            )
+              ? payload.data
+              : [];
+
+          const transformed =
+            data.map(
+              (
+                testimonial: any,
+                index: number,
+              ) => {
+                const name =
+                  testimonial.guest_name ||
+                  testimonial.name ||
+                  "Client";
+
+                const country =
+                  testimonial.guest_country ||
+                  testimonial.location ||
+                  "";
+
+                const created =
+                  testimonial.created_at ||
+                  new Date().toISOString();
+
+                const date =
+                  new Intl.DateTimeFormat(
+                    "fr-FR",
+                    {
+                      month:
+                        "long",
+                      year:
+                        "numeric",
+                    },
+                  ).format(
+                    new Date(
+                      created,
+                    ),
+                  );
+
+                const initials =
+                  name
+                    .split(" ")
+                    .filter(Boolean)
+                    .map(
+                      (
+                        part: string,
+                      ) =>
+                        part[0],
+                    )
+                    .slice(0, 2)
+                    .join("")
+                    .toUpperCase();
+
+                return {
+                  id:
+                    testimonial.id ??
+                    index,
+
+                  name,
+
+                  location:
+                    country,
+
+                  date,
+
+                  rating:
+                    Number(
+                      testimonial.rating ??
+                        5,
+                    ),
+
+                  text:
+                    testimonial.content ||
+                    testimonial.text ||
+                    "",
+
+                  avatar:
+                    initials,
+
+                  stay:
+                    testimonial.stay ||
+                    "",
+
+                  featured:
+                    Boolean(
+                      testimonial.featured,
+                    ),
+                } satisfies TestimonialItem;
+              },
+            );
+
+          if (
+            transformed.length
+          ) {
+            setItems(
+              transformed,
+            );
+          }
+        } catch (error) {
+          if (
+            (error as Error)
+              .name !==
+            "AbortError"
+          ) {
+            console.error(
+              "Testimonials loading failed:",
+              error,
+            );
+          }
         }
-      } catch (e) {
-        // fallback to defaultTestimonials
-      }
+      };
+
+    void fetchTestimonials();
+
+    return () => {
+      controller.abort();
     };
-    fetchTestimonials();
-  }, []);
+  }, [initialItems]);
 
-  const nextTestimonial = () => {
-    setCurrentIndex((prev) => (prev + 1) % items.length);
-  };
+  /* =========================================================
+     SAFETY
+     ========================================================= */
 
-  const prevTestimonial = () => {
-    setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
-  };
+  useEffect(() => {
+    if (!items.length) {
+      setCurrentIndex(0);
+      return;
+    }
+
+    if (
+      currentIndex >=
+      items.length
+    ) {
+      setCurrentIndex(0);
+    }
+  }, [
+    currentIndex,
+    items.length,
+  ]);
+
+  /* =========================================================
+     AUTOPLAY
+     ========================================================= */
+
+  useEffect(() => {
+    if (
+      paused ||
+      items.length <= 1
+    ) {
+      return;
+    }
+
+    const id =
+      window.setInterval(() => {
+        setCurrentIndex(
+          (previous) =>
+            (previous + 1) %
+            items.length,
+        );
+      }, AUTOPLAY_MS);
+
+    return () => {
+      window.clearInterval(id);
+    };
+  }, [items.length, paused]);
+
+  /* =========================================================
+     NAVIGATION
+     ========================================================= */
+
+  const nextTestimonial =
+    () => {
+      if (!items.length) {
+        return;
+      }
+
+      setCurrentIndex(
+        (previous) =>
+          (previous + 1) %
+          items.length,
+      );
+    };
+
+  const prevTestimonial =
+    () => {
+      if (!items.length) {
+        return;
+      }
+
+      setCurrentIndex(
+        (previous) =>
+          (previous -
+            1 +
+            items.length) %
+          items.length,
+      );
+    };
+
+  /* =========================================================
+     STATS
+     ========================================================= */
+
+  const stats = useMemo(() => {
+    if (!items.length) {
+      return [];
+    }
+
+    const average =
+      items.reduce(
+        (sum, item) =>
+          sum + item.rating,
+        0,
+      ) / items.length;
+
+    const fiveStars =
+      items.filter(
+        (item) =>
+          item.rating === 5,
+      ).length;
+
+    return [
+      {
+        value:
+          average.toFixed(1),
+        suffix: "/5",
+        label:
+          "Note moyenne",
+      },
+      {
+        value:
+          String(
+            items.length,
+          ),
+        suffix: "",
+        label:
+          "Avis publiés",
+      },
+      {
+        value:
+          `${Math.round(
+            (fiveStars /
+              items.length) *
+              100,
+          )}%`,
+        suffix: "",
+        label:
+          "Avis 5 étoiles",
+      },
+    ];
+  }, [items]);
+
+  const active =
+    items[currentIndex];
+
+  if (!active) {
+    return null;
+  }
 
   return (
-    <section className="py-20 bg-gradient-to-b from-stone-50 to-white">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <div className="inline-flex items-center space-x-2 text-amber-700 mb-4">
-              <Quote size={22} />
-              <span className="lux-kicker">TEMOIGNAGES</span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
-              Ce que disent nos voyageurs
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Des experiences authentiques, partagees par nos clients.
-            </p>
-          </motion.div>
-        </div>
+    <section
+      className="
+        relative
+        overflow-hidden
+        bg-[#FFFDF8]
+        py-16
+        sm:py-20
+        lg:py-24
+      "
+    >
+      {/* Background */}
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-          {[
-            { value: "4.9/5", label: "Note moyenne" },
-            { value: "98%", label: "Taux de retour" },
-            { value: "500+", label: "Clients satisfaits" },
-            { value: "100%", label: "Recommandation" },
-          ].map((stat, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="lux-panel rounded-2xl p-6 text-center border border-amber-200/50"
+      <div
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          bg-[radial-gradient(circle_at_12%_18%,rgba(178,138,71,0.06),transparent_34%)]
+        "
+        aria-hidden="true"
+      />
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          bg-[radial-gradient(circle_at_88%_75%,rgba(15,90,70,0.05),transparent_35%)]
+        "
+        aria-hidden="true"
+      />
+
+      <div className="site-container relative">
+        {/* HEADER */}
+
+        <motion.div
+          initial={{
+            opacity: 0,
+            y: 18,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+            amount: 0.3,
+          }}
+          transition={{
+            duration: 0.55,
+            ease: [
+              0.22,
+              1,
+              0.36,
+              1,
+            ],
+          }}
+          className="
+            mx-auto
+            mb-10
+            max-w-3xl
+            text-center
+            lg:mb-12
+          "
+        >
+          <div
+            className="
+              mb-4
+              flex
+              items-center
+              justify-center
+              gap-3
+            "
+          >
+            <span
+              className="
+                h-px
+                w-10
+                bg-[#B28A47]/50
+              "
+            />
+
+            <span
+              className="
+                inline-flex
+                items-center
+                gap-2
+                text-[10px]
+                font-semibold
+                uppercase
+                tracking-[0.3em]
+                text-[#B28A47]
+              "
             >
-              <div className="text-3xl font-bold text-amber-700 mb-2">
-                {stat.value}
-              </div>
-              <div className="text-gray-600">{stat.label}</div>
-            </motion.div>
-          ))}
+              <Quote
+                size={14}
+                strokeWidth={1.5}
+              />
+
+              Témoignages
+            </span>
+
+            <span
+              className="
+                h-px
+                w-10
+                bg-[#B28A47]/50
+              "
+            />
+          </div>
+
+          <h2
+            className="
+              font-serif
+              text-[2.5rem]
+              font-medium
+              leading-[1.05]
+              tracking-[-0.025em]
+              text-[#201A17]
+              sm:text-[3rem]
+              lg:text-[3.35rem]
+            "
+          >
+            Ce que disent
+            <span className="text-[#0F5A46]">
+              {" "}
+              nos voyageurs
+            </span>
+          </h2>
+
+          <p
+            className="
+              mx-auto
+              mt-4
+              max-w-2xl
+              text-[15px]
+              font-light
+              leading-[1.75]
+              text-gray-600
+              sm:text-[16px]
+            "
+          >
+            Des expériences
+            authentiques,
+            racontées par celles et
+            ceux qui ont séjourné à
+            Dar LaMamy.
+          </p>
+        </motion.div>
+
+        {/* STATS */}
+
+        <div
+          className="
+            mx-auto
+            mb-10
+            grid
+            max-w-4xl
+            grid-cols-1
+            gap-3
+            sm:grid-cols-3
+          "
+        >
+          {stats.map(
+            (stat, index) => (
+              <motion.div
+                key={
+                  stat.label
+                }
+                initial={{
+                  opacity: 0,
+                  y: 12,
+                }}
+                whileInView={{
+                  opacity: 1,
+                  y: 0,
+                }}
+                viewport={{
+                  once: true,
+                }}
+                transition={{
+                  duration: 0.45,
+                  delay:
+                    index *
+                    0.06,
+                }}
+                className="
+                  rounded-[20px]
+                  border
+                  border-[#B28A47]/15
+                  bg-white/70
+                  px-5
+                  py-5
+                  text-center
+                  shadow-[0_12px_35px_-28px_rgba(35,20,12,0.25)]
+                  backdrop-blur-sm
+                "
+              >
+                <p
+                  className="
+                    font-serif
+                    text-[28px]
+                    font-medium
+                    leading-none
+                    text-[#0F5A46]
+                  "
+                >
+                  {stat.value}
+
+                  <span
+                    className="
+                      ml-0.5
+                      text-lg
+                      text-[#B28A47]
+                    "
+                  >
+                    {
+                      stat.suffix
+                    }
+                  </span>
+                </p>
+
+                <p
+                  className="
+                    mt-2
+                    text-xs
+                    text-gray-500
+                    sm:text-[13px]
+                  "
+                >
+                  {
+                    stat.label
+                  }
+                </p>
+              </motion.div>
+            ),
+          )}
         </div>
 
-        <div className="max-w-4xl mx-auto relative">
-          <button
-            onClick={prevTestimonial}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 z-10 bg-white/90 p-3 rounded-full shadow-xl hover:shadow-2xl transition-all"
-          >
-            <ChevronLeft size={24} />
-          </button>
+        {/* MAIN TESTIMONIAL */}
 
-          <button
-            onClick={nextTestimonial}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 z-10 bg-white/90 p-3 rounded-full shadow-xl hover:shadow-2xl transition-all"
-          >
-            <ChevronRight size={24} />
-          </button>
+        <div
+          className="
+            relative
+            mx-auto
+            max-w-5xl
+          "
+          onMouseEnter={() =>
+            setPaused(true)
+          }
+          onMouseLeave={() =>
+            setPaused(false)
+          }
+        >
+          {/* Navigation */}
 
-          <motion.div
-            key={items[currentIndex].id}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className={`rounded-3xl p-8 md:p-12 shadow-2xl border ${
-              items[currentIndex].featured
-                ? "bg-gradient-to-br from-amber-700 to-amber-800 border-amber-600"
-                : "lux-panel border-amber-200/60"
-            }`}
-            onMouseEnter={() => setAutoplay(false)}
-            onMouseLeave={() => setAutoplay(true)}
-          >
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-8">
-              <div
-                className={`flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold ${
-                  items[currentIndex].featured
-                    ? "bg-white text-amber-700"
-                    : "bg-amber-100 text-amber-700"
-                }`}
+          {items.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={
+                  prevTestimonial
+                }
+                aria-label="Témoignage précédent"
+                className="
+                  absolute
+                  left-0
+                  top-1/2
+                  z-20
+                  inline-flex
+                  h-11
+                  w-11
+                  -translate-x-3
+                  -translate-y-1/2
+                  items-center
+                  justify-center
+                  rounded-full
+                  border
+                  border-[#B28A47]/20
+                  bg-[#FFFDF8]/95
+                  text-[#0F5A46]
+                  shadow-[0_8px_24px_rgba(35,20,12,0.14)]
+                  backdrop-blur
+                  transition-all
+                  duration-200
+                  hover:-translate-x-4
+                  hover:border-[#B28A47]/40
+                  hover:bg-white
+                  md:-translate-x-14
+                  md:hover:-translate-x-[60px]
+                "
               >
-                {items[currentIndex].avatar}
-              </div>
+                <ChevronLeft
+                  size={20}
+                  strokeWidth={1.7}
+                />
+              </button>
 
-              <div className="flex-1">
-                <div className="flex flex-wrap items-center gap-4 mb-2">
-                  <h3
-                    className={`text-xl font-bold ${
-                      items[currentIndex].featured
-                        ? "text-white"
-                        : "text-gray-900"
-                    }`}
-                  >
-                    {items[currentIndex].name}
-                  </h3>
-
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        size={18}
-                        className={`${
-                          i < items[currentIndex].rating
-                            ? items[currentIndex].featured
-                              ? "text-white fill-white"
-                              : "text-amber-500 fill-amber-500"
-                            : items[currentIndex].featured
-                            ? "text-white/40"
-                            : "text-gray-300"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div
-                  className={`flex flex-wrap gap-4 text-sm ${
-                    items[currentIndex].featured
-                      ? "text-amber-100"
-                      : "text-gray-600"
-                  }`}
-                >
-                  <div className="flex items-center gap-1">
-                    <MapPin size={14} />
-                    {items[currentIndex].location}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Calendar size={14} />
-                    {items[currentIndex].date}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mb-8">
-              <Quote
-                className={`w-8 h-8 mb-4 ${
-                  items[currentIndex].featured
-                    ? "text-amber-200"
-                    : "text-amber-300"
-                }`}
-              />
-              <p
-                className={`text-lg leading-relaxed ${
-                  items[currentIndex].featured
-                    ? "text-white"
-                    : "text-gray-700"
-                }`}
+              <button
+                type="button"
+                onClick={
+                  nextTestimonial
+                }
+                aria-label="Témoignage suivant"
+                className="
+                  absolute
+                  right-0
+                  top-1/2
+                  z-20
+                  inline-flex
+                  h-11
+                  w-11
+                  translate-x-3
+                  -translate-y-1/2
+                  items-center
+                  justify-center
+                  rounded-full
+                  border
+                  border-[#B28A47]/20
+                  bg-[#FFFDF8]/95
+                  text-[#0F5A46]
+                  shadow-[0_8px_24px_rgba(35,20,12,0.14)]
+                  backdrop-blur
+                  transition-all
+                  duration-200
+                  hover:translate-x-4
+                  hover:border-[#B28A47]/40
+                  hover:bg-white
+                  md:translate-x-14
+                  md:hover:translate-x-[60px]
+                "
               >
-                {items[currentIndex].text}
-              </p>
-            </div>
+                <ChevronRight
+                  size={20}
+                  strokeWidth={1.7}
+                />
+              </button>
+            </>
+          )}
+
+          <motion.article
+            key={active.id}
+            initial={{
+              opacity: 0,
+              y: 14,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            transition={{
+              duration: 0.5,
+              ease: [
+                0.22,
+                1,
+                0.36,
+                1,
+              ],
+            }}
+            className="
+              relative
+              overflow-hidden
+              rounded-[30px]
+              border
+              border-[#B28A47]/20
+              bg-white/80
+              p-6
+              shadow-[0_28px_80px_-50px_rgba(35,20,12,0.38)]
+              backdrop-blur-md
+              sm:p-8
+              md:p-10
+            "
+          >
+            {/* subtle decorative glow */}
 
             <div
-              className={`text-sm font-medium px-4 py-2 rounded-full inline-block ${
-                items[currentIndex].featured
-                  ? "bg-white/20 text-white"
-                  : "bg-amber-100 text-amber-700"
-              }`}
-            >
-              {items[currentIndex].stay}
-            </div>
-          </motion.div>
+              className="
+                pointer-events-none
+                absolute
+                -right-24
+                -top-24
+                h-60
+                w-60
+                rounded-full
+                bg-[#0F5A46]/5
+                blur-3xl
+              "
+              aria-hidden="true"
+            />
 
-          <div className="flex justify-center space-x-2 mt-8">
-            {items.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  index === currentIndex
-                    ? "bg-amber-700 w-8"
-                    : "bg-gray-300 hover:bg-gray-400"
-                }`}
-              />
-            ))}
-          </div>
+            <div
+              className="
+                pointer-events-none
+                absolute
+                -bottom-24
+                -left-24
+                h-56
+                w-56
+                rounded-full
+                bg-[#B28A47]/5
+                blur-3xl
+              "
+              aria-hidden="true"
+            />
+
+            <div className="relative z-10">
+              {/* TOP */}
+
+              <div
+                className="
+                  flex
+                  flex-col
+                  gap-5
+                  sm:flex-row
+                  sm:items-center
+                "
+              >
+                <div
+                  className="
+                    flex
+                    h-14
+                    w-14
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-full
+                    border
+                    border-[#B28A47]/30
+                    bg-[#0F5A46]
+                    font-serif
+                    text-lg
+                    font-medium
+                    text-[#FFFDF8]
+                    shadow-[0_8px_22px_rgba(15,90,70,0.16)]
+                  "
+                >
+                  {
+                    active.avatar
+                  }
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div
+                    className="
+                      flex
+                      flex-col
+                      gap-2
+                      sm:flex-row
+                      sm:items-center
+                      sm:justify-between
+                    "
+                  >
+                    <div>
+                      <h3
+                        className="
+                          font-serif
+                          text-[24px]
+                          font-medium
+                          leading-tight
+                          text-[#201A17]
+                        "
+                      >
+                        {
+                          active.name
+                        }
+                      </h3>
+
+                      <div
+                        className="
+                          mt-2
+                          flex
+                          flex-wrap
+                          gap-x-4
+                          gap-y-1
+                          text-xs
+                          text-gray-500
+                        "
+                      >
+                        {active.location && (
+                          <span
+                            className="
+                              inline-flex
+                              items-center
+                              gap-1.5
+                            "
+                          >
+                            <MapPin
+                              size={
+                                13
+                              }
+                              strokeWidth={
+                                1.6
+                              }
+                              className="text-[#B28A47]"
+                            />
+
+                            {
+                              active.location
+                            }
+                          </span>
+                        )}
+
+                        {active.date && (
+                          <span
+                            className="
+                              inline-flex
+                              items-center
+                              gap-1.5
+                            "
+                          >
+                            <Calendar
+                              size={
+                                13
+                              }
+                              strokeWidth={
+                                1.6
+                              }
+                              className="text-[#B28A47]"
+                            />
+
+                            {
+                              active.date
+                            }
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Stars */}
+
+                    <div
+                      className="
+                        flex
+                        items-center
+                        gap-1
+                      "
+                      aria-label={`${active.rating} étoiles sur 5`}
+                    >
+                      {Array.from({
+                        length: 5,
+                      }).map(
+                        (
+                          _,
+                          index,
+                        ) => (
+                          <Star
+                            key={
+                              index
+                            }
+                            size={
+                              17
+                            }
+                            strokeWidth={
+                              1.4
+                            }
+                            className={
+                              index <
+                              active.rating
+                                ? "fill-[#D2AA5A] text-[#D2AA5A]"
+                                : "text-[#B28A47]/20"
+                            }
+                          />
+                        ),
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* QUOTE */}
+
+              <div
+                className="
+                  mt-8
+                  border-t
+                  border-[#B28A47]/12
+                  pt-7
+                "
+              >
+                <Quote
+                  size={30}
+                  strokeWidth={1.2}
+                  className="
+                    mb-4
+                    text-[#B28A47]/45
+                  "
+                  aria-hidden="true"
+                />
+
+                <blockquote
+                  className="
+                    max-w-4xl
+                    font-serif
+                    text-[20px]
+                    font-normal
+                    leading-[1.7]
+                    text-[#201A17]/85
+                    sm:text-[22px]
+                    md:text-[24px]
+                  "
+                >
+                  “{active.text}”
+                </blockquote>
+              </div>
+
+              {/* STAY */}
+
+              {active.stay && (
+                <div className="mt-7">
+                  <span
+                    className="
+                      inline-flex
+                      rounded-full
+                      border
+                      border-[#B28A47]/20
+                      bg-[#B28A47]/5
+                      px-4
+                      py-2
+                      text-xs
+                      font-semibold
+                      text-[#0F5A46]
+                    "
+                  >
+                    {
+                      active.stay
+                    }
+                  </span>
+                </div>
+              )}
+
+              {/* FEATURED */}
+
+              {active.featured && (
+                <div
+                  className="
+                    absolute
+                    right-0
+                    top-0
+                    rounded-bl-2xl
+                    bg-[#0F5A46]
+                    px-4
+                    py-2
+                    text-[9px]
+                    font-semibold
+                    uppercase
+                    tracking-[0.22em]
+                    text-[#E8C982]
+                  "
+                >
+                  Coup de cœur
+                </div>
+              )}
+            </div>
+          </motion.article>
+
+          {/* DOTS */}
+
+          {items.length > 1 && (
+            <div
+              className="
+                mt-6
+                flex
+                justify-center
+                gap-2
+              "
+            >
+              {items.map(
+                (
+                  _,
+                  index,
+                ) => (
+                  <button
+                    key={
+                      index
+                    }
+                    type="button"
+                    onClick={() =>
+                      setCurrentIndex(
+                        index,
+                      )
+                    }
+                    aria-label={`Afficher le témoignage ${
+                      index + 1
+                    }`}
+                    className={`
+                      h-[5px]
+                      rounded-full
+                      transition-all
+                      duration-200
+
+                      ${
+                        index ===
+                        currentIndex
+                          ? "w-8 bg-[#0F5A46]"
+                          : "w-[5px] bg-[#B28A47]/25 hover:bg-[#B28A47]/55"
+                      }
+                    `}
+                  />
+                ),
+              )}
+            </div>
+          )}
         </div>
 
-        <div className="text-center mt-16">
-          <p className="text-gray-600 mb-6">Consultez aussi nos avis sur :</p>
-          <div className="flex flex-wrap justify-center gap-6">
-            {["TripAdvisor", "Booking.com", "Google", "Airbnb"].map(
+        {/* TRUST / EXTERNAL REVIEWS */}
+
+        <motion.div
+          initial={{
+            opacity: 0,
+            y: 14,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+          }}
+          transition={{
+            duration: 0.5,
+          }}
+          className="
+            mx-auto
+            mt-12
+            max-w-4xl
+            text-center
+          "
+        >
+          <p
+            className="
+              text-sm
+              font-light
+              text-gray-500
+            "
+          >
+            Retrouvez également les
+            avis vérifiés de nos
+            voyageurs sur les
+            principales plateformes
+            de réservation.
+          </p>
+
+          <div
+            className="
+              mt-5
+              flex
+              flex-wrap
+              justify-center
+              gap-x-6
+              gap-y-3
+            "
+          >
+            {[
+              "Booking.com",
+              "Google",
+              "TripAdvisor",
+              "Airbnb",
+            ].map(
               (platform) => (
-                <div
-                  key={platform}
-                  className="lux-panel px-6 py-3 rounded-2xl border border-amber-200/60"
+                <span
+                  key={
+                    platform
+                  }
+                  className="
+                    text-sm
+                    font-semibold
+                    tracking-[0.01em]
+                    text-[#201A17]/60
+                  "
                 >
-                  <div className="text-2xl font-bold text-amber-700">4.8</div>
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        size={14}
-                        className="text-amber-500 fill-amber-500"
-                      />
-                    ))}
-                  </div>
-                  <div className="text-sm text-gray-600 mt-1">{platform}</div>
-                </div>
-              )
+                  {
+                    platform
+                  }
+                </span>
+              ),
             )}
           </div>
-        </div>
-      </div>
-      <div className="text-center mt-6">
-        <a
-          href="/temoignage"
-          className="btn-secondary px-6 py-3 text-sm shadow-sm hover:bg-white"
-        >
-          Laisser un avis
-        </a>
+
+          {/* CTA */}
+
+          <div className="mt-8">
+            <a
+              href="/temoignage"
+              className="
+                group
+                inline-flex
+                h-[50px]
+                items-center
+                justify-center
+                rounded-full
+                border
+                border-[#B28A47]/30
+                bg-[#FFFDF8]
+                px-7
+                text-sm
+                font-semibold
+                text-[#0F5A46]
+                shadow-[0_8px_24px_rgba(35,20,12,0.08)]
+                transition-all
+                duration-200
+                hover:-translate-y-px
+                hover:border-[#B28A47]/50
+                hover:bg-white
+                hover:shadow-[0_10px_28px_rgba(35,20,12,0.12)]
+              "
+            >
+              Laisser un avis
+            </a>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

@@ -1,12 +1,37 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Calendar, Users, Search, ChevronDown, Check, Loader } from "lucide-react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  ArrowRight,
+  Calendar,
+  Check,
+  ChevronDown,
+  Loader,
+  Minus,
+  Plus,
+  Search,
+  Users,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import DatePicker from "react-datepicker";
+
+// @ts-expect-error - react-datepicker styles are loaded globally in this app
 import "react-datepicker/dist/react-datepicker.css";
+
 import toast from "react-hot-toast";
-import { readUtmFromSearch, saveUtmToStorage, getUtmFromStorage, appendUtmToSearchParams } from "@/lib/utm";
+
+import {
+  appendUtmToSearchParams,
+  getUtmFromStorage,
+  readUtmFromSearch,
+  saveUtmToStorage,
+} from "@/lib/utm";
+
 import { trackEvent } from "@/lib/analytics";
 
 interface Room {
@@ -16,407 +41,1915 @@ interface Room {
   max_guests: number;
 }
 
+type Guests = {
+  adults: number;
+  children: number;
+  infants: number;
+};
+
+type TrackedSteps = {
+  dates: boolean;
+  room: boolean;
+  guests: boolean;
+  promo: boolean;
+};
+
+const DEFAULT_GUESTS: Guests = {
+  adults: 2,
+  children: 0,
+  infants: 0,
+};
+
+/* =========================================================
+   DATE HELPERS
+   ========================================================= */
+
+function formatLocalDate(date: Date) {
+  const year = date.getFullYear();
+
+  const month = String(
+    date.getMonth() + 1,
+  ).padStart(2, "0");
+
+  const day = String(
+    date.getDate(),
+  ).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function startOfLocalDay(date: Date) {
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+  );
+}
+
+function addDays(date: Date, days: number) {
+  const next = startOfLocalDay(date);
+  next.setDate(next.getDate() + days);
+
+  return next;
+}
+
+function differenceInNights(
+  checkIn: Date | null,
+  checkOut: Date | null,
+) {
+  if (!checkIn || !checkOut) {
+    return 0;
+  }
+
+  const start = startOfLocalDay(checkIn);
+  const end = startOfLocalDay(checkOut);
+
+  const diff =
+    end.getTime() - start.getTime();
+
+  if (diff <= 0) {
+    return 0;
+  }
+
+  return Math.round(
+    diff / (1000 * 60 * 60 * 24),
+  );
+}
+
+/* =========================================================
+   COMPONENT
+   ========================================================= */
+
 export function BookingWidget() {
   const router = useRouter();
-  const [checkIn, setCheckIn] = useState<Date | null>(null);
-  const [checkOut, setCheckOut] = useState<Date | null>(null);
-  const [guests, setGuests] = useState({ adults: 2, children: 0, infants: 0 });
-  const [roomId, setRoomId] = useState("");
-  const [promoCode, setPromoCode] = useState("");
-  const [showPromo, setShowPromo] = useState(false);
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [isLoadingRooms, setIsLoadingRooms] = useState(true);
-  const [isChecking, setIsChecking] = useState(false);
-  const [priceEstimate, setPriceEstimate] = useState<number | null>(null);
-  const [nightsEstimate, setNightsEstimate] = useState<number>(0);
-  const [trackedSteps, setTrackedSteps] = useState({ dates: false, room: false, guests: false, promo: false });
 
-  // Capture UTM from URL
+  const [checkIn, setCheckIn] =
+    useState<Date | null>(null);
+
+  const [checkOut, setCheckOut] =
+    useState<Date | null>(null);
+
+  const [guests, setGuests] =
+    useState<Guests>(DEFAULT_GUESTS);
+
+  const [showGuests, setShowGuests] =
+    useState(false);
+
+  const [roomId, setRoomId] =
+    useState("");
+
+  const [promoCode, setPromoCode] =
+    useState("");
+
+  const [showPromo, setShowPromo] =
+    useState(false);
+
+  const [rooms, setRooms] = useState<
+    Room[]
+  >([]);
+
+  const [
+    isLoadingRooms,
+    setIsLoadingRooms,
+  ] = useState(true);
+
+  const [isChecking, setIsChecking] =
+    useState(false);
+
+  const [
+    isLoadingPrice,
+    setIsLoadingPrice,
+  ] = useState(false);
+
+  const [
+    priceEstimate,
+    setPriceEstimate,
+  ] = useState<number | null>(null);
+
+  const [
+    nightsEstimate,
+    setNightsEstimate,
+  ] = useState(0);
+
+  const [
+    trackedSteps,
+    setTrackedSteps,
+  ] = useState<TrackedSteps>({
+    dates: false,
+    room: false,
+    guests: false,
+    promo: false,
+  });
+
+  const guestsRef =
+    useRef<HTMLDivElement | null>(null);
+
+  /* =========================================================
+     DERIVED DATA
+     ========================================================= */
+
+  const selectedRoom = useMemo(
+    () =>
+      rooms.find(
+        (room) => room.id === roomId,
+      ) ?? null,
+    [rooms, roomId],
+  );
+
+  const totalGuests =
+    guests.adults +
+    guests.children +
+    guests.infants;
+
+  const chargeableGuests =
+    guests.adults + guests.children;
+
+  const roomMaxGuests =
+    selectedRoom?.max_guests ?? 6;
+
+  const nights =
+    nightsEstimate ||
+    differenceInNights(
+      checkIn,
+      checkOut,
+    );
+
+  const hasValidDates =
+    Boolean(checkIn && checkOut) &&
+    differenceInNights(
+      checkIn,
+      checkOut,
+    ) > 0;
+
+  const canSubmit =
+    Boolean(roomId) &&
+    hasValidDates &&
+    !isChecking &&
+    chargeableGuests > 0 &&
+    chargeableGuests <= roomMaxGuests;
+
+  /* =========================================================
+     UTM
+     ========================================================= */
+
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const utm = readUtmFromSearch(window.location.search);
-      saveUtmToStorage(utm);
+    if (typeof window === "undefined") {
+      return;
     }
+
+    const utm = readUtmFromSearch(
+      window.location.search,
+    );
+
+    saveUtmToStorage(utm);
   }, []);
 
-  // Charger les chambres dynamiquement
+  /* =========================================================
+     LOAD ROOMS
+     ========================================================= */
+
   useEffect(() => {
+    const controller =
+      new AbortController();
+
     const fetchRooms = async () => {
       try {
-        const res = await fetch('/api/rooms');
-        if (res.ok) {
-          const data = await res.json();
-          const fetchedRooms = Array.isArray(data) ? data : (data?.rooms ?? []);
-          setRooms(fetchedRooms);
-          if (fetchedRooms.length > 0) {
-            setRoomId(fetchedRooms[0].id);
-          }
+        setIsLoadingRooms(true);
+
+        const res = await fetch(
+          "/api/rooms",
+          {
+            signal: controller.signal,
+          },
+        );
+
+        if (!res.ok) {
+          throw new Error(
+            "Impossible de charger les chambres",
+          );
+        }
+
+        const data = await res.json();
+
+        const fetchedRooms: Room[] =
+          Array.isArray(data)
+            ? data
+            : Array.isArray(data?.rooms)
+              ? data.rooms
+              : [];
+
+        setRooms(fetchedRooms);
+
+        /*
+         * On peut présélectionner la première chambre
+         * sans déclencher artificiellement l'analytics.
+         */
+        if (fetchedRooms.length > 0) {
+          setRoomId(
+            String(fetchedRooms[0].id),
+          );
         }
       } catch (err) {
-        console.error('Error fetching rooms:', err);
+        if (
+          (err as Error).name !==
+          "AbortError"
+        ) {
+          console.error(
+            "Error fetching rooms:",
+            err,
+          );
+
+          setRooms([]);
+        }
       } finally {
         setIsLoadingRooms(false);
       }
     };
-    fetchRooms();
+
+    void fetchRooms();
+
+    return () => {
+      controller.abort();
+    };
   }, []);
 
-    useEffect(() => {
-    if (checkIn && checkOut && !trackedSteps.dates) {
-      trackEvent('booking_step_dates', { source: 'widget' });
-      setTrackedSteps((prev) => ({ ...prev, dates: true }));
-    }
-  }, [checkIn, checkOut, trackedSteps.dates]);
+  /* =========================================================
+     CLOSE GUESTS WHEN CLICKING OUTSIDE
+     ========================================================= */
 
   useEffect(() => {
-    if (roomId && !trackedSteps.room) {
-      trackEvent('booking_step_room', { source: 'widget' });
-      setTrackedSteps((prev) => ({ ...prev, room: true }));
+    if (!showGuests) {
+      return;
     }
-  }, [roomId, trackedSteps.room]);
+
+    const handleOutsideClick = (
+      event: MouseEvent,
+    ) => {
+      const target =
+        event.target as Node | null;
+
+      if (
+        target &&
+        guestsRef.current &&
+        !guestsRef.current.contains(
+          target,
+        )
+      ) {
+        setShowGuests(false);
+      }
+    };
+
+    document.addEventListener(
+      "mousedown",
+      handleOutsideClick,
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleOutsideClick,
+      );
+    };
+  }, [showGuests]);
+
+  /* =========================================================
+     ESCAPE
+     ========================================================= */
 
   useEffect(() => {
-    if ((guests.adults > 0 || guests.children > 0) && !trackedSteps.guests) {
-      trackEvent('booking_step_guests', { source: 'widget' });
-      setTrackedSteps((prev) => ({ ...prev, guests: true }));
-    }
-  }, [guests, trackedSteps.guests]);
+    const handleEscape = (
+      event: KeyboardEvent,
+    ) => {
+      if (event.key === "Escape") {
+        setShowGuests(false);
+        setShowPromo(false);
+      }
+    };
+
+    document.addEventListener(
+      "keydown",
+      handleEscape,
+    );
+
+    return () => {
+      document.removeEventListener(
+        "keydown",
+        handleEscape,
+      );
+    };
+  }, []);
+
+  /* =========================================================
+     RESET GUESTS IF ROOM CAPACITY CHANGES
+     ========================================================= */
 
   useEffect(() => {
-    if (promoCode && promoCode === 'RIAD10' && !trackedSteps.promo) {
-      trackEvent('promo_applied', { source: 'widget' });
-      setTrackedSteps((prev) => ({ ...prev, promo: true }));
+    if (!selectedRoom) {
+      return;
     }
-  }, [promoCode, trackedSteps.promo]);
 
-  const calculateNights = () => {
-    if (!checkIn || !checkOut) return 0;
-    const diff = checkOut.getTime() - checkIn.getTime();
-    return Math.ceil(diff / (1000 * 60 * 60 * 24));
-  };
+    const max =
+      selectedRoom.max_guests;
 
-  const calculateTotal = () => {
-    const nights = calculateNights();
-    const room = rooms.find(r => r.id === roomId);
-    if (!room || nights === 0) return 0;
-    
-    let total = room.base_price * nights;
-    
-    // Réduction pour séjour long
-    if (nights >= 7) total *= 0.9; // 10% de réduction
-    
-    // Application code promo
-    if (promoCode === "RIAD10") total *= 0.9;
-    
-    return Math.round(total);
-  };
+    setGuests((current) => {
+      const currentChargeable =
+        current.adults +
+        current.children;
 
-  const getDisplayedTotal = () => {
-    const baseTotal = priceEstimate ?? calculateTotal();
-    const nights = nightsEstimate || calculateNights();
-    if (baseTotal === 0 || nights === 0) return baseTotal;
+      if (currentChargeable <= max) {
+        return current;
+      }
 
-    let total = baseTotal;
-    if (nights >= 7) total *= 0.9;
-    if (promoCode === "RIAD10") total *= 0.9;
-    return Math.round(total);
-  };
+      /*
+       * Toujours au moins 1 adulte.
+       * On réduit d'abord les enfants.
+       */
+      const adults = Math.min(
+        current.adults,
+        max,
+      );
+
+      const children = Math.max(
+        0,
+        max - adults,
+      );
+
+      return {
+        ...current,
+        adults: Math.max(1, adults),
+        children,
+      };
+    });
+  }, [selectedRoom]);
+
+  /* =========================================================
+     PRICING
+     ========================================================= */
 
   useEffect(() => {
-    if (!roomId || !checkIn || !checkOut) {
+    if (
+      !roomId ||
+      !checkIn ||
+      !checkOut ||
+      differenceInNights(
+        checkIn,
+        checkOut,
+      ) <= 0
+    ) {
       setPriceEstimate(null);
       setNightsEstimate(0);
       return;
     }
 
-    const controller = new AbortController();
+    const controller =
+      new AbortController();
+
     const fetchPricing = async () => {
       try {
-        const res = await fetch('/api/reservations/pricing', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            room_id: roomId,
-            check_in: checkIn.toISOString().split('T')[0],
-            check_out: checkOut.toISOString().split('T')[0],
-            adults_count: guests.adults,
-            children_count: guests.children,
-          }),
-          signal: controller.signal,
-        });
+        setIsLoadingPrice(true);
+
+        const res = await fetch(
+          "/api/reservations/pricing",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              room_id: roomId,
+
+              check_in:
+                formatLocalDate(
+                  checkIn,
+                ),
+
+              check_out:
+                formatLocalDate(
+                  checkOut,
+                ),
+
+              adults_count:
+                guests.adults,
+
+              children_count:
+                guests.children,
+            }),
+
+            signal: controller.signal,
+          },
+        );
+
         const data = await res.json();
+
         if (!res.ok) {
           setPriceEstimate(null);
           setNightsEstimate(0);
+
           return;
         }
-        setPriceEstimate(Number(data.total_price ?? 0));
-        setNightsEstimate(Number(data.nights ?? 0));
+
+        const total = Number(
+          data.total_price ?? 0,
+        );
+
+        const apiNights = Number(
+          data.nights ?? 0,
+        );
+
+        setPriceEstimate(
+          Number.isFinite(total)
+            ? total
+            : null,
+        );
+
+        setNightsEstimate(
+          Number.isFinite(apiNights)
+            ? apiNights
+            : 0,
+        );
       } catch (err) {
-        if ((err as Error).name !== 'AbortError') {
+        if (
+          (err as Error).name !==
+          "AbortError"
+        ) {
+          console.error(
+            "Pricing request failed:",
+            err,
+          );
+
           setPriceEstimate(null);
           setNightsEstimate(0);
         }
+      } finally {
+        setIsLoadingPrice(false);
       }
     };
 
-    fetchPricing();
-    return () => controller.abort();
-  }, [roomId, checkIn, checkOut, guests.adults, guests.children]);
+    void fetchPricing();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    trackEvent('booking_check', { source: 'widget' });
-    e.preventDefault();
-    if (!checkIn || !checkOut || !roomId) {
-      toast.error("Veuillez sélectionner les dates et la chambre");
+    return () => {
+      controller.abort();
+    };
+  }, [
+    roomId,
+    checkIn,
+    checkOut,
+    guests.adults,
+    guests.children,
+  ]);
+
+  /* =========================================================
+     FALLBACK LOCAL ESTIMATE
+
+     Important :
+     - utilisé seulement si l'API pricing n'a pas fourni de prix
+     - le backend doit rester l'autorité finale du prix
+     ========================================================= */
+
+  const calculateFallbackTotal = () => {
+    if (
+      !selectedRoom ||
+      nights <= 0
+    ) {
+      return 0;
+    }
+
+    let total =
+      selectedRoom.base_price *
+      nights;
+
+    /*
+     * Estimation locale uniquement.
+     * À déplacer idéalement entièrement côté backend.
+     */
+    if (nights >= 7) {
+      total *= 0.9;
+    }
+
+    if (
+      promoCode.trim().toUpperCase() ===
+      "RIAD10"
+    ) {
+      total *= 0.9;
+    }
+
+    return Math.round(total);
+  };
+
+  const displayedTotal =
+    priceEstimate !== null
+      ? Math.round(priceEstimate)
+      : calculateFallbackTotal();
+
+  /* =========================================================
+     TRACKING HELPERS
+     ========================================================= */
+
+  const markTracked = (
+    key: keyof TrackedSteps,
+  ) => {
+    setTrackedSteps((current) => ({
+      ...current,
+      [key]: true,
+    }));
+  };
+
+  /* =========================================================
+     DATE HANDLERS
+     ========================================================= */
+
+  const handleCheckInChange = (
+    date: Date | null,
+  ) => {
+    setCheckIn(date);
+
+    if (
+      !trackedSteps.dates &&
+      date
+    ) {
+      trackEvent(
+        "booking_step_dates",
+        {
+          source: "widget",
+        },
+      );
+
+      markTracked("dates");
+    }
+
+    if (
+      date &&
+      checkOut &&
+      startOfLocalDay(checkOut) <=
+        startOfLocalDay(date)
+    ) {
+      setCheckOut(null);
+    }
+  };
+
+  const handleCheckOutChange = (
+    date: Date | null,
+  ) => {
+    setCheckOut(date);
+
+    if (
+      !trackedSteps.dates &&
+      date
+    ) {
+      trackEvent(
+        "booking_step_dates",
+        {
+          source: "widget",
+        },
+      );
+
+      markTracked("dates");
+    }
+  };
+
+  /* =========================================================
+     ROOM
+     ========================================================= */
+
+  const handleRoomChange = (
+    value: string,
+  ) => {
+    setRoomId(value);
+
+    if (
+      value &&
+      !trackedSteps.room
+    ) {
+      trackEvent(
+        "booking_step_room",
+        {
+          source: "widget",
+        },
+      );
+
+      markTracked("room");
+    }
+  };
+
+  /* =========================================================
+     GUESTS
+     ========================================================= */
+
+  const updateGuests = (
+    type: keyof Guests,
+    delta: number,
+  ) => {
+    setGuests((current) => {
+      const next = {
+        ...current,
+      };
+
+      if (type === "adults") {
+        next.adults = Math.max(
+          1,
+          current.adults + delta,
+        );
+      }
+
+      if (type === "children") {
+        next.children = Math.max(
+          0,
+          current.children + delta,
+        );
+      }
+
+      if (type === "infants") {
+        next.infants = Math.max(
+          0,
+          current.infants + delta,
+        );
+      }
+
+      /*
+       * max_guests concerne ici adultes + enfants.
+       * Les bébés restent hors capacité commerciale.
+       *
+       * Si ta règle métier est différente,
+       * adapte ce bloc au backend.
+       */
+      if (
+        next.adults +
+          next.children >
+        roomMaxGuests
+      ) {
+        return current;
+      }
+
+      return next;
+    });
+
+    if (!trackedSteps.guests) {
+      trackEvent(
+        "booking_step_guests",
+        {
+          source: "widget",
+        },
+      );
+
+      markTracked("guests");
+    }
+  };
+
+  /* =========================================================
+     PROMO
+     ========================================================= */
+
+  const handlePromoChange = (
+    value: string,
+  ) => {
+    const normalized =
+      value.toUpperCase();
+
+    setPromoCode(normalized);
+
+    if (
+      normalized.trim() &&
+      !trackedSteps.promo
+    ) {
+      trackEvent(
+        "promo_entered",
+        {
+          source: "widget",
+        },
+      );
+
+      markTracked("promo");
+    }
+  };
+
+  const localPromoValid =
+    promoCode.trim().toUpperCase() ===
+    "RIAD10";
+
+  /* =========================================================
+     SUBMIT
+     ========================================================= */
+
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+
+    if (
+      !checkIn ||
+      !checkOut ||
+      !roomId
+    ) {
+      toast.error(
+        "Veuillez sélectionner les dates et la chambre",
+      );
+
       return;
     }
 
-    const check_in = checkIn.toISOString().split('T')[0];
-    const check_out = checkOut.toISOString().split('T')[0];
+    if (
+      differenceInNights(
+        checkIn,
+        checkOut,
+      ) <= 0
+    ) {
+      toast.error(
+        "La date de départ doit être postérieure à la date d'arrivée",
+      );
+
+      return;
+    }
+
+    if (
+      chargeableGuests >
+      roomMaxGuests
+    ) {
+      toast.error(
+        `Cette chambre accepte au maximum ${roomMaxGuests} voyageur${
+          roomMaxGuests > 1
+            ? "s"
+            : ""
+        }.`,
+      );
+
+      return;
+    }
+
+    const check_in =
+      formatLocalDate(checkIn);
+
+    const check_out =
+      formatLocalDate(checkOut);
+
+    trackEvent(
+      "booking_check",
+      {
+        source: "widget",
+      },
+    );
 
     try {
       setIsChecking(true);
-      const res = await fetch('/api/reservations/availability', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          room_id: roomId,
-          check_in,
-          check_out,
-          adults_count: guests.adults,
-          children_count: guests.children,
-          guest_count: guests.adults + guests.children + guests.infants,
-        })
-      });
+
+      const res = await fetch(
+        "/api/reservations/availability",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            room_id: roomId,
+
+            check_in,
+            check_out,
+
+            adults_count:
+              guests.adults,
+
+            children_count:
+              guests.children,
+
+            guest_count:
+              totalGuests,
+          }),
+        },
+      );
+
       const data = await res.json();
 
       if (!res.ok) {
-        toast.error(data.error || 'Vérification indisponible');
+        toast.error(
+          data.error ||
+            "Vérification indisponible",
+        );
+
         return;
       }
 
-      if (data.available) {
-        const params = new URLSearchParams({
+      const params =
+        new URLSearchParams({
           checkIn: check_in,
           checkOut: check_out,
-          roomId: roomId,
-          adults: guests.adults.toString(),
-          status: 'available',
+
+          roomId,
+
+          adults:
+            guests.adults.toString(),
+
+          children:
+            guests.children.toString(),
+
+          infants:
+            guests.infants.toString(),
+
+          status: data.available
+            ? "available"
+            : "unavailable",
         });
-        toast.success('Chambre disponible, formulaire prérempli');
-        const utm = getUtmFromStorage();
-        appendUtmToSearchParams(params, utm);
-        router.push(`/reservations?${params.toString()}`);
-      } else {
-        const params = new URLSearchParams({
-          checkIn: check_in,
-          checkOut: check_out,
-          roomId: roomId,
-          adults: guests.adults.toString(),
-          status: 'unavailable',
-        });
-        toast.error('Désolé, la chambre n\'est pas disponible pour ces dates');
-        const utm = getUtmFromStorage();
-        appendUtmToSearchParams(params, utm);
-        router.push(`/reservations?${params.toString()}`);
+
+      if (promoCode.trim()) {
+        params.set(
+          "promo",
+          promoCode.trim(),
+        );
       }
+
+      const utm =
+        getUtmFromStorage();
+
+      appendUtmToSearchParams(
+        params,
+        utm,
+      );
+
+      if (data.available) {
+        toast.success(
+          "Chambre disponible, formulaire prérempli",
+        );
+
+        trackEvent(
+          "booking_available",
+          {
+            source: "widget",
+            room_id: roomId,
+          },
+        );
+      } else {
+        toast.error(
+          "Désolé, la chambre n'est pas disponible pour ces dates",
+        );
+
+        trackEvent(
+          "booking_unavailable",
+          {
+            source: "widget",
+            room_id: roomId,
+          },
+        );
+      }
+
+      router.push(
+        `/reservations?${params.toString()}`,
+      );
     } catch (err) {
-      console.error('Availability check failed:', err);
-      toast.error('Erreur lors de la vérification');
+      console.error(
+        "Availability check failed:",
+        err,
+      );
+
+      toast.error(
+        "Erreur lors de la vérification",
+      );
     } finally {
       setIsChecking(false);
     }
   };
 
+  /* =========================================================
+     UI HELPERS
+     ========================================================= */
+
+  const guestSummary = [
+    `${guests.adults} ${
+      guests.adults === 1
+        ? "adulte"
+        : "adultes"
+    }`,
+
+    guests.children > 0
+      ? `${guests.children} ${
+          guests.children === 1
+            ? "enfant"
+            : "enfants"
+        }`
+      : null,
+
+    guests.infants > 0
+      ? `${guests.infants} ${
+          guests.infants === 1
+            ? "bébé"
+            : "bébés"
+        }`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  const inputClasses = `
+    w-full
+    h-[48px]
+    rounded-xl
+    border
+    border-[#B28A47]/25
+    bg-[#FFFDF8]/80
+    px-4
+    text-[15px]
+    text-gray-900
+    outline-none
+    transition
+    duration-200
+    placeholder:text-gray-400
+    hover:border-[#B28A47]/40
+    focus:border-[#B28A47]/55
+    focus:ring-2
+    focus:ring-[#B28A47]/15
+  `;
+
+  /* =========================================================
+     RENDER
+     ========================================================= */
+
   return (
-    <div className="container mx-auto px-4 -mt-20 relative z-20">
-      <div className="lux-panel rounded-3xl p-6 md:p-8 max-w-6xl mx-auto border border-amber-200/40">
-        <div className="text-center mb-8">
-          <h3 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-2">
+    <div className="site-container relative z-20 -mt-20">
+      <div
+        className="
+          lux-panel
+          mx-auto
+          max-w-6xl
+          rounded-[28px]
+          border
+          border-[#B28A47]/20
+          bg-[#FFFDF8]/95
+          p-5
+          shadow-[0_28px_80px_-50px_rgba(35,20,12,0.42)]
+          backdrop-blur-xl
+          sm:p-6
+          md:p-8
+        "
+      >
+        {/* HEADER */}
+
+        <div className="mb-8 text-center">
+          <p
+            className="
+              mb-3
+              text-[11px]
+              font-semibold
+              uppercase
+              tracking-[0.28em]
+              text-[#B28A47]
+            "
+          >
+            Votre séjour à Fès
+          </p>
+
+          <h3
+            className="
+              mb-3
+              font-serif
+              text-3xl
+              font-medium
+              tracking-[-0.02em]
+              text-[#201A17]
+              md:text-4xl
+            "
+          >
             Réservez votre séjour
           </h3>
-          <p className="text-gray-600">
-            Meilleur prix garanti • Annulation gratuite • Petit-déjeuner inclus
+
+          <p
+            className="
+              text-sm
+              leading-relaxed
+              text-gray-500
+              sm:text-[15px]
+            "
+          >
+            Meilleur prix garanti
+            <span className="mx-2 text-[#B28A47]/60">
+              •
+            </span>
+            Annulation gratuite
+            <span className="mx-2 text-[#B28A47]/60">
+              •
+            </span>
+            Petit-déjeuner inclus
           </p>
         </div>
-        
-        <form className="space-y-6">
-          {/* Dates et personnes */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-            {/* Arrivée */}
+
+        <form
+          className="space-y-7"
+          onSubmit={handleSubmit}
+        >
+          {/* =================================================
+              MAIN FIELDS
+              ================================================= */}
+
+          <div
+            className="
+              grid
+              grid-cols-1
+              gap-4
+              md:grid-cols-12
+            "
+          >
+            {/* ARRIVÉE */}
+
             <div className="md:col-span-3">
-              <label className="block text-sm font-semibold mb-2 text-gray-700">
-                <Calendar size={16} className="inline mr-2" />
+              <label
+                className="
+                  mb-2
+                  flex
+                  items-center
+                  gap-2
+                  text-sm
+                  font-semibold
+                  text-gray-700
+                "
+              >
+                <Calendar
+                  size={16}
+                  strokeWidth={1.7}
+                  className="text-[#B28A47]"
+                />
+
                 Arrivée
               </label>
+
               <div className="relative">
                 <DatePicker
                   selected={checkIn}
-                  onChange={setCheckIn}
-                  className="w-full p-3 pl-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  onChange={
+                    handleCheckInChange
+                  }
+                  className={`${inputClasses} pl-10`}
                   placeholderText="Date d'arrivée"
                   dateFormat="dd/MM/yyyy"
-                  minDate={new Date()}
+                  minDate={
+                    startOfLocalDay(
+                      new Date(),
+                    )
+                  }
                 />
-                <Calendar size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+
+                <Calendar
+                  size={18}
+                  strokeWidth={1.7}
+                  className="
+                    pointer-events-none
+                    absolute
+                    left-3
+                    top-1/2
+                    -translate-y-1/2
+                    text-[#B28A47]/75
+                  "
+                />
               </div>
             </div>
 
-            {/* Départ */}
+            {/* DÉPART */}
+
             <div className="md:col-span-3">
-              <label className="block text-sm font-semibold mb-2 text-gray-700">
-                <Calendar size={16} className="inline mr-2" />
+              <label
+                className="
+                  mb-2
+                  flex
+                  items-center
+                  gap-2
+                  text-sm
+                  font-semibold
+                  text-gray-700
+                "
+              >
+                <Calendar
+                  size={16}
+                  strokeWidth={1.7}
+                  className="text-[#B28A47]"
+                />
+
                 Départ
               </label>
+
               <div className="relative">
                 <DatePicker
                   selected={checkOut}
-                  onChange={setCheckOut}
-                  className="w-full p-3 pl-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  onChange={
+                    handleCheckOutChange
+                  }
+                  className={`${inputClasses} pl-10`}
                   placeholderText="Date de départ"
                   dateFormat="dd/MM/yyyy"
-                  minDate={checkIn || new Date()}
+                  minDate={
+                    checkIn
+                      ? addDays(
+                          checkIn,
+                          1,
+                        )
+                      : addDays(
+                          new Date(),
+                          1,
+                        )
+                  }
                 />
-                <Calendar size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+
+                <Calendar
+                  size={18}
+                  strokeWidth={1.7}
+                  className="
+                    pointer-events-none
+                    absolute
+                    left-3
+                    top-1/2
+                    -translate-y-1/2
+                    text-[#B28A47]/75
+                  "
+                />
               </div>
             </div>
 
-            {/* Personnes */}
-            <div className="md:col-span-3">
-              <label className="block text-sm font-semibold mb-2 text-gray-700">
-                <Users size={16} className="inline mr-2" />
+            {/* VOYAGEURS */}
+
+            <div
+              ref={guestsRef}
+              className="
+                relative
+                md:col-span-3
+              "
+            >
+              <label
+                className="
+                  mb-2
+                  flex
+                  items-center
+                  gap-2
+                  text-sm
+                  font-semibold
+                  text-gray-700
+                "
+              >
+                <Users
+                  size={16}
+                  strokeWidth={1.7}
+                  className="text-[#B28A47]"
+                />
+
                 Voyageurs
               </label>
-              <div className="relative">
-                <select
-                  value={guests.adults}
-                  onChange={(e) => setGuests({...guests, adults: parseInt(e.target.value)})}
-                  className="w-full p-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent appearance-none"
-                >
-                  {[1,2,3,4,5,6].map(num => (
-                    <option key={num} value={num}>{num} {num === 1 ? 'adulte' : 'adultes'}</option>
-                  ))}
-                </select>
-                <ChevronDown size={20} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
 
-            {/* Type de chambre */}
-            <div className="md:col-span-3">
-              <label className="block text-sm font-semibold mb-2 text-gray-700">
-                Chambre
-              </label>
-              {isLoadingRooms ? (
-                <div className="w-full p-3 border border-gray-300 rounded-xl bg-gray-50 flex items-center justify-center">
-                  <Loader size={16} className="animate-spin mr-2" />
-                  <span className="text-sm">Chargement...</span>
-                </div>
-              ) : (
-                <div className="relative">
-                  <select
-                    value={roomId}
-                    onChange={(e) => setRoomId(e.target.value)}
-                    className="w-full p-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent appearance-none"
-                  >
-                    <option value="">Sélectionner</option>
-                    {rooms.map(room => (
-                      <option key={room.id} value={String(room.id)}>
-                        {room.name} - {room.base_price} MAD/nuit
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown size={20} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Options supplémentaires */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Code promo */}
-            <div>
               <button
                 type="button"
-                onClick={() => setShowPromo(!showPromo)}
-                className="text-amber-600 hover:text-amber-700 text-sm font-semibold flex items-center"
+                onClick={() =>
+                  setShowGuests(
+                    (current) =>
+                      !current,
+                  )
+                }
+                aria-expanded={
+                  showGuests
+                }
+                className={`
+                  ${inputClasses}
+                  flex
+                  items-center
+                  justify-between
+                  text-left
+                `}
               >
-                <span>Code promo ?</span>
-                <ChevronDown size={16} className={`ml-1 transition-transform ${showPromo ? "rotate-180" : ""}`} />
+                <span className="truncate">
+                  {guestSummary}
+                </span>
+
+                <ChevronDown
+                  size={18}
+                  className={`
+                    shrink-0
+                    text-gray-400
+                    transition-transform
+                    duration-200
+                    ${
+                      showGuests
+                        ? "rotate-180"
+                        : ""
+                    }
+                  `}
+                />
               </button>
-              
-              {showPromo && (
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    value={promoCode}
-                    onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                    placeholder="Entrez votre code"
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+
+              {showGuests && (
+                <div
+                  className="
+                    absolute
+                    left-0
+                    right-0
+                    top-[calc(100%+10px)]
+                    z-50
+                    rounded-2xl
+                    border
+                    border-[#B28A47]/20
+                    bg-[#FFFDF8]
+                    p-4
+                    shadow-[0_20px_50px_-20px_rgba(35,20,12,0.28)]
+                  "
+                >
+                  <GuestRow
+                    label="Adultes"
+                    description="13 ans et plus"
+                    value={
+                      guests.adults
+                    }
+                    minimum={1}
+                    decrement={() =>
+                      updateGuests(
+                        "adults",
+                        -1,
+                      )
+                    }
+                    increment={() =>
+                      updateGuests(
+                        "adults",
+                        1,
+                      )
+                    }
+                    disableIncrement={
+                      chargeableGuests >=
+                      roomMaxGuests
+                    }
                   />
-                  {promoCode === "RIAD10" && (
-                    <p className="text-green-600 text-sm mt-1 flex items-center">
-                      <Check size={16} className="mr-1" />
-                      Code valide ! 10% de réduction appliqué
+
+                  <div className="my-3 h-px bg-[#B28A47]/10" />
+
+                  <GuestRow
+                    label="Enfants"
+                    description="2 à 12 ans"
+                    value={
+                      guests.children
+                    }
+                    minimum={0}
+                    decrement={() =>
+                      updateGuests(
+                        "children",
+                        -1,
+                      )
+                    }
+                    increment={() =>
+                      updateGuests(
+                        "children",
+                        1,
+                      )
+                    }
+                    disableIncrement={
+                      chargeableGuests >=
+                      roomMaxGuests
+                    }
+                  />
+
+                  <div className="my-3 h-px bg-[#B28A47]/10" />
+
+                  <GuestRow
+                    label="Bébés"
+                    description="Moins de 2 ans"
+                    value={
+                      guests.infants
+                    }
+                    minimum={0}
+                    decrement={() =>
+                      updateGuests(
+                        "infants",
+                        -1,
+                      )
+                    }
+                    increment={() =>
+                      updateGuests(
+                        "infants",
+                        1,
+                      )
+                    }
+                  />
+
+                  {selectedRoom && (
+                    <p
+                      className="
+                        mt-4
+                        border-t
+                        border-[#B28A47]/10
+                        pt-3
+                        text-xs
+                        leading-relaxed
+                        text-gray-500
+                      "
+                    >
+                      Capacité de la
+                      chambre :{" "}
+                      {
+                        selectedRoom.max_guests
+                      }{" "}
+                      voyageur
+                      {selectedRoom.max_guests >
+                      1
+                        ? "s"
+                        : ""}
+                      .
                     </p>
                   )}
                 </div>
               )}
             </div>
 
-            {/* Résumé du prix */}
-            <div className="text-right">
-              <div className="text-lg font-semibold text-gray-800">
-                {(nightsEstimate || calculateNights())} nuit{(nightsEstimate || calculateNights()) > 1 ? 's' : ''} - {getDisplayedTotal()} MAD
-              </div>
-              <div className="text-sm text-gray-600">
-                Taxes et frais inclus
-              </div>
+            {/* CHAMBRE */}
+
+            <div className="md:col-span-3">
+              <label
+                className="
+                  mb-2
+                  block
+                  text-sm
+                  font-semibold
+                  text-gray-700
+                "
+              >
+                Chambre
+              </label>
+
+              {isLoadingRooms ? (
+                <div
+                  className={`
+                    ${inputClasses}
+                    flex
+                    items-center
+                    justify-center
+                    gap-2
+                  `}
+                >
+                  <Loader
+                    size={16}
+                    className="animate-spin text-[#0F5A46]"
+                  />
+
+                  <span className="text-sm text-gray-500">
+                    Chargement...
+                  </span>
+                </div>
+              ) : (
+                <div className="relative">
+                  <select
+                    value={roomId}
+                    onChange={(event) =>
+                      handleRoomChange(
+                        event.target
+                          .value,
+                      )
+                    }
+                    className={`
+                      ${inputClasses}
+                      appearance-none
+                      pr-10
+                    `}
+                  >
+                    <option value="">
+                      Sélectionner
+                    </option>
+
+                    {rooms.map(
+                      (room) => (
+                        <option
+                          key={
+                            room.id
+                          }
+                          value={String(
+                            room.id,
+                          )}
+                        >
+                          {room.name} —{" "}
+                          {
+                            room.base_price
+                          }{" "}
+                          MAD/nuit
+                        </option>
+                      ),
+                    )}
+                  </select>
+
+                  <ChevronDown
+                    size={18}
+                    className="
+                      pointer-events-none
+                      absolute
+                      right-3
+                      top-1/2
+                      -translate-y-1/2
+                      text-gray-400
+                    "
+                  />
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Bouton de recherche */}
+          {/* =================================================
+              PROMO + PRICE
+              ================================================= */}
+
+          <div
+            className="
+              grid
+              grid-cols-1
+              items-start
+              gap-6
+              border-t
+              border-[#B28A47]/10
+              pt-6
+              md:grid-cols-2
+            "
+          >
+            {/* PROMO */}
+
+            <div>
+              <button
+                type="button"
+                onClick={() =>
+                  setShowPromo(
+                    (current) =>
+                      !current,
+                  )
+                }
+                className="
+                  inline-flex
+                  items-center
+                  gap-1.5
+                  text-sm
+                  font-semibold
+                  text-[#0F5A46]
+                  transition-colors
+                  hover:text-[#12604B]
+                "
+              >
+                <span>
+                  Code promo ?
+                </span>
+
+                <ChevronDown
+                  size={15}
+                  className={`
+                    transition-transform
+                    duration-200
+                    ${
+                      showPromo
+                        ? "rotate-180"
+                        : ""
+                    }
+                  `}
+                />
+              </button>
+
+              {showPromo && (
+                <div className="mt-3 max-w-sm">
+                  <input
+                    type="text"
+                    value={promoCode}
+                    onChange={(event) =>
+                      handlePromoChange(
+                        event.target
+                          .value,
+                      )
+                    }
+                    placeholder="Entrez votre code"
+                    autoComplete="off"
+                    className={
+                      inputClasses
+                    }
+                  />
+
+                  {localPromoValid && (
+                    <p
+                      className="
+                        mt-2
+                        flex
+                        items-center
+                        gap-1.5
+                        text-sm
+                        font-medium
+                        text-[#0F5A46]
+                      "
+                    >
+                      <Check
+                        size={15}
+                      />
+
+                      Remise estimée
+                      appliquée
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* PRICE */}
+
+{/* PRICE */}
+
+<div className="md:text-right">
+  {isLoadingPrice && checkIn && checkOut ? (
+    <div
+      className="
+        inline-flex
+        items-center
+        gap-2
+        text-sm
+        text-gray-500
+      "
+    >
+      <Loader
+        size={15}
+        className="animate-spin"
+        aria-hidden="true"
+      />
+
+      Calcul du prix...
+    </div>
+  ) : nights > 0 ? (
+    <>
+      <div
+        className="
+          font-serif
+          text-xl
+          font-medium
+          text-[#201A17]
+        "
+      >
+        {nights} nuit{nights > 1 ? "s" : ""}
+        <span className="mx-2 text-[#B28A47]/60">
+          ·
+        </span>
+        {displayedTotal.toLocaleString("fr-FR")} MAD
+      </div>
+
+      <div className="mt-1 text-sm text-gray-500">
+        Taxes et frais inclus
+      </div>
+    </>
+  ) : (
+    <div>
+      <div
+        className="
+          font-serif
+          text-lg
+          font-medium
+          text-[#201A17]
+        "
+      >
+        Sélectionnez vos dates
+      </div>
+
+      <div className="mt-1 text-sm text-gray-500">
+        Le tarif de votre séjour apparaîtra ici
+      </div>
+    </div>
+  )}
+</div>
+          </div>
+
+          {/* =================================================
+              MAIN CTA
+              ================================================= */}
+
           <div className="text-center">
             <button
               type="submit"
-              onClick={handleSubmit}
-              disabled={!checkIn || !checkOut || !roomId || isChecking}
+              disabled={!canSubmit}
               aria-busy={isChecking}
-              className="group relative mx-auto inline-flex w-full items-center justify-center gap-3 overflow-hidden rounded-full bg-[#1b110c] px-10 py-4 text-base font-semibold text-white shadow-[0_22px_70px_-38px_rgba(0,0,0,0.78)] ring-1 ring-white/10 transition-colors hover:bg-[#22140e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-[#1b110c] sm:w-auto sm:px-12 sm:text-lg"
+              className="
+                group
+                relative
+                mx-auto
+                inline-flex
+                h-[54px]
+                w-full
+                items-center
+                justify-center
+                gap-3
+                overflow-hidden
+                rounded-full
+
+                border
+                border-[rgba(178,138,71,0.38)]
+
+                bg-[#0F5A46]
+
+                px-8
+
+                text-[15px]
+                font-semibold
+                tracking-[0.01em]
+                text-[#FFFDF8]
+
+                shadow-[0_10px_28px_rgba(15,90,70,0.20)]
+
+                transition-all
+                duration-200
+                ease-out
+
+                hover:-translate-y-px
+                hover:bg-[#12604B]
+                hover:shadow-[0_13px_32px_rgba(15,90,70,0.26)]
+
+                active:translate-y-0
+                active:bg-[#0B493A]
+                active:shadow-[0_6px_18px_rgba(15,90,70,0.16)]
+
+                focus-visible:outline-none
+                focus-visible:ring-2
+                focus-visible:ring-[#B28A47]/70
+                focus-visible:ring-offset-2
+                focus-visible:ring-offset-[#FFFDF8]
+
+                disabled:cursor-not-allowed
+                disabled:opacity-50
+                disabled:hover:translate-y-0
+                disabled:hover:bg-[#0F5A46]
+                disabled:hover:shadow-[0_10px_28px_rgba(15,90,70,0.20)]
+
+                sm:w-auto
+                sm:min-w-[310px]
+                sm:px-9
+              "
             >
-              <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                <span className="absolute -inset-24 bg-[radial-gradient(circle_at_30%_40%,rgba(255,243,199,0.22),transparent_55%)]" />
+              {/* subtle hover light */}
+
+              <span
+                className="
+                  pointer-events-none
+                  absolute
+                  inset-0
+                  opacity-0
+                  transition-opacity
+                  duration-300
+                  group-hover:opacity-100
+                "
+                aria-hidden="true"
+              >
+                <span
+                  className="
+                    absolute
+                    -inset-24
+                    bg-[radial-gradient(circle_at_28%_40%,rgba(255,253,248,0.10),transparent_52%)]
+                  "
+                />
               </span>
-              {isChecking ? <Loader size={20} className="animate-spin" /> : <Search size={20} />}
-              <span className="font-semibold text-lg">Vérifier la disponibilité</span>
-              <span className="opacity-70 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-100">
-                →
+
+              <span className="relative z-10 inline-flex items-center">
+                {isChecking ? (
+                  <Loader
+                    size={19}
+                    strokeWidth={1.8}
+                    className="animate-spin"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <Search
+                    size={19}
+                    strokeWidth={1.8}
+                    aria-hidden="true"
+                  />
+                )}
               </span>
+
+              <span className="relative z-10">
+                {isChecking
+                  ? "Vérification..."
+                  : "Vérifier la disponibilité"}
+              </span>
+
+              {!isChecking && (
+                <ArrowRight
+                  size={17}
+                  strokeWidth={1.8}
+                  aria-hidden="true"
+                  className="
+                    relative
+                    z-10
+                    text-[#D2AA5A]
+                    transition-transform
+                    duration-200
+                    group-hover:translate-x-1
+                  "
+                />
+              )}
             </button>
           </div>
         </form>
 
-        {/* Avantages */}
-        <div className="mt-8 pt-8 border-t border-gray-100">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <div className="flex flex-col items-center">
-              <div className="text-amber-600 font-bold">✓</div>
-              <div className="text-sm text-gray-600">Meilleur prix garanti</div>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="text-amber-600 font-bold">✓</div>
-              <div className="text-sm text-gray-600">Annulation gratuite</div>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="text-amber-600 font-bold">✓</div>
-              <div className="text-sm text-gray-600">Sans frais cachés</div>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="text-amber-600 font-bold">24/7</div>
-              <div className="text-sm text-gray-600">Support client</div>
-            </div>
+        {/* ===================================================
+            BENEFITS
+            =================================================== */}
+
+        <div
+          className="
+            mt-8
+            border-t
+            border-[#B28A47]/10
+            pt-7
+          "
+        >
+          <div
+            className="
+              grid
+              grid-cols-2
+              gap-x-4
+              gap-y-6
+              text-center
+              md:grid-cols-4
+            "
+          >
+            <Benefit
+              marker="✓"
+              text="Meilleur prix garanti"
+            />
+
+            <Benefit
+              marker="✓"
+              text="Annulation gratuite"
+            />
+
+            <Benefit
+              marker="✓"
+              text="Sans frais cachés"
+            />
+
+            <Benefit
+              marker="24/7"
+              text="Support client"
+            />
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   GUEST ROW
+   ========================================================= */
+
+interface GuestRowProps {
+  label: string;
+  description: string;
+  value: number;
+  minimum: number;
+  decrement: () => void;
+  increment: () => void;
+  disableIncrement?: boolean;
+}
+
+function GuestRow({
+  label,
+  description,
+  value,
+  minimum,
+  decrement,
+  increment,
+  disableIncrement = false,
+}: GuestRowProps) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <div>
+        <p className="text-sm font-semibold text-gray-900">
+          {label}
+        </p>
+
+        <p className="mt-0.5 text-xs text-gray-500">
+          {description}
+        </p>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={decrement}
+          disabled={value <= minimum}
+          aria-label={`Diminuer ${label.toLowerCase()}`}
+          className="
+            inline-flex
+            h-8
+            w-8
+            items-center
+            justify-center
+            rounded-full
+            border
+            border-[#B28A47]/25
+            text-[#0F5A46]
+            transition
+            hover:border-[#B28A47]/50
+            hover:bg-[#B28A47]/5
+            disabled:cursor-not-allowed
+            disabled:opacity-30
+          "
+        >
+          <Minus size={14} />
+        </button>
+
+        <span className="min-w-5 text-center text-sm font-semibold text-gray-900">
+          {value}
+        </span>
+
+        <button
+          type="button"
+          onClick={increment}
+          disabled={disableIncrement}
+          aria-label={`Augmenter ${label.toLowerCase()}`}
+          className="
+            inline-flex
+            h-8
+            w-8
+            items-center
+            justify-center
+            rounded-full
+            border
+            border-[#B28A47]/25
+            text-[#0F5A46]
+            transition
+            hover:border-[#B28A47]/50
+            hover:bg-[#B28A47]/5
+            disabled:cursor-not-allowed
+            disabled:opacity-30
+          "
+        >
+          <Plus size={14} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   BENEFIT
+   ========================================================= */
+
+function Benefit({
+  marker,
+  text,
+}: {
+  marker: string;
+  text: string;
+}) {
+  return (
+    <div className="flex flex-col items-center">
+      <div
+        className="
+          mb-1
+          text-sm
+          font-bold
+          text-[#B28A47]
+        "
+      >
+        {marker}
+      </div>
+
+      <div
+        className="
+          text-xs
+          leading-relaxed
+          text-gray-500
+          sm:text-sm
+        "
+      >
+        {text}
       </div>
     </div>
   );

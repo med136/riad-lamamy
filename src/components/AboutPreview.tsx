@@ -1,83 +1,546 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Heart, Star, Award, Users } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
+
+const stats = [
+  {
+    value: "15 ans",
+    label: "d’expérience",
+  },
+  {
+    value: "12",
+    label: "chambres uniques",
+  },
+  {
+    value: "5 000+",
+    label: "voyageurs accueillis",
+  },
+  {
+    value: "98 %",
+    label: "de satisfaction",
+  },
+];
 
 export function AboutPreview() {
   return (
-    <section className="py-20 bg-gradient-to-b from-white to-stone-50">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Texte */}
+    <section
+      className="
+        relative
+        overflow-hidden
+        bg-[#FFFDF8]
+        py-20
+        sm:py-24
+        lg:py-28
+      "
+    >
+      {/* Fond décoratif très subtil */}
+      <div
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          bg-[radial-gradient(circle_at_12%_18%,rgba(178,138,71,0.08),transparent_38%)]
+        "
+        aria-hidden="true"
+      />
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          bg-[radial-gradient(circle_at_88%_72%,rgba(15,90,70,0.06),transparent_40%)]
+        "
+        aria-hidden="true"
+      />
+
+      <div className="site-container relative">
+        <div
+          className="
+            grid
+            grid-cols-1
+            items-center
+            gap-14
+            lg:grid-cols-2
+            lg:gap-20
+            xl:gap-24
+          "
+        >
+          {/* =================================================
+              TEXTE
+              ================================================= */}
+
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
+            initial={{
+              opacity: 0,
+              y: 24,
+            }}
+            whileInView={{
+              opacity: 1,
+              y: 0,
+            }}
+            viewport={{
+              once: true,
+              amount: 0.25,
+            }}
+            transition={{
+              duration: 0.65,
+              ease: [0.22, 1, 0.36, 1],
+            }}
           >
-            <div className="inline-flex items-center gap-3 mb-4">
-              <span className="lux-kicker">NOTRE HISTOIRE</span>
-              <span className="h-px w-10 bg-amber-400/70" />
+            {/* Kicker */}
+
+            <div
+              className="
+                mb-5
+                flex
+                items-center
+                gap-3
+              "
+            >
+              <span
+                className="
+                  text-[11px]
+                  font-semibold
+                  uppercase
+                  tracking-[0.3em]
+                  text-[#B28A47]
+                "
+              >
+                Notre histoire
+              </span>
+
+              <span
+                className="
+                  h-px
+                  w-12
+                  bg-[#B28A47]/50
+                "
+                aria-hidden="true"
+              />
             </div>
-            
-            <h2 className="text-4xl md:text-5xl font-serif font-bold mb-6 text-gray-900">
-              Plus qu&apos;un riad,<br />
-              <span className="text-amber-700">une passion familiale</span>
+
+            {/* Titre */}
+
+            <h2
+              className="
+                max-w-[680px]
+                font-serif
+                text-[2.55rem]
+                font-medium
+                leading-[1.05]
+                tracking-[-0.025em]
+                text-[#201A17]
+                sm:text-5xl
+                lg:text-[3.4rem]
+              "
+            >
+              Plus qu’un riad,
+              <span
+                className="
+                  mt-1
+                  block
+                  text-[#0F5A46]
+                "
+              >
+                une passion familiale
+              </span>
             </h2>
-            
-            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              Depuis trois générations, notre famille s&apos;attache à préserver 
-              l&apos;ame de cette demeure historique tout en y apportant 
-              le confort moderne. Chaque détail raconte une histoire, 
-              chaque pièce respire l&apos;authenticité marocaine.
+
+            {/* Texte */}
+
+            <p
+              className="
+                mt-7
+                max-w-[650px]
+                text-[16px]
+                font-light
+                leading-[1.9]
+                text-gray-600
+                sm:text-[17px]
+              "
+            >
+              Depuis trois générations, notre famille s’attache à préserver
+              l’âme de cette demeure historique tout en y apportant le confort
+              moderne. Chaque détail raconte une histoire, chaque pièce
+              respire l’authenticité marocaine.
             </p>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-              {[
-                { icon: <Star />, value: "15 ans", label: "d&apos;expérience" },
-                { icon: <Award />, value: "12", label: "chambres uniques" },
-                { icon: <Users />, value: "5000+", label: "clients heureux" },
-                { icon: <Heart />, value: "98%", label: "satisfaction" },
-              ].map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-2xl font-bold text-amber-600 mb-1">
+
+            {/* Ligne décorative */}
+
+            <div
+              className="
+                mt-8
+                flex
+                w-[220px]
+                items-center
+              "
+              aria-hidden="true"
+            >
+              <span
+                className="
+                  h-px
+                  flex-1
+                  bg-[#B28A47]/45
+                "
+              />
+
+              <span
+                className="
+                  mx-3
+                  h-[6px]
+                  w-[6px]
+                  rotate-45
+                  border
+                  border-[#B28A47]/65
+                "
+              />
+
+              <span
+                className="
+                  h-px
+                  flex-1
+                  bg-[#B28A47]/45
+                "
+              />
+            </div>
+
+            {/* =================================================
+                STATS
+                ================================================= */}
+
+            <div
+              className="
+                mt-8
+                grid
+                grid-cols-2
+                gap-x-8
+                gap-y-7
+                sm:grid-cols-4
+                sm:gap-x-5
+              "
+            >
+              {stats.map((stat, index) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{
+                    opacity: 0,
+                    y: 14,
+                  }}
+                  whileInView={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  viewport={{
+                    once: true,
+                  }}
+                  transition={{
+                    duration: 0.5,
+                    delay: 0.08 * index,
+                  }}
+                  className="
+                    relative
+                    min-w-0
+                  "
+                >
+                  <p
+                    className="
+                      font-serif
+                      text-[24px]
+                      font-medium
+                      leading-none
+                      text-[#0F5A46]
+                      sm:text-[26px]
+                    "
+                  >
                     {stat.value}
-                  </div>
-                  <div className="text-sm text-gray-600">{stat.label}</div>
-                </div>
+                  </p>
+
+                  <p
+                    className="
+                      mt-2
+                      text-xs
+                      leading-relaxed
+                      text-gray-500
+                      sm:text-[13px]
+                    "
+                  >
+                    {stat.label}
+                  </p>
+                </motion.div>
               ))}
             </div>
-            
-            <Link
-              href="/a-propos"
-              className="inline-flex items-center space-x-2 text-amber-600 hover:text-amber-700 font-semibold group"
-            >
-              <span>Découvrir notre histoire</span>
-              <span className="group-hover:translate-x-2 transition-transform">→</span>
-            </Link>
+
+            {/* =================================================
+                CTA
+                ================================================= */}
+
+            <div className="mt-9">
+              <Link
+                href="/a-propos"
+                className="
+                  group
+                  inline-flex
+                  items-center
+                  gap-3
+
+                  text-[15px]
+                  font-semibold
+                  text-[#0F5A46]
+
+                  transition-colors
+                  duration-200
+
+                  hover:text-[#12604B]
+
+                  focus-visible:outline-none
+                  focus-visible:ring-2
+                  focus-visible:ring-[#B28A47]/60
+                  focus-visible:ring-offset-4
+                  focus-visible:ring-offset-[#FFFDF8]
+                "
+              >
+                <span>
+                  Découvrir notre histoire
+                </span>
+
+                <span
+                  className="
+                    inline-flex
+                    h-8
+                    w-8
+                    items-center
+                    justify-center
+                    rounded-full
+
+                    border
+                    border-[#B28A47]/35
+
+                    text-[#B28A47]
+
+                    transition-all
+                    duration-200
+
+                    group-hover:translate-x-1
+                    group-hover:border-[#B28A47]/55
+                    group-hover:bg-[#B28A47]/5
+                  "
+                >
+                  <ArrowRight
+                    size={15}
+                    strokeWidth={1.8}
+                    aria-hidden="true"
+                  />
+                </span>
+              </Link>
+            </div>
           </motion.div>
 
-          {/* Image/Placeholder */}
+          {/* =================================================
+              IMAGE
+              ================================================= */}
+
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="relative"
+            initial={{
+              opacity: 0,
+              y: 24,
+            }}
+            whileInView={{
+              opacity: 1,
+              y: 0,
+            }}
+            viewport={{
+              once: true,
+              amount: 0.2,
+            }}
+            transition={{
+              duration: 0.7,
+              delay: 0.1,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className="
+              relative
+              mx-auto
+              w-full
+              max-w-[680px]
+              lg:max-w-none
+            "
           >
-            <div className="lux-frame aspect-[4/3] overflow-hidden bg-gradient-to-br from-amber-100 via-white to-amber-200">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(120,87,71,0.15),transparent_45%)]" />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_10%,rgba(217,119,6,0.18),transparent_50%)]" />
-              <div className="absolute inset-0 flex items-end p-8">
-                <div className="lux-panel rounded-2xl px-5 py-4">
-                  <p className="lux-kicker mb-2 text-amber-800">MAISON D'HOTES</p>
-                  <h3 className="text-2xl font-serif font-bold text-amber-950">
-                    Notre Maison
+            {/* Cadre décoratif */}
+
+            <div
+              className="
+                pointer-events-none
+                absolute
+                -right-4
+                -top-4
+                hidden
+                h-full
+                w-full
+                rounded-[30px]
+                border
+                border-[#B28A47]/20
+                lg:block
+              "
+              aria-hidden="true"
+            />
+
+            <div
+              className="
+                group/image
+                relative
+                aspect-[4/3]
+                overflow-hidden
+                rounded-[28px]
+                border
+                border-[#B28A47]/20
+                bg-[#F6F1E8]
+                shadow-[0_30px_80px_-45px_rgba(35,20,12,0.45)]
+              "
+            >
+              <Image
+                src="/images/about/riad-story.jpeg"
+                alt="Architecture et ambiance de Dar LaMamy à Fès"
+                fill
+                sizes="
+                  (max-width: 1024px) 100vw,
+                  50vw
+                "
+                className="
+                  object-cover
+                  transition-transform
+                  duration-700
+                  ease-out
+                  group-hover/image:scale-[1.025]
+                "
+              />
+
+              {/* Overlay photo */}
+
+              <div
+                className="
+                  pointer-events-none
+                  absolute
+                  inset-0
+                  bg-gradient-to-t
+                  from-black/55
+                  via-black/5
+                  to-transparent
+                "
+                aria-hidden="true"
+              />
+
+              {/* Glow chaud */}
+
+              <div
+                className="
+                  pointer-events-none
+                  absolute
+                  inset-0
+                  bg-[radial-gradient(circle_at_75%_20%,rgba(210,170,90,0.10),transparent_45%)]
+                "
+                aria-hidden="true"
+              />
+
+              {/* Légende */}
+
+              <div
+                className="
+                  absolute
+                  inset-x-0
+                  bottom-0
+                  p-5
+                  sm:p-7
+                "
+              >
+                <div
+                  className="
+                    max-w-[360px]
+                    rounded-2xl
+                    border
+                    border-white/15
+                    bg-black/20
+                    px-5
+                    py-4
+                    text-white
+                    shadow-[0_18px_40px_-25px_rgba(0,0,0,0.45)]
+                    backdrop-blur-md
+                  "
+                >
+                  <p
+                    className="
+                      text-[10px]
+                      font-semibold
+                      uppercase
+                      tracking-[0.28em]
+                      text-[#E8C982]
+                    "
+                  >
+                    Maison d’hôtes
+                  </p>
+
+                  <h3
+                    className="
+                      mt-2
+                      font-serif
+                      text-2xl
+                      font-medium
+                      leading-tight
+                      text-[#FFFDF8]
+                    "
+                  >
+                    Notre maison
                   </h3>
-                  <p className="text-amber-900/80 text-sm">
-                    Une histoire de famille depuis 1908
+
+                  <p
+                    className="
+                      mt-1
+                      text-sm
+                      font-light
+                      text-white/75
+                    "
+                  >
+                    Une histoire de famille au cœur de Fès
                   </p>
                 </div>
               </div>
+            </div>
+
+            {/* Petit détail décoratif */}
+
+            <div
+              className="
+                pointer-events-none
+                absolute
+                -bottom-5
+                left-10
+                hidden
+                items-center
+                gap-3
+                lg:flex
+              "
+              aria-hidden="true"
+            >
+              <span
+                className="
+                  h-px
+                  w-16
+                  bg-[#B28A47]/40
+                "
+              />
+
+              <span
+                className="
+                  h-2
+                  w-2
+                  rotate-45
+                  border
+                  border-[#B28A47]/55
+                "
+              />
             </div>
           </motion.div>
         </div>
