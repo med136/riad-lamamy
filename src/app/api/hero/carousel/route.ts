@@ -13,6 +13,9 @@ type PublicHeroMediaRow = {
   display_order: number | null
 }
 
+const isVideoUrl = (value: string | null | undefined) =>
+  Boolean(value && /\.(?:mp4|webm)(?:$|[?#])/i.test(value))
+
 export async function GET() {
   try {
     const supabase = createAdminClient()
@@ -53,7 +56,10 @@ export async function GET() {
 
     const items = ((data || []) as PublicHeroMediaRow[]).map((row) => ({
       id: row.id,
-      media_type: row.media_type === 'video' ? 'video' : 'image',
+      media_type:
+        row.media_type === 'video' || (!row.media_type && isVideoUrl(row.media_url || row.image_url))
+          ? 'video'
+          : 'image',
       media_url: row.media_url || row.image_url,
       poster_url: row.poster_url ?? null,
       alt_text: row.alt_text ?? null,

@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
+
 import {
   ArrowRight,
   Calendar,
@@ -17,6 +18,7 @@ import {
   Search,
   Users,
 } from "lucide-react";
+
 import { useRouter } from "next/navigation";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -85,7 +87,10 @@ function startOfLocalDay(date: Date) {
 
 function addDays(date: Date, days: number) {
   const next = startOfLocalDay(date);
-  next.setDate(next.getDate() + days);
+
+  next.setDate(
+    next.getDate() + days,
+  );
 
   return next;
 }
@@ -109,7 +114,8 @@ function differenceInNights(
   }
 
   return Math.round(
-    diff / (1000 * 60 * 60 * 24),
+    diff /
+      (1000 * 60 * 60 * 24),
   );
 }
 
@@ -127,7 +133,9 @@ export function BookingWidget() {
     useState<Date | null>(null);
 
   const [guests, setGuests] =
-    useState<Guests>(DEFAULT_GUESTS);
+    useState<Guests>(
+      DEFAULT_GUESTS,
+    );
 
   const [showGuests, setShowGuests] =
     useState(false);
@@ -141,9 +149,8 @@ export function BookingWidget() {
   const [showPromo, setShowPromo] =
     useState(false);
 
-  const [rooms, setRooms] = useState<
-    Room[]
-  >([]);
+  const [rooms, setRooms] =
+    useState<Room[]>([]);
 
   const [
     isLoadingRooms,
@@ -161,7 +168,9 @@ export function BookingWidget() {
   const [
     priceEstimate,
     setPriceEstimate,
-  ] = useState<number | null>(null);
+  ] = useState<number | null>(
+    null,
+  );
 
   const [
     nightsEstimate,
@@ -179,7 +188,9 @@ export function BookingWidget() {
   });
 
   const guestsRef =
-    useRef<HTMLDivElement | null>(null);
+    useRef<HTMLDivElement | null>(
+      null,
+    );
 
   /* =========================================================
      DERIVED DATA
@@ -188,7 +199,8 @@ export function BookingWidget() {
   const selectedRoom = useMemo(
     () =>
       rooms.find(
-        (room) => room.id === roomId,
+        (room) =>
+          room.id === roomId,
       ) ?? null,
     [rooms, roomId],
   );
@@ -199,7 +211,8 @@ export function BookingWidget() {
     guests.infants;
 
   const chargeableGuests =
-    guests.adults + guests.children;
+    guests.adults +
+    guests.children;
 
   const roomMaxGuests =
     selectedRoom?.max_guests ?? 6;
@@ -223,14 +236,18 @@ export function BookingWidget() {
     hasValidDates &&
     !isChecking &&
     chargeableGuests > 0 &&
-    chargeableGuests <= roomMaxGuests;
+    chargeableGuests <=
+      roomMaxGuests;
 
   /* =========================================================
      UTM
      ========================================================= */
 
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (
+      typeof window ===
+      "undefined"
+    ) {
       return;
     }
 
@@ -249,59 +266,74 @@ export function BookingWidget() {
     const controller =
       new AbortController();
 
-    const fetchRooms = async () => {
-      try {
-        setIsLoadingRooms(true);
-
-        const res = await fetch(
-          "/api/rooms",
-          {
-            signal: controller.signal,
-          },
-        );
-
-        if (!res.ok) {
-          throw new Error(
-            "Impossible de charger les chambres",
-          );
-        }
-
-        const data = await res.json();
-
-        const fetchedRooms: Room[] =
-          Array.isArray(data)
-            ? data
-            : Array.isArray(data?.rooms)
-              ? data.rooms
-              : [];
-
-        setRooms(fetchedRooms);
-
-        /*
-         * On peut présélectionner la première chambre
-         * sans déclencher artificiellement l'analytics.
-         */
-        if (fetchedRooms.length > 0) {
-          setRoomId(
-            String(fetchedRooms[0].id),
-          );
-        }
-      } catch (err) {
-        if (
-          (err as Error).name !==
-          "AbortError"
-        ) {
-          console.error(
-            "Error fetching rooms:",
-            err,
+    const fetchRooms =
+      async () => {
+        try {
+          setIsLoadingRooms(
+            true,
           );
 
-          setRooms([]);
+          const res =
+            await fetch(
+              "/api/rooms",
+              {
+                signal:
+                  controller.signal,
+              },
+            );
+
+          if (!res.ok) {
+            throw new Error(
+              "Impossible de charger les chambres",
+            );
+          }
+
+          const data =
+            await res.json();
+
+          const fetchedRooms: Room[] =
+            Array.isArray(data)
+              ? data
+              : Array.isArray(
+                    data?.rooms,
+                  )
+                ? data.rooms
+                : [];
+
+          setRooms(
+            fetchedRooms,
+          );
+
+          if (
+            fetchedRooms.length >
+            0
+          ) {
+            setRoomId(
+              String(
+                fetchedRooms[0]
+                  .id,
+              ),
+            );
+          }
+        } catch (err) {
+          if (
+            (err as Error)
+              .name !==
+            "AbortError"
+          ) {
+            console.error(
+              "Error fetching rooms:",
+              err,
+            );
+
+            setRooms([]);
+          }
+        } finally {
+          setIsLoadingRooms(
+            false,
+          );
         }
-      } finally {
-        setIsLoadingRooms(false);
-      }
-    };
+      };
 
     void fetchRooms();
 
@@ -357,7 +389,10 @@ export function BookingWidget() {
     const handleEscape = (
       event: KeyboardEvent,
     ) => {
-      if (event.key === "Escape") {
+      if (
+        event.key ===
+        "Escape"
+      ) {
         setShowGuests(false);
         setShowPromo(false);
       }
@@ -393,14 +428,12 @@ export function BookingWidget() {
         current.adults +
         current.children;
 
-      if (currentChargeable <= max) {
+      if (
+        currentChargeable <= max
+      ) {
         return current;
       }
 
-      /*
-       * Toujours au moins 1 adulte.
-       * On réduit d'abord les enfants.
-       */
       const adults = Math.min(
         current.adults,
         max,
@@ -413,7 +446,10 @@ export function BookingWidget() {
 
       return {
         ...current,
-        adults: Math.max(1, adults),
+        adults: Math.max(
+          1,
+          adults,
+        ),
         children,
       };
     });
@@ -435,95 +471,124 @@ export function BookingWidget() {
     ) {
       setPriceEstimate(null);
       setNightsEstimate(0);
+
       return;
     }
 
     const controller =
       new AbortController();
 
-    const fetchPricing = async () => {
-      try {
-        setIsLoadingPrice(true);
-
-        const res = await fetch(
-          "/api/reservations/pricing",
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-
-            body: JSON.stringify({
-              room_id: roomId,
-
-              check_in:
-                formatLocalDate(
-                  checkIn,
-                ),
-
-              check_out:
-                formatLocalDate(
-                  checkOut,
-                ),
-
-              adults_count:
-                guests.adults,
-
-              children_count:
-                guests.children,
-            }),
-
-            signal: controller.signal,
-          },
-        );
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          setPriceEstimate(null);
-          setNightsEstimate(0);
-
-          return;
-        }
-
-        const total = Number(
-          data.total_price ?? 0,
-        );
-
-        const apiNights = Number(
-          data.nights ?? 0,
-        );
-
-        setPriceEstimate(
-          Number.isFinite(total)
-            ? total
-            : null,
-        );
-
-        setNightsEstimate(
-          Number.isFinite(apiNights)
-            ? apiNights
-            : 0,
-        );
-      } catch (err) {
-        if (
-          (err as Error).name !==
-          "AbortError"
-        ) {
-          console.error(
-            "Pricing request failed:",
-            err,
+    const fetchPricing =
+      async () => {
+        try {
+          setIsLoadingPrice(
+            true,
           );
 
-          setPriceEstimate(null);
-          setNightsEstimate(0);
+          const res =
+            await fetch(
+              "/api/reservations/pricing",
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "application/json",
+                },
+
+                body:
+                  JSON.stringify({
+                    room_id:
+                      roomId,
+
+                    check_in:
+                      formatLocalDate(
+                        checkIn,
+                      ),
+
+                    check_out:
+                      formatLocalDate(
+                        checkOut,
+                      ),
+
+                    adults_count:
+                      guests.adults,
+
+                    children_count:
+                      guests.children,
+                  }),
+
+                signal:
+                  controller.signal,
+              },
+            );
+
+          const data =
+            await res.json();
+
+          if (!res.ok) {
+            setPriceEstimate(
+              null,
+            );
+
+            setNightsEstimate(
+              0,
+            );
+
+            return;
+          }
+
+          const total =
+            Number(
+              data.total_price ??
+                0,
+            );
+
+          const apiNights =
+            Number(
+              data.nights ?? 0,
+            );
+
+          setPriceEstimate(
+            Number.isFinite(
+              total,
+            )
+              ? total
+              : null,
+          );
+
+          setNightsEstimate(
+            Number.isFinite(
+              apiNights,
+            )
+              ? apiNights
+              : 0,
+          );
+        } catch (err) {
+          if (
+            (err as Error)
+              .name !==
+            "AbortError"
+          ) {
+            console.error(
+              "Pricing request failed:",
+              err,
+            );
+
+            setPriceEstimate(
+              null,
+            );
+
+            setNightsEstimate(
+              0,
+            );
+          }
+        } finally {
+          setIsLoadingPrice(
+            false,
+          );
         }
-      } finally {
-        setIsLoadingPrice(false);
-      }
-    };
+      };
 
     void fetchPricing();
 
@@ -540,45 +605,42 @@ export function BookingWidget() {
 
   /* =========================================================
      FALLBACK LOCAL ESTIMATE
-
-     Important :
-     - utilisé seulement si l'API pricing n'a pas fourni de prix
-     - le backend doit rester l'autorité finale du prix
      ========================================================= */
 
-  const calculateFallbackTotal = () => {
-    if (
-      !selectedRoom ||
-      nights <= 0
-    ) {
-      return 0;
-    }
+  const calculateFallbackTotal =
+    () => {
+      if (
+        !selectedRoom ||
+        nights <= 0
+      ) {
+        return 0;
+      }
 
-    let total =
-      selectedRoom.base_price *
-      nights;
+      let total =
+        selectedRoom.base_price *
+        nights;
 
-    /*
-     * Estimation locale uniquement.
-     * À déplacer idéalement entièrement côté backend.
-     */
-    if (nights >= 7) {
-      total *= 0.9;
-    }
+      if (nights >= 7) {
+        total *= 0.9;
+      }
 
-    if (
-      promoCode.trim().toUpperCase() ===
-      "RIAD10"
-    ) {
-      total *= 0.9;
-    }
+      if (
+        promoCode
+          .trim()
+          .toUpperCase() ===
+        "RIAD10"
+      ) {
+        total *= 0.9;
+      }
 
-    return Math.round(total);
-  };
+      return Math.round(total);
+    };
 
   const displayedTotal =
     priceEstimate !== null
-      ? Math.round(priceEstimate)
+      ? Math.round(
+          priceEstimate,
+        )
       : calculateFallbackTotal();
 
   /* =========================================================
@@ -588,10 +650,12 @@ export function BookingWidget() {
   const markTracked = (
     key: keyof TrackedSteps,
   ) => {
-    setTrackedSteps((current) => ({
-      ...current,
-      [key]: true,
-    }));
+    setTrackedSteps(
+      (current) => ({
+        ...current,
+        [key]: true,
+      }),
+    );
   };
 
   /* =========================================================
@@ -620,8 +684,12 @@ export function BookingWidget() {
     if (
       date &&
       checkOut &&
-      startOfLocalDay(checkOut) <=
-        startOfLocalDay(date)
+      startOfLocalDay(
+        checkOut,
+      ) <=
+        startOfLocalDay(
+          date,
+        )
     ) {
       setCheckOut(null);
     }
@@ -687,31 +755,33 @@ export function BookingWidget() {
       if (type === "adults") {
         next.adults = Math.max(
           1,
-          current.adults + delta,
+          current.adults +
+            delta,
         );
       }
 
-      if (type === "children") {
-        next.children = Math.max(
-          0,
-          current.children + delta,
-        );
+      if (
+        type === "children"
+      ) {
+        next.children =
+          Math.max(
+            0,
+            current.children +
+              delta,
+          );
       }
 
-      if (type === "infants") {
-        next.infants = Math.max(
-          0,
-          current.infants + delta,
-        );
+      if (
+        type === "infants"
+      ) {
+        next.infants =
+          Math.max(
+            0,
+            current.infants +
+              delta,
+          );
       }
 
-      /*
-       * max_guests concerne ici adultes + enfants.
-       * Les bébés restent hors capacité commerciale.
-       *
-       * Si ta règle métier est différente,
-       * adapte ce bloc au backend.
-       */
       if (
         next.adults +
           next.children >
@@ -723,7 +793,9 @@ export function BookingWidget() {
       return next;
     });
 
-    if (!trackedSteps.guests) {
+    if (
+      !trackedSteps.guests
+    ) {
       trackEvent(
         "booking_step_guests",
         {
@@ -763,7 +835,9 @@ export function BookingWidget() {
   };
 
   const localPromoValid =
-    promoCode.trim().toUpperCase() ===
+    promoCode
+      .trim()
+      .toUpperCase() ===
     "RIAD10";
 
   /* =========================================================
@@ -816,10 +890,14 @@ export function BookingWidget() {
     }
 
     const check_in =
-      formatLocalDate(checkIn);
+      formatLocalDate(
+        checkIn,
+      );
 
     const check_out =
-      formatLocalDate(checkOut);
+      formatLocalDate(
+        checkOut,
+      );
 
     trackEvent(
       "booking_check",
@@ -859,7 +937,8 @@ export function BookingWidget() {
         },
       );
 
-      const data = await res.json();
+      const data =
+        await res.json();
 
       if (!res.ok) {
         toast.error(
@@ -874,7 +953,6 @@ export function BookingWidget() {
         new URLSearchParams({
           checkIn: check_in,
           checkOut: check_out,
-
           roomId,
 
           adults:
@@ -891,7 +969,9 @@ export function BookingWidget() {
             : "unavailable",
         });
 
-      if (promoCode.trim()) {
+      if (
+        promoCode.trim()
+      ) {
         params.set(
           "promo",
           promoCode.trim(),
@@ -914,8 +994,10 @@ export function BookingWidget() {
         trackEvent(
           "booking_available",
           {
-            source: "widget",
-            room_id: roomId,
+            source:
+              "widget",
+            room_id:
+              roomId,
           },
         );
       } else {
@@ -926,8 +1008,10 @@ export function BookingWidget() {
         trackEvent(
           "booking_unavailable",
           {
-            source: "widget",
-            room_id: roomId,
+            source:
+              "widget",
+            room_id:
+              roomId,
           },
         );
       }
@@ -962,7 +1046,8 @@ export function BookingWidget() {
 
     guests.children > 0
       ? `${guests.children} ${
-          guests.children === 1
+          guests.children ===
+          1
             ? "enfant"
             : "enfants"
         }`
@@ -970,7 +1055,8 @@ export function BookingWidget() {
 
     guests.infants > 0
       ? `${guests.infants} ${
-          guests.infants === 1
+          guests.infants ===
+          1
             ? "bébé"
             : "bébés"
         }`
@@ -1060,24 +1146,28 @@ export function BookingWidget() {
             "
           >
             Meilleur prix garanti
+
             <span className="mx-2 text-[#B28A47]/60">
               •
             </span>
+
             Annulation gratuite
+
             <span className="mx-2 text-[#B28A47]/60">
               •
             </span>
+
             Petit-déjeuner inclus
           </p>
         </div>
 
         <form
           className="space-y-7"
-          onSubmit={handleSubmit}
+          onSubmit={
+            handleSubmit
+          }
         >
-          {/* =================================================
-              MAIN FIELDS
-              ================================================= */}
+          {/* MAIN FIELDS */}
 
           <div
             className="
@@ -1103,7 +1193,9 @@ export function BookingWidget() {
               >
                 <Calendar
                   size={16}
-                  strokeWidth={1.7}
+                  strokeWidth={
+                    1.7
+                  }
                   className="text-[#B28A47]"
                 />
 
@@ -1112,23 +1204,25 @@ export function BookingWidget() {
 
               <div className="relative">
                 <DatePicker
-                  selected={checkIn}
+                  selected={
+                    checkIn
+                  }
                   onChange={
                     handleCheckInChange
                   }
                   className={`${inputClasses} pl-10`}
                   placeholderText="Date d'arrivée"
                   dateFormat="dd/MM/yyyy"
-                  minDate={
-                    startOfLocalDay(
-                      new Date(),
-                    )
-                  }
+                  minDate={startOfLocalDay(
+                    new Date(),
+                  )}
                 />
 
                 <Calendar
                   size={18}
-                  strokeWidth={1.7}
+                  strokeWidth={
+                    1.7
+                  }
                   className="
                     pointer-events-none
                     absolute
@@ -1157,7 +1251,9 @@ export function BookingWidget() {
               >
                 <Calendar
                   size={16}
-                  strokeWidth={1.7}
+                  strokeWidth={
+                    1.7
+                  }
                   className="text-[#B28A47]"
                 />
 
@@ -1166,7 +1262,9 @@ export function BookingWidget() {
 
               <div className="relative">
                 <DatePicker
-                  selected={checkOut}
+                  selected={
+                    checkOut
+                  }
                   onChange={
                     handleCheckOutChange
                   }
@@ -1188,7 +1286,9 @@ export function BookingWidget() {
 
                 <Calendar
                   size={18}
-                  strokeWidth={1.7}
+                  strokeWidth={
+                    1.7
+                  }
                   className="
                     pointer-events-none
                     absolute
@@ -1223,7 +1323,9 @@ export function BookingWidget() {
               >
                 <Users
                   size={16}
-                  strokeWidth={1.7}
+                  strokeWidth={
+                    1.7
+                  }
                   className="text-[#B28A47]"
                 />
 
@@ -1372,8 +1474,7 @@ export function BookingWidget() {
                         text-gray-500
                       "
                     >
-                      Capacité de la
-                      chambre :{" "}
+                      Capacité de la chambre :{" "}
                       {
                         selectedRoom.max_guests
                       }{" "}
@@ -1446,9 +1547,7 @@ export function BookingWidget() {
                     {rooms.map(
                       (room) => (
                         <option
-                          key={
-                            room.id
-                          }
+                          key={room.id}
                           value={String(
                             room.id,
                           )}
@@ -1479,9 +1578,7 @@ export function BookingWidget() {
             </div>
           </div>
 
-          {/* =================================================
-              PROMO + PRICE
-              ================================================= */}
+          {/* PROMO + PRICE */}
 
           <div
             className="
@@ -1539,7 +1636,9 @@ export function BookingWidget() {
                 <div className="mt-3 max-w-sm">
                   <input
                     type="text"
-                    value={promoCode}
+                    value={
+                      promoCode
+                    }
                     onChange={(event) =>
                       handlePromoChange(
                         event.target
@@ -1569,8 +1668,7 @@ export function BookingWidget() {
                         size={15}
                       />
 
-                      Remise estimée
-                      appliquée
+                      Remise estimée appliquée
                     </p>
                   )}
                 </div>
@@ -1579,72 +1677,78 @@ export function BookingWidget() {
 
             {/* PRICE */}
 
-{/* PRICE */}
+            <div className="md:text-right">
+              {isLoadingPrice &&
+              checkIn &&
+              checkOut ? (
+                <div
+                  className="
+                    inline-flex
+                    items-center
+                    gap-2
+                    text-sm
+                    text-gray-500
+                  "
+                >
+                  <Loader
+                    size={15}
+                    className="animate-spin"
+                    aria-hidden="true"
+                  />
 
-<div className="md:text-right">
-  {isLoadingPrice && checkIn && checkOut ? (
-    <div
-      className="
-        inline-flex
-        items-center
-        gap-2
-        text-sm
-        text-gray-500
-      "
-    >
-      <Loader
-        size={15}
-        className="animate-spin"
-        aria-hidden="true"
-      />
+                  Calcul du prix...
+                </div>
+              ) : nights > 0 ? (
+                <>
+                  <div
+                    className="
+                      font-serif
+                      text-xl
+                      font-medium
+                      text-[#201A17]
+                    "
+                  >
+                    {nights} nuit
+                    {nights > 1
+                      ? "s"
+                      : ""}
 
-      Calcul du prix...
-    </div>
-  ) : nights > 0 ? (
-    <>
-      <div
-        className="
-          font-serif
-          text-xl
-          font-medium
-          text-[#201A17]
-        "
-      >
-        {nights} nuit{nights > 1 ? "s" : ""}
-        <span className="mx-2 text-[#B28A47]/60">
-          ·
-        </span>
-        {displayedTotal.toLocaleString("fr-FR")} MAD
-      </div>
+                    <span className="mx-2 text-[#B28A47]/60">
+                      ·
+                    </span>
 
-      <div className="mt-1 text-sm text-gray-500">
-        Taxes et frais inclus
-      </div>
-    </>
-  ) : (
-    <div>
-      <div
-        className="
-          font-serif
-          text-lg
-          font-medium
-          text-[#201A17]
-        "
-      >
-        Sélectionnez vos dates
-      </div>
+                    {displayedTotal.toLocaleString(
+                      "fr-FR",
+                    )}{" "}
+                    MAD
+                  </div>
 
-      <div className="mt-1 text-sm text-gray-500">
-        Le tarif de votre séjour apparaîtra ici
-      </div>
-    </div>
-  )}
-</div>
+                  <div className="mt-1 text-sm text-gray-500">
+                    Taxes et frais inclus
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <div
+                    className="
+                      font-serif
+                      text-lg
+                      font-medium
+                      text-[#201A17]
+                    "
+                  >
+                    Sélectionnez vos dates
+                  </div>
+
+                  <div className="mt-1 text-sm text-gray-500">
+                    Le tarif de votre séjour apparaîtra ici
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* =================================================
-              MAIN CTA
-              ================================================= */}
+          {/* MAIN CTA */}
 
           <div className="text-center">
             <button
@@ -1682,13 +1786,13 @@ export function BookingWidget() {
                 duration-200
                 ease-out
 
-                hover:-translate-y-px
-                hover:bg-[#12604B]
-                hover:shadow-[0_13px_32px_rgba(15,90,70,0.26)]
+                enabled:hover:-translate-y-px
+                enabled:hover:bg-[#12604B]
+                enabled:hover:shadow-[0_13px_32px_rgba(15,90,70,0.26)]
 
-                active:translate-y-0
-                active:bg-[#0B493A]
-                active:shadow-[0_6px_18px_rgba(15,90,70,0.16)]
+                enabled:active:translate-y-0
+                enabled:active:bg-[#0B493A]
+                enabled:active:shadow-[0_6px_18px_rgba(15,90,70,0.16)]
 
                 focus-visible:outline-none
                 focus-visible:ring-2
@@ -1697,17 +1801,16 @@ export function BookingWidget() {
                 focus-visible:ring-offset-[#FFFDF8]
 
                 disabled:cursor-not-allowed
-                disabled:opacity-50
-                disabled:hover:translate-y-0
-                disabled:hover:bg-[#0F5A46]
-                disabled:hover:shadow-[0_10px_28px_rgba(15,90,70,0.20)]
+                disabled:bg-[#0F5A46]
+                disabled:text-[#FFFDF8]
+                disabled:shadow-[0_10px_28px_rgba(15,90,70,0.20)]
 
                 sm:w-auto
                 sm:min-w-[310px]
                 sm:px-9
               "
             >
-              {/* subtle hover light */}
+              {/* Hover light only when enabled */}
 
               <span
                 className="
@@ -1717,7 +1820,9 @@ export function BookingWidget() {
                   opacity-0
                   transition-opacity
                   duration-300
+
                   group-hover:opacity-100
+                  group-disabled:opacity-0
                 "
                 aria-hidden="true"
               >
@@ -1764,7 +1869,9 @@ export function BookingWidget() {
                     text-[#D2AA5A]
                     transition-transform
                     duration-200
+
                     group-hover:translate-x-1
+                    group-disabled:translate-x-0
                   "
                 />
               )}
@@ -1772,9 +1879,7 @@ export function BookingWidget() {
           </div>
         </form>
 
-        {/* ===================================================
-            BENEFITS
-            =================================================== */}
+        {/* BENEFITS */}
 
         <div
           className="
@@ -1859,7 +1964,9 @@ function GuestRow({
         <button
           type="button"
           onClick={decrement}
-          disabled={value <= minimum}
+          disabled={
+            value <= minimum
+          }
           aria-label={`Diminuer ${label.toLowerCase()}`}
           className="
             inline-flex
@@ -1872,8 +1979,8 @@ function GuestRow({
             border-[#B28A47]/25
             text-[#0F5A46]
             transition
-            hover:border-[#B28A47]/50
-            hover:bg-[#B28A47]/5
+            enabled:hover:border-[#B28A47]/50
+            enabled:hover:bg-[#B28A47]/5
             disabled:cursor-not-allowed
             disabled:opacity-30
           "
@@ -1888,7 +1995,9 @@ function GuestRow({
         <button
           type="button"
           onClick={increment}
-          disabled={disableIncrement}
+          disabled={
+            disableIncrement
+          }
           aria-label={`Augmenter ${label.toLowerCase()}`}
           className="
             inline-flex
@@ -1901,8 +2010,8 @@ function GuestRow({
             border-[#B28A47]/25
             text-[#0F5A46]
             transition
-            hover:border-[#B28A47]/50
-            hover:bg-[#B28A47]/5
+            enabled:hover:border-[#B28A47]/50
+            enabled:hover:bg-[#B28A47]/5
             disabled:cursor-not-allowed
             disabled:opacity-30
           "

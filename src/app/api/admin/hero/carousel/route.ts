@@ -17,9 +17,15 @@ type HeroMediaRow = {
   is_active?: boolean | null;
 };
 
+const isVideoUrl = (value: string | null | undefined) =>
+  Boolean(value && /\.(?:mp4|webm)(?:$|[?#])/i.test(value));
+
 const toApiItem = (row: HeroMediaRow): HeroMediaApiItem => ({
   id: row.id,
-  media_type: row.media_type === "video" ? "video" : "image",
+  media_type:
+    row.media_type === "video" || (!row.media_type && isVideoUrl(row.media_url || row.image_url))
+      ? "video"
+      : "image",
   media_url: row.media_url || row.image_url || "",
   poster_url: row.poster_url ?? null,
   alt_text: row.alt_text ?? null,
@@ -107,7 +113,7 @@ export async function POST(request: Request) {
       .maybeSingle();
     const position = (last?.display_order ?? 0) + 1;
 
-    const { data, error } = await supabase
+    const modernInsert = await supabase
       .from("hero_carousel_images")
       .insert({
         hero_settings_id: heroSettings.id,
@@ -121,8 +127,28 @@ export async function POST(request: Request) {
       })
       .select("id, image_url, media_type, media_url, poster_url, alt_text, display_order, is_active")
       .single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json(toApiItem(data as HeroMediaRow), { status: 201 });
+    if (!modernInsert.error) {
+      return NextResponse.json(toApiItem(modernInsert.data as HeroMediaRow), { status: 201 });
+    }
+
+    // Compatibility with databases that still have the original image-only schema.
+    if (modernInsert.error.code === "42703") {
+      const legacyInsert = await supabase
+        .from("hero_carousel_images")
+        .insert({
+          hero_settings_id: heroSettings.id,
+          image_url: body.media_url,
+          display_order: position,
+        })
+        .select("id, image_url, display_order")
+        .single();
+      if (legacyInsert.error) {
+        return NextResponse.json({ error: legacyInsert.error.message }, { status: 500 });
+      }
+      return NextResponse.json(toApiItem(legacyInsert.data as HeroMediaRow), { status: 201 });
+    }
+
+    return NextResponse.json({ error: modernInsert.error.message }, { status: 500 });
   } catch (error) {
     return errorResponse(error);
   }

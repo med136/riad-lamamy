@@ -45,6 +45,8 @@ export default function HeroSettingsPage() {
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadTarget, setUploadTarget] = useState<'background' | 'carousel' | `poster:${string}` | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const [hasChanges, setHasChanges] = useState(false)
   const [draggedId, setDraggedId] = useState<string | null>(null)
 
@@ -93,6 +95,7 @@ export default function HeroSettingsPage() {
 
     setUploading(true)
     setUploadProgress(0)
+    setUploadTarget(isCarousel ? 'carousel' : 'background')
     try {
       const isImage = HERO_IMAGE_MIME_TYPES.includes(file.type as (typeof HERO_IMAGE_MIME_TYPES)[number])
       const isVideo = HERO_VIDEO_MIME_TYPES.includes(file.type as (typeof HERO_VIDEO_MIME_TYPES)[number])
@@ -138,6 +141,7 @@ export default function HeroSettingsPage() {
     } finally {
       setUploading(false)
       setUploadProgress(0)
+      setUploadTarget(null)
       if (e.target) e.target.value = ''
     }
   }
@@ -145,20 +149,25 @@ export default function HeroSettingsPage() {
   const handleDeleteCarouselImage = async (id: string) => {
     if (!confirm('Etes-vous sur de vouloir supprimer ce media?')) return
 
+    setDeletingId(id)
     try {
       const res = await fetch(`/api/admin/hero/carousel/${id}`, {
         method: 'DELETE'
       })
 
+      const data = await res.json().catch(() => ({}))
+
       if (res.ok) {
-        await fetchCarouselImages()
+        setCarouselImages((current) => current.filter((item) => item.id !== id))
         toast.success('Media supprime')
       } else {
-        toast.error('Erreur lors de la suppression')
+        throw new Error(data.error || 'Erreur lors de la suppression')
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Delete error:', err)
-      toast.error('Erreur lors de la suppression')
+      toast.error(err instanceof Error ? err.message : 'Erreur lors de la suppression')
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -199,6 +208,7 @@ export default function HeroSettingsPage() {
     if (!file) return
     setUploading(true)
     setUploadProgress(0)
+    setUploadTarget(`poster:${id}`)
     try {
       const formData = new FormData()
       formData.append('file', file)
@@ -216,6 +226,7 @@ export default function HeroSettingsPage() {
     } finally {
       setUploading(false)
       setUploadProgress(0)
+      setUploadTarget(null)
     }
   }
 
@@ -311,10 +322,6 @@ export default function HeroSettingsPage() {
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-800">
             Vous avez des modifications non sauvegardees
           </div>
-        )}
-
-        {uploading && (
-          <UploadProgress value={uploadProgress} label="Upload du média hero" />
         )}
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -419,6 +426,9 @@ export default function HeroSettingsPage() {
                     <span className="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-3 py-1">Image configuree</span>
                   ) : null}
                 </div>
+                {uploading && uploadTarget === 'background' && (
+                  <UploadProgress value={uploadProgress} label="Téléchargement de l'image de fond" />
+                )}
                 {settings.background_image ? (
                   <div className="relative w-full h-64 bg-gray-100 rounded-2xl overflow-hidden border border-gray-200">
                     <img
@@ -459,6 +469,9 @@ export default function HeroSettingsPage() {
                         {carouselImages.length} media{carouselImages.length !== 1 ? 's' : ''}
                       </span>
                     </div>
+                    {uploading && uploadTarget === 'carousel' && (
+                      <UploadProgress value={uploadProgress} label="Téléchargement du média" />
+                    )}
                     {carouselImages.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {carouselImages.map((img, idx) => (
@@ -517,7 +530,8 @@ export default function HeroSettingsPage() {
                                 <button
                                   type="button"
                                   onClick={() => handleDeleteCarouselImage(img.id)}
-                                  className="rounded-xl bg-red-600 p-2 text-white transition-colors hover:bg-red-700"
+                                  disabled={deletingId === img.id}
+                                  className="rounded-xl bg-red-600 p-2 text-white transition-colors hover:bg-red-700 disabled:cursor-wait disabled:opacity-60"
                                   aria-label="Supprimer le media"
                                 >
                                   <Trash2 size={18} />
@@ -567,6 +581,9 @@ export default function HeroSettingsPage() {
                                   </label>
                                 )}
                               </div>
+                              {uploading && uploadTarget === `poster:${img.id}` && (
+                                <UploadProgress value={uploadProgress} label="Téléchargement du poster" />
+                              )}
                             </div>
                           </div>
                         ))}
