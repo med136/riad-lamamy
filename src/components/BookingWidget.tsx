@@ -19,10 +19,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import DatePicker from "react-datepicker";
-
-// @ts-expect-error - react-datepicker styles are loaded globally in this app
 import "react-datepicker/dist/react-datepicker.css";
-
 import toast from "react-hot-toast";
 
 import {
