@@ -4,7 +4,6 @@ export const HERO_IMAGE_MIME_TYPES = [
   "image/jpeg",
   "image/png",
   "image/webp",
-  "image/avif",
 ] as const;
 
 export const HERO_VIDEO_MIME_TYPES = ["video/mp4", "video/webm"] as const;
@@ -14,14 +13,25 @@ export const HERO_MEDIA_ACCEPT = [
   ...HERO_VIDEO_MIME_TYPES,
 ].join(",");
 
-export const HERO_IMAGE_MAX_BYTES = 10 * 1024 * 1024;
-export const HERO_VIDEO_MAX_BYTES = 50 * 1024 * 1024;
+export const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
+export const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
+export const HERO_IMAGE_MAX_BYTES = MAX_IMAGE_SIZE;
+export const HERO_VIDEO_MAX_BYTES = MAX_VIDEO_SIZE;
+
+export class HeroMediaValidationError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number = 400,
+  ) {
+    super(message);
+    this.name = "HeroMediaValidationError";
+  }
+}
 
 const EXTENSIONS_BY_MIME: Record<string, readonly string[]> = {
   "image/jpeg": ["jpg", "jpeg"],
   "image/png": ["png"],
   "image/webp": ["webp"],
-  "image/avif": ["avif"],
   "video/mp4": ["mp4"],
   "video/webm": ["webm"],
 };
@@ -51,9 +61,6 @@ const hasValidSignature = (mimeType: string, bytes: Uint8Array) => {
   if (mimeType === "image/webp") {
     return ascii(bytes, 0, 4) === "RIFF" && ascii(bytes, 8, 4) === "WEBP";
   }
-  if (mimeType === "image/avif") {
-    return ascii(bytes, 4, 4) === "ftyp" && /^(avif|avis)$/.test(ascii(bytes, 8, 4));
-  }
   if (mimeType === "video/mp4") {
     return ascii(bytes, 4, 4) === "ftyp";
   }
@@ -78,69 +85,28 @@ export const validateHeroFile = async (
       : null;
 
   if (!mediaType || (expectedType && mediaType !== expectedType)) {
-    throw new Error("Format de média non autorisé.");
+    throw new HeroMediaValidationError("Format de média non autorisé.", 415);
   }
 
   const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
   if (!EXTENSIONS_BY_MIME[file.type]?.includes(extension)) {
-    throw new Error("L’extension du fichier ne correspond pas à son type MIME.");
+    throw new HeroMediaValidationError("L’extension du fichier ne correspond pas à son type MIME.", 415);
   }
 
   const maxBytes = mediaType === "image" ? HERO_IMAGE_MAX_BYTES : HERO_VIDEO_MAX_BYTES;
   if (file.size <= 0 || file.size > maxBytes) {
-    throw new Error(
+    throw new HeroMediaValidationError(
       mediaType === "image"
-        ? "L’image doit peser au maximum 10 Mo."
-        : "La vidéo doit peser au maximum 50 Mo.",
+        ? "Image trop volumineuse. Taille maximale : 8 Mo."
+        : "Vidéo trop volumineuse. Taille maximale : 50 Mo.",
+      413,
     );
   }
 
   const header = new Uint8Array(await file.slice(0, 32).arrayBuffer());
   if (!hasValidSignature(file.type, header)) {
-    throw new Error("La signature réelle du fichier ne correspond pas au format annoncé.");
+    throw new HeroMediaValidationError("La signature réelle du fichier ne correspond pas au format annoncé.", 415);
   }
 
   return { mediaType, extension };
-};
-
-export type HeroStorageObject = {
-  bucket: "room-images" | "videos";
-  path: string;
-};
-
-export const getHeroStorageObject = (value: string): HeroStorageObject | null => {
-  try {
-    const storageBase = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "");
-    const candidate = new URL(value);
-    const secureProtocol =
-      candidate.protocol === "https:" ||
-      (candidate.protocol === "http:" && ["localhost", "127.0.0.1"].includes(storageBase.hostname));
-    if (!secureProtocol || candidate.host !== storageBase.host) return null;
-
-    const marker = "/storage/v1/object/public/";
-    const markerIndex = candidate.pathname.indexOf(marker);
-    if (markerIndex < 0) return null;
-
-    const objectLocation = decodeURIComponent(
-      candidate.pathname.slice(markerIndex + marker.length),
-    );
-    const separatorIndex = objectLocation.indexOf("/");
-    if (separatorIndex < 0) return null;
-
-    const bucket = objectLocation.slice(0, separatorIndex);
-    const path = objectLocation.slice(separatorIndex + 1);
-    if ((bucket !== "room-images" && bucket !== "videos") || !path.startsWith("hero/")) {
-      return null;
-    }
-
-    return { bucket, path };
-  } catch {
-    return null;
-  }
-};
-
-export const isAllowedHeroStorageUrl = (value: string) => Boolean(getHeroStorageObject(value));
-
-export const getHeroStorageObjectPath = (value: string) => {
-  return getHeroStorageObject(value)?.path ?? null;
 };

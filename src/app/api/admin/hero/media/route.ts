@@ -1,52 +1,36 @@
-import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { requireAdminSession, UnauthorizedAdminError } from "@/lib/auth/admin";
-import { validateHeroFile } from "@/lib/hero-media";
-import { createAdminClient } from "@/lib/supabase/adminClient";
+import { deleteHeroMedia, HeroStorageError } from "@/lib/hero-local-storage";
+import { POST as uploadHeroMedia } from "@/app/api/admin/hero/upload/route";
 
 export const runtime = "nodejs";
 
+// Compatibility alias for clients deployed before /api/admin/hero/upload.
 export async function POST(request: Request) {
+  return uploadHeroMedia(request);
+}
+
+export async function DELETE(request: Request) {
   try {
     await requireAdminSession();
-    const formData = await request.formData();
-    const file = formData.get("file");
-    const kind = formData.get("kind") === "poster" ? "poster" : "media";
-
-    if (!(file instanceof File)) {
-      return NextResponse.json({ error: "Aucun fichier fourni." }, { status: 400 });
+    const body = (await request.json().catch(() => null)) as { url?: unknown } | null;
+    if (!body || typeof body.url !== "string") {
+      return NextResponse.json(
+        { success: false, error: "URL du média requise." },
+        { status: 400 },
+      );
     }
 
-    const validated = await validateHeroFile(file, kind === "poster" ? "image" : undefined);
-    const bucket = validated.mediaType === "video" ? "videos" : "room-images";
-    const folder = kind === "poster" ? "posters" : validated.mediaType === "image" ? "images" : null;
-    const objectPath = folder
-      ? `hero/${folder}/${randomUUID()}.${validated.extension}`
-      : `hero/${randomUUID()}.${validated.extension}`;
-    const supabase = createAdminClient();
-    const { error } = await supabase.storage.from(bucket).upload(
-      objectPath,
-      await file.arrayBuffer(),
-      {
-        cacheControl: "31536000",
-        contentType: file.type,
-        upsert: false,
-      },
-    );
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    const { data } = supabase.storage.from(bucket).getPublicUrl(objectPath);
-    return NextResponse.json({
-      media_type: validated.mediaType,
-      media_url: data.publicUrl,
-      kind,
-    });
+    await deleteHeroMedia(body.url);
+    return NextResponse.json({ success: true });
   } catch (error) {
-    const status = error instanceof UnauthorizedAdminError ? 401 : 400;
-    const message = error instanceof Error ? error.message : "Upload impossible.";
-    return NextResponse.json({ error: message }, { status });
+    const status =
+      error instanceof UnauthorizedAdminError
+        ? 401
+        : error instanceof HeroStorageError
+          ? error.status
+          : 500;
+    const message = error instanceof Error ? error.message : "Suppression impossible.";
+    return NextResponse.json({ success: false, error: message }, { status });
   }
 }

@@ -33,11 +33,13 @@ export function uploadFormDataWithProgress<T>(
         payload && typeof payload === 'object' && 'error' in payload
           ? String((payload as { error: unknown }).error)
           : null
-      const tooLarge = request.status === 413 || /request entity too large/i.test(request.responseText)
+      const tooLarge =
+        request.status === 413 ||
+        /request entity too large|payload too large|body exceeded/i.test(request.responseText)
       reject(
         new Error(
           tooLarge
-            ? 'Fichier trop volumineux pour être envoyé.'
+            ? 'Le serveur a refusé la taille du fichier (HTTP 413). Vérifiez client_max_body_size côté Nginx.'
             : apiMessage || `Échec de l’upload (${request.status || 'réseau'})`,
         ),
       )

@@ -8,6 +8,9 @@ export type HeroMediaItem = {
   altText: string | null;
   position: number;
   isActive: boolean;
+  filename: string | null;
+  mimeType: string | null;
+  size: number | null;
 };
 
 export type HeroMediaApiItem = {
@@ -18,6 +21,9 @@ export type HeroMediaApiItem = {
   alt_text: string | null;
   position: number;
   is_active: boolean;
+  filename?: string | null;
+  mime_type?: string | null;
+  size?: number | null;
 };
 
 export const toHeroMediaItem = (item: HeroMediaApiItem): HeroMediaItem => ({
@@ -28,5 +34,7 @@ export const toHeroMediaItem = (item: HeroMediaApiItem): HeroMediaItem => ({
   altText: item.alt_text,
   position: item.position,
   isActive: item.is_active,
+  filename: item.filename ?? null,
+  mimeType: item.mime_type ?? null,
+  size: item.size ?? null,
 });
-

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
@@ -18,9 +18,15 @@ import {
 } from "@/types/hero-media";
 
 interface HeroSettings {
+  title?: string;
+  subtitle?: string;
   background_image?: string;
+  cta_primary_text?: string;
   cta_primary_link?: string;
+  cta_secondary_text?: string;
   cta_secondary_link?: string;
+  is_active?: boolean;
+  display_mode?: "carousel" | "static";
 }
 
 const FALLBACK_IMAGES = [
@@ -38,6 +44,9 @@ const FALLBACK_MEDIA: HeroMediaItem[] = FALLBACK_IMAGES.map(
     altText: null,
     position,
     isActive: true,
+    filename: null,
+    mimeType: null,
+    size: null,
   }),
 );
 
@@ -69,6 +78,20 @@ export function Hero() {
   const videoRefs = useRef(
     new Map<string, HTMLVideoElement>(),
   );
+
+  const heroSlides = useMemo<HeroMediaItem[]>(() => {
+    if (settings?.display_mode === "static") {
+      return [
+        {
+          ...FALLBACK_MEDIA[0],
+          id: "static-background",
+          mediaUrl: settings?.background_image || FALLBACK_IMAGES[0],
+          position: 0,
+        },
+      ];
+    }
+    return slides.length ? slides : FALLBACK_MEDIA;
+  }, [settings?.background_image, settings?.display_mode, slides]);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -142,6 +165,10 @@ export function Hero() {
   }, []);
 
   useEffect(() => {
+    if (index >= heroSlides.length) setIndex(0);
+  }, [heroSlides.length, index]);
+
+  useEffect(() => {
     const updateVisibility = () => {
       setDocumentVisible(
         document.visibilityState === "visible",
@@ -192,7 +219,7 @@ export function Hero() {
     if (
       prefersReducedMotion ||
       paused ||
-      slides.length <= 1
+      heroSlides.length <= 1
     ) {
       return;
     }
@@ -200,10 +227,10 @@ export function Hero() {
     const id = window.setInterval(() => {
       setIndex((prev) => {
         videoRefs.current
-          .get(slides[prev]?.id)
+          .get(heroSlides[prev]?.id)
           ?.pause();
 
-        return (prev + 1) % slides.length;
+        return (prev + 1) % heroSlides.length;
       });
     }, AUTOPLAY_MS);
 
@@ -213,7 +240,7 @@ export function Hero() {
   }, [
     paused,
     prefersReducedMotion,
-    slides,
+    heroSlides,
   ]);
 
   useEffect(() => {
@@ -221,12 +248,12 @@ export function Hero() {
       return;
     }
 
-    if (slides.length <= 1) {
+    if (heroSlides.length <= 1) {
       return;
     }
 
     const next =
-      slides[(index + 1) % slides.length];
+      heroSlides[(index + 1) % heroSlides.length];
 
     const preloadUrl =
       next.mediaType === "image"
@@ -241,11 +268,11 @@ export function Hero() {
 
     img.decoding = "async";
     img.src = preloadUrl;
-  }, [index, slides]);
+  }, [index, heroSlides]);
 
   useEffect(() => {
     const activeVideo =
-      videoRefs.current.get(slides[index]?.id);
+      videoRefs.current.get(heroSlides[index]?.id);
 
     if (!activeVideo) {
       return;
@@ -266,7 +293,7 @@ export function Hero() {
     documentVisible,
     index,
     prefersReducedMotion,
-    slides,
+    heroSlides,
   ]);
 
   const primaryHref =
@@ -277,12 +304,17 @@ export function Hero() {
     settings?.cta_secondary_link ||
     "/chambres";
 
+  const title = settings?.title || "Dar LaMamy";
+  const subtitle = settings?.subtitle || "Un havre de paix au cœur de Fès";
+  const primaryLabel = settings?.cta_primary_text || "Découvrir le riad";
+  const secondaryLabel = settings?.cta_secondary_text || "Voir les chambres";
+
   const fallbackBackground =
     settings?.background_image ||
     FALLBACK_IMAGES[0];
 
   const activeItem =
-    slides[index] || {
+    heroSlides[index] || heroSlides[0] || {
       ...FALLBACK_MEDIA[0],
       mediaUrl: fallbackBackground,
     };
@@ -299,7 +331,7 @@ export function Hero() {
   };
 
   const goTo = (next: number) => {
-    if (slides.length <= 1) {
+    if (heroSlides.length <= 1) {
       return;
     }
 
@@ -315,7 +347,7 @@ export function Hero() {
   };
 
   const goPrev = () => {
-    if (slides.length <= 1) {
+    if (heroSlides.length <= 1) {
       return;
     }
 
@@ -325,13 +357,13 @@ export function Hero() {
 
     setIndex(
       (prev) =>
-        (prev - 1 + slides.length) %
-        slides.length,
+        (prev - 1 + heroSlides.length) %
+        heroSlides.length,
     );
   };
 
   const goNext = () => {
-    if (slides.length <= 1) {
+    if (heroSlides.length <= 1) {
       return;
     }
 
@@ -341,7 +373,7 @@ export function Hero() {
 
     setIndex(
       (prev) =>
-        (prev + 1) % slides.length,
+        (prev + 1) % heroSlides.length,
     );
   };
 
@@ -382,6 +414,8 @@ export function Hero() {
       goNext();
     }
   };
+
+  if (settings?.is_active === false) return null;
 
   return (
     <section
@@ -542,7 +576,7 @@ export function Hero() {
                 xl:text-[96px]
               "
             >
-              Dar LaMamy
+              {title}
             </h1>
 
             {/* DIVIDER */}
@@ -612,7 +646,7 @@ export function Hero() {
                 lg:text-[24px]
               "
             >
-              Un havre de paix au cœur de Fès
+              {subtitle}
             </p>
 
             {/* CTA BUTTONS */}
@@ -683,7 +717,7 @@ export function Hero() {
                 "
               >
                 <span>
-                  Découvrir le riad
+                  {primaryLabel}
                 </span>
 
                 <ArrowRight
@@ -757,7 +791,7 @@ export function Hero() {
                 "
               >
                 <span>
-                  Voir les chambres
+                  {secondaryLabel}
                 </span>
 
                 <ArrowRight
@@ -778,7 +812,7 @@ export function Hero() {
 
             {/* CAROUSEL CONTROLS */}
 
-            {slides.length > 1 && (
+            {heroSlides.length > 1 && (
               <div
                 className="
                   mt-8
@@ -802,7 +836,7 @@ export function Hero() {
                     focus-within:opacity-100
                   "
                 >
-                  {slides.map((_, i) => {
+                  {heroSlides.map((_, i) => {
                     const active =
                       i === index;
 

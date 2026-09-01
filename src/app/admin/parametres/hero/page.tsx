@@ -25,17 +25,27 @@ interface HeroSettings {
   cta_secondary_text: string
   cta_secondary_link: string
   display_mode?: 'carousel' | 'static'
+  is_active: boolean
+}
+
+type UploadedHeroMedia = {
+  url: string
+  type: 'image' | 'video'
+  filename: string
+  mimeType: string
+  size: number
 }
 
 const defaultSettings: HeroSettings = {
-  title: 'Bienvenue au Riad Dar Al Andalus',
-  subtitle: 'Une oasis de paix au coeur de la medina',
+  title: 'Dar LaMamy',
+  subtitle: 'Un havre de paix au cœur de Fès',
   background_image: '/images/hero/hero-1.svg',
-  cta_primary_text: 'Reserver maintenant',
+  cta_primary_text: 'Découvrir le riad',
   cta_primary_link: '/reservations',
-  cta_secondary_text: 'Decouvrir nos chambres',
+  cta_secondary_text: 'Voir les chambres',
   cta_secondary_link: '/chambres',
-  display_mode: 'carousel'
+  display_mode: 'carousel',
+  is_active: true,
 }
 
 export default function HeroSettingsPage() {
@@ -45,10 +55,15 @@ export default function HeroSettingsPage() {
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
-  const [uploadTarget, setUploadTarget] = useState<'background' | 'carousel' | `poster:${string}` | null>(null)
+  const [uploadTarget, setUploadTarget] = useState<
+    'background' | 'carousel' | `poster:${string}` | `replace:${string}` | null
+  >(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [hasChanges, setHasChanges] = useState(false)
   const [draggedId, setDraggedId] = useState<string | null>(null)
+  const [isDropActive, setIsDropActive] = useState(false)
+  const [savedBackgroundUrl, setSavedBackgroundUrl] = useState(defaultSettings.background_image)
+  const [pendingBackgroundUrl, setPendingBackgroundUrl] = useState<string | null>(null)
 
   useEffect(() => {
     fetchSettings()
@@ -61,7 +76,10 @@ export default function HeroSettingsPage() {
       const res = await fetch('/api/admin/hero')
       const data = await res.json()
       if (res.ok && data) {
-        setSettings({ ...defaultSettings, ...data })
+        const nextSettings = { ...defaultSettings, ...data }
+        setSettings(nextSettings)
+        setSavedBackgroundUrl(nextSettings.background_image)
+        setPendingBackgroundUrl(null)
         setHasChanges(false)
       }
     } catch (err) {
@@ -89,10 +107,20 @@ export default function HeroSettingsPage() {
     setHasChanges(true)
   }
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, isCarousel = false) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+  const deleteUploadedFile = async (url: string) => {
+    if (!url.startsWith('/uploads/hero/')) return
+    const response = await fetch('/api/admin/hero/media', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    })
+    if (!response.ok && response.status !== 404) {
+      const payload = await response.json().catch(() => ({}))
+      throw new Error(payload.error || 'Nettoyage du fichier impossible.')
+    }
+  }
 
+  const uploadFile = async (file: File, isCarousel: boolean) => {
     setUploading(true)
     setUploadProgress(0)
     setUploadTarget(isCarousel ? 'carousel' : 'background')
@@ -100,39 +128,54 @@ export default function HeroSettingsPage() {
       const isImage = HERO_IMAGE_MIME_TYPES.includes(file.type as (typeof HERO_IMAGE_MIME_TYPES)[number])
       const isVideo = HERO_VIDEO_MIME_TYPES.includes(file.type as (typeof HERO_VIDEO_MIME_TYPES)[number])
       if (!isImage && (!isCarousel || !isVideo)) throw new Error('Format de fichier non autorise.')
-      if (isImage && file.size > HERO_IMAGE_MAX_BYTES) throw new Error("L'image depasse 10 Mo.")
-      if (isVideo && file.size > HERO_VIDEO_MAX_BYTES) throw new Error('La video depasse 50 Mo.')
+      if (isImage && file.size > HERO_IMAGE_MAX_BYTES) {
+        throw new Error('Image trop volumineuse. Taille maximale : 8 Mo.')
+      }
+      if (isVideo && file.size > HERO_VIDEO_MAX_BYTES) {
+        throw new Error('Vidéo trop volumineuse. Taille maximale : 50 Mo.')
+      }
 
       const formData = new FormData()
       formData.append('file', file)
 
       const json = await uploadFormDataWithProgress<{
-        media_url?: string
-        media_type?: 'image' | 'video'
-      }>('/api/admin/hero/media', formData, setUploadProgress)
+        success: boolean
+        media?: UploadedHeroMedia
+      }>('/api/admin/hero/upload', formData, setUploadProgress)
 
-      if (json.media_url) {
+      if (json.media) {
         if (isCarousel) {
           const carouselRes = await fetch('/api/admin/hero/carousel', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              media_type: json.media_type,
-              media_url: json.media_url,
+              media_type: json.media.type,
+              media_url: json.media.url,
+              filename: json.media.filename,
+              mime_type: json.media.mimeType,
+              size: json.media.size,
             })
           })
 
           if (!carouselRes.ok) {
             const err = await carouselRes.json().catch(() => ({}))
+            await deleteUploadedFile(json.media.url).catch(() => undefined)
             throw new Error(err?.error || "Erreur lors de l'ajout au carrousel")
           }
 
           await fetchCarouselImages()
-          toast.success(json.media_type === 'video' ? 'Video ajoutee au carrousel!' : 'Image ajoutee au carrousel!')
+          toast.success(json.media.type === 'video' ? 'Vidéo ajoutée au carrousel.' : 'Image ajoutée au carrousel.')
         } else {
-          if (json.media_type !== 'image') throw new Error("L'arriere-plan statique doit etre une image.")
-          handleInputChange('background_image', json.media_url)
-          toast.success('Image telechargee avec succes!')
+          if (json.media.type !== 'image') {
+            await deleteUploadedFile(json.media.url).catch(() => undefined)
+            throw new Error("L'arrière-plan statique doit être une image.")
+          }
+          if (pendingBackgroundUrl && pendingBackgroundUrl !== json.media.url) {
+            await deleteUploadedFile(pendingBackgroundUrl).catch(() => undefined)
+          }
+          setPendingBackgroundUrl(json.media.url)
+          handleInputChange('background_image', json.media.url)
+          toast.success('Image téléversée. Enregistrez pour la publier.')
         }
       }
     } catch (err: unknown) {
@@ -142,8 +185,13 @@ export default function HeroSettingsPage() {
       setUploading(false)
       setUploadProgress(0)
       setUploadTarget(null)
-      if (e.target) e.target.value = ''
     }
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, isCarousel = false) => {
+    const file = e.target.files?.[0]
+    if (file) await uploadFile(file, isCarousel)
+    e.target.value = ''
   }
 
   const handleDeleteCarouselImage = async (id: string) => {
@@ -213,16 +261,64 @@ export default function HeroSettingsPage() {
       const formData = new FormData()
       formData.append('file', file)
       formData.append('kind', 'poster')
-      const data = await uploadFormDataWithProgress<{ media_url?: string }>(
-        '/api/admin/hero/media',
+      const data = await uploadFormDataWithProgress<{ success: boolean; media?: UploadedHeroMedia }>(
+        '/api/admin/hero/upload',
         formData,
         setUploadProgress,
       )
-      if (!data.media_url) throw new Error("L'URL du poster est manquante.")
-      await updateCarouselItem(id, { poster_url: data.media_url })
-      toast.success('Poster video mis a jour.')
+      if (!data.media?.url) throw new Error("L'URL du poster est manquante.")
+      try {
+        await updateCarouselItem(id, { poster_url: data.media.url })
+      } catch (error) {
+        await deleteUploadedFile(data.media.url).catch(() => undefined)
+        throw error
+      }
+      toast.success('Poster vidéo mis à jour.')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Upload du poster impossible.')
+    } finally {
+      setUploading(false)
+      setUploadProgress(0)
+      setUploadTarget(null)
+    }
+  }
+
+  const handleReplaceMedia = async (id: string, file?: File) => {
+    if (!file) return
+    setUploading(true)
+    setUploadProgress(0)
+    setUploadTarget(`replace:${id}`)
+    let uploadedUrl: string | null = null
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const data = await uploadFormDataWithProgress<{ success: boolean; media?: UploadedHeroMedia }>(
+        '/api/admin/hero/upload',
+        formData,
+        setUploadProgress,
+      )
+      if (!data.media) throw new Error('Réponse de téléversement incomplète.')
+      uploadedUrl = data.media.url
+
+      const response = await fetch(`/api/admin/hero/carousel/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          media_url: data.media.url,
+          media_type: data.media.type,
+          filename: data.media.filename,
+          mime_type: data.media.mimeType,
+          size: data.media.size,
+        }),
+      })
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(payload.error || 'Remplacement impossible.')
+
+      await fetchCarouselImages()
+      toast.success('Média Hero remplacé.')
+    } catch (error) {
+      if (uploadedUrl) await deleteUploadedFile(uploadedUrl).catch(() => undefined)
+      toast.error(error instanceof Error ? error.message : 'Remplacement impossible.')
     } finally {
       setUploading(false)
       setUploadProgress(0)
@@ -251,6 +347,17 @@ export default function HeroSettingsPage() {
 
       toast.success('Parametres sauvegardes avec succes!')
       setHasChanges(false)
+      if (
+        pendingBackgroundUrl &&
+        savedBackgroundUrl !== pendingBackgroundUrl &&
+        savedBackgroundUrl.startsWith('/uploads/hero/')
+      ) {
+        await deleteUploadedFile(savedBackgroundUrl).catch((cleanupError) =>
+          console.error('Previous background cleanup failed:', cleanupError),
+        )
+      }
+      setSavedBackgroundUrl(settings.background_image)
+      setPendingBackgroundUrl(null)
     } catch (err: unknown) {
       console.error('Save error:', err)
       toast.error(err instanceof Error ? err.message : 'Erreur lors de la sauvegarde')
@@ -261,9 +368,26 @@ export default function HeroSettingsPage() {
 
   const handleReset = () => {
     if (confirm('Etes-vous sur ? Les modifications non sauvegardees seront perdues.')) {
+      if (pendingBackgroundUrl) void deleteUploadedFile(pendingBackgroundUrl).catch(() => undefined)
       fetchSettings()
     }
   }
+
+  const formatBytes = (bytes: number | null) => {
+    if (!bytes) return 'Taille non disponible'
+    return `${(bytes / 1024 / 1024).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} Mo`
+  }
+
+  const filenameFromUrl = (url: string) => decodeURIComponent(url.split('/').pop() || 'Média Hero')
+
+  const previewMedia =
+    settings.display_mode === 'carousel' && carouselImages.length > 0
+      ? carouselImages[0]
+      : {
+          mediaType: 'image' as const,
+          mediaUrl: settings.background_image,
+          posterUrl: null,
+        }
 
   if (loading) {
     return (
@@ -289,6 +413,24 @@ export default function HeroSettingsPage() {
               <p className="text-sm text-gray-600">Personnalisez la banniere principale de la page d'accueil.</p>
             </div>
             <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                role="switch"
+                aria-checked={settings.is_active}
+                onClick={() => handleInputChange('is_active', !settings.is_active)}
+                disabled={saving || uploading}
+                className="inline-flex items-center gap-2 rounded-full border border-amber-200/60 bg-white px-4 py-2 text-xs font-semibold text-gray-700 disabled:opacity-50"
+              >
+                <span
+                  className={`relative h-5 w-9 rounded-full transition-colors ${settings.is_active ? 'bg-[#0F5A46]' : 'bg-gray-300'}`}
+                  aria-hidden="true"
+                >
+                  <span
+                    className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${settings.is_active ? 'translate-x-[18px]' : 'translate-x-0.5'}`}
+                  />
+                </span>
+                Hero {settings.is_active ? 'actif' : 'inactif'}
+              </button>
               <button
                 onClick={handleReset}
                 disabled={!hasChanges || saving}
@@ -323,6 +465,36 @@ export default function HeroSettingsPage() {
             Vous avez des modifications non sauvegardees
           </div>
         )}
+
+        <section className="overflow-hidden rounded-3xl border border-amber-200/50 bg-[#17110d] shadow-[0_24px_60px_-38px_rgba(26,18,12,0.75)]">
+          <div className="relative aspect-[16/7] min-h-[280px] w-full">
+            {previewMedia.mediaType === 'video' ? (
+              <video
+                src={previewMedia.mediaUrl}
+                poster={previewMedia.posterUrl || undefined}
+                muted
+                loop
+                autoPlay
+                playsInline
+                preload="metadata"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            ) : (
+              <img
+                src={previewMedia.mediaUrl}
+                alt="Aperçu du Hero"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-black/10" />
+            <div className="absolute inset-x-0 bottom-0 p-6 text-[#FFFDF8] sm:p-10">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D2AA5A]">Aperçu du Hero</p>
+              <h2 className="mt-3 font-serif text-4xl sm:text-5xl">{settings.title}</h2>
+              <div className="my-4 h-px w-20 bg-[#B28A47]" />
+              <p className="max-w-2xl text-sm text-white/85 sm:text-base">{settings.subtitle}</p>
+            </div>
+          </div>
+        </section>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-8 space-y-8">
@@ -453,10 +625,31 @@ export default function HeroSettingsPage() {
                   </p>
 
                   <div className="space-y-4">
-                    <div className="flex flex-wrap items-center gap-4">
-                      <label className="flex items-center gap-2 rounded-full border border-amber-200/60 bg-amber-50 px-4 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-100 transition-colors cursor-pointer">
-                        <Upload size={16} className="text-amber-600" />
-                        <span>{uploading ? 'Telechargement...' : 'Ajouter un media'}</span>
+                    <div
+                      onDragEnter={(event) => {
+                        event.preventDefault()
+                        if (!uploading) setIsDropActive(true)
+                      }}
+                      onDragOver={(event) => event.preventDefault()}
+                      onDragLeave={(event) => {
+                        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsDropActive(false)
+                      }}
+                      onDrop={(event) => {
+                        event.preventDefault()
+                        setIsDropActive(false)
+                        const file = event.dataTransfer.files?.[0]
+                        if (file && !uploading) void uploadFile(file, true)
+                      }}
+                      className={`rounded-2xl border-2 border-dashed p-6 text-center transition-colors ${
+                        isDropActive ? 'border-[#0F5A46] bg-emerald-50' : 'border-[#B28A47]/35 bg-[#FBF8F2]'
+                      }`}
+                    >
+                      <Upload className="mx-auto h-7 w-7 text-[#0F5A46]" strokeWidth={1.7} />
+                      <p className="mt-3 text-sm font-semibold text-gray-900">Importer une image ou une vidéo</p>
+                      <p className="mt-1 text-xs text-gray-500">Glissez-déposez ou sélectionnez un fichier</p>
+                      <p className="mt-2 text-[11px] text-gray-500">JPG, PNG, WebP · 8 Mo max — MP4, WebM · 50 Mo max</p>
+                      <label className="mt-4 inline-flex cursor-pointer items-center rounded-full bg-[#0F5A46] px-5 py-2.5 text-xs font-semibold text-[#FFFDF8] hover:bg-[#12604B]">
+                        {uploading && uploadTarget === 'carousel' ? 'Téléversement…' : 'Choisir un fichier'}
                         <input
                           type="file"
                           accept={HERO_MEDIA_ACCEPT}
@@ -465,9 +658,9 @@ export default function HeroSettingsPage() {
                           className="hidden"
                         />
                       </label>
-                      <span className="text-xs text-gray-600">
-                        {carouselImages.length} media{carouselImages.length !== 1 ? 's' : ''}
-                      </span>
+                      <p className="mt-3 text-xs font-medium text-[#0F5A46]">
+                        {carouselImages.length} média{carouselImages.length !== 1 ? 's' : ''}
+                      </p>
                     </div>
                     {uploading && uploadTarget === 'carousel' && (
                       <UploadProgress value={uploadProgress} label="Téléchargement du média" />
@@ -539,6 +732,11 @@ export default function HeroSettingsPage() {
                               </div>
                             </div>
                             <div className="space-y-3 p-4">
+                              <div className="grid gap-1 rounded-xl bg-[#F7F3EB] px-3 py-2 text-xs text-gray-600">
+                                <span><strong className="text-gray-800">Type :</strong> {img.mimeType || (img.mediaType === 'video' ? 'Vidéo' : 'Image')}</span>
+                                <span><strong className="text-gray-800">Taille :</strong> {formatBytes(img.size)}</span>
+                                <span className="truncate"><strong className="text-gray-800">Fichier :</strong> {img.filename || filenameFromUrl(img.mediaUrl)}</span>
+                              </div>
                               <label className="block text-xs font-semibold text-gray-700">
                                 Texte alternatif
                                 <input
@@ -580,9 +778,25 @@ export default function HeroSettingsPage() {
                                     />
                                   </label>
                                 )}
+                                <label className="cursor-pointer rounded-full border border-[#0F5A46]/25 px-3 py-2 text-xs font-semibold text-[#0F5A46] hover:bg-emerald-50">
+                                  Remplacer
+                                  <input
+                                    type="file"
+                                    accept={HERO_MEDIA_ACCEPT}
+                                    className="hidden"
+                                    disabled={uploading || deletingId === img.id}
+                                    onChange={(event) => {
+                                      void handleReplaceMedia(img.id, event.target.files?.[0])
+                                      event.currentTarget.value = ''
+                                    }}
+                                  />
+                                </label>
                               </div>
                               {uploading && uploadTarget === `poster:${img.id}` && (
                                 <UploadProgress value={uploadProgress} label="Téléchargement du poster" />
+                              )}
+                              {uploading && uploadTarget === `replace:${img.id}` && (
+                                <UploadProgress value={uploadProgress} label="Remplacement du média" />
                               )}
                             </div>
                           </div>
@@ -679,7 +893,7 @@ export default function HeroSettingsPage() {
             <li>- Titre: Maximum 100 caracteres</li>
             <li>- Sous-titre: Maximum 500 caracteres</li>
             <li>- Images recommandees: 1920x1080px ou plus</li>
-            <li>- Images: JPG, PNG, WebP ou AVIF, maximum 10 Mo</li>
+            <li>- Images: JPG, PNG ou WebP, maximum 8 Mo</li>
             <li>- Videos: MP4 ou WebM, maximum 50 Mo</li>
             <li>- Pour de meilleures performances, utilisez une video courte, sans son, idealement inferieure a 15-20 Mo.</li>
             <li>- URLs des boutons: Utilisez des chemins relatifs (/reservations, /chambres...)</li>

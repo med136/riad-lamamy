@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminSession, UnauthorizedAdminError } from "@/lib/auth/admin";
-import { isAllowedHeroStorageUrl } from "@/lib/hero-media";
+import { isLocalHeroMediaUrl } from "@/lib/hero-local-storage";
 import { createAdminClient } from "@/lib/supabase/adminClient";
 import type { HeroMediaApiItem, HeroMediaType } from "@/types/hero-media";
 
@@ -15,6 +15,9 @@ type HeroMediaRow = {
   alt_text?: string | null;
   display_order: number | null;
   is_active?: boolean | null;
+  file_name?: string | null;
+  mime_type?: string | null;
+  file_size?: number | null;
 };
 
 const isVideoUrl = (value: string | null | undefined) =>
@@ -31,6 +34,9 @@ const toApiItem = (row: HeroMediaRow): HeroMediaApiItem => ({
   alt_text: row.alt_text ?? null,
   position: row.display_order ?? 0,
   is_active: row.is_active ?? true,
+  filename: row.file_name ?? null,
+  mime_type: row.mime_type ?? null,
+  size: row.file_size ?? null,
 });
 
 const errorResponse = (error: unknown) => {
@@ -54,11 +60,20 @@ export async function GET() {
 
     const modernResult = await supabase
       .from("hero_carousel_images")
-      .select("id, image_url, media_type, media_url, poster_url, alt_text, display_order, is_active")
+      .select("id, image_url, media_type, media_url, poster_url, alt_text, display_order, is_active, file_name, mime_type, file_size")
       .eq("hero_settings_id", heroSettings.id)
       .order("display_order", { ascending: true });
     let data = modernResult.data as HeroMediaRow[] | null;
     let error = modernResult.error;
+    if (error?.code === "42703") {
+      const coreResult = await supabase
+        .from("hero_carousel_images")
+        .select("id, image_url, media_type, media_url, poster_url, alt_text, display_order, is_active")
+        .eq("hero_settings_id", heroSettings.id)
+        .order("display_order", { ascending: true });
+      data = coreResult.data as HeroMediaRow[] | null;
+      error = coreResult.error;
+    }
     if (error) {
       const legacyResult = await supabase
         .from("hero_carousel_images")
@@ -83,14 +98,23 @@ export async function POST(request: Request) {
       media_url?: string;
       poster_url?: string | null;
       alt_text?: string | null;
+      filename?: string | null;
+      mime_type?: string | null;
+      size?: number | null;
     };
-    if (!body.media_url || !isAllowedHeroStorageUrl(body.media_url)) {
+    if (
+      !body.media_url ||
+      !isLocalHeroMediaUrl(body.media_url)
+    ) {
       return NextResponse.json({ error: "URL de média Hero non autorisée." }, { status: 400 });
     }
     if (body.media_type !== "image" && body.media_type !== "video") {
       return NextResponse.json({ error: "Type de média invalide." }, { status: 400 });
     }
-    if (body.poster_url && !isAllowedHeroStorageUrl(body.poster_url)) {
+    if (
+      body.poster_url &&
+      !isLocalHeroMediaUrl(body.poster_url)
+    ) {
       return NextResponse.json({ error: "URL de poster non autorisée." }, { status: 400 });
     }
 
@@ -124,8 +148,11 @@ export async function POST(request: Request) {
         alt_text: body.alt_text?.trim().slice(0, 180) || null,
         display_order: position,
         is_active: true,
+        file_name: body.filename ?? null,
+        mime_type: body.mime_type ?? null,
+        file_size: body.size ?? null,
       })
-      .select("id, image_url, media_type, media_url, poster_url, alt_text, display_order, is_active")
+      .select("id, image_url, media_type, media_url, poster_url, alt_text, display_order, is_active, file_name, mime_type, file_size")
       .single();
     if (!modernInsert.error) {
       return NextResponse.json(toApiItem(modernInsert.data as HeroMediaRow), { status: 201 });
@@ -133,6 +160,27 @@ export async function POST(request: Request) {
 
     // Compatibility with databases that still have the original image-only schema.
     if (modernInsert.error.code === "42703") {
+      const coreInsert = await supabase
+        .from("hero_carousel_images")
+        .insert({
+          hero_settings_id: heroSettings.id,
+          image_url: body.media_url,
+          media_type: body.media_type,
+          media_url: body.media_url,
+          poster_url: body.poster_url ?? null,
+          alt_text: body.alt_text?.trim().slice(0, 180) || null,
+          display_order: position,
+          is_active: true,
+        })
+        .select("id, image_url, media_type, media_url, poster_url, alt_text, display_order, is_active")
+        .single();
+      if (!coreInsert.error) {
+        return NextResponse.json(toApiItem(coreInsert.data as HeroMediaRow), { status: 201 });
+      }
+      if (coreInsert.error.code !== "42703") {
+        return NextResponse.json({ error: coreInsert.error.message }, { status: 500 });
+      }
+
       const legacyInsert = await supabase
         .from("hero_carousel_images")
         .insert({
