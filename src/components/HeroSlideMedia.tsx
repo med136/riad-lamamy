@@ -9,7 +9,10 @@ type HeroSlideMediaProps = {
   isFirst: boolean;
   prefersReducedMotion: boolean;
   documentVisible: boolean;
-  registerVideo: (id: string, element: HTMLVideoElement | null) => void;
+  registerVideo: (
+    id: string,
+    element: HTMLVideoElement | null,
+  ) => void;
 };
 
 export function HeroSlideMedia({
@@ -19,18 +22,29 @@ export function HeroSlideMedia({
   documentVisible,
   registerVideo,
 }: HeroSlideMediaProps) {
-  const [videoFailed, setVideoFailed] = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
-  const showVideo = item.mediaType === "video" && !prefersReducedMotion && !videoFailed;
+  const [videoFailed, setVideoFailed] =
+    useState(false);
 
-  const fallbackImage = item.posterUrl || (item.mediaType === "image" ? item.mediaUrl : null);
+  const [videoReady, setVideoReady] =
+    useState(false);
+
+  const showVideo =
+    item.mediaType === "video" &&
+    !prefersReducedMotion &&
+    !videoFailed;
+
+  const fallbackImage =
+    item.posterUrl ||
+    (item.mediaType === "image"
+      ? item.mediaUrl
+      : null);
 
   return (
-    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,#4a3024,#0f0b08_72%)]">
+    <div className="absolute inset-0 bg-[#f6f1e8]">
       {fallbackImage && (
         <Image
           src={fallbackImage}
-          alt=""
+          alt={item.altText || ""}
           fill
           priority={isFirst}
           sizes="100vw"
@@ -40,7 +54,9 @@ export function HeroSlideMedia({
 
       {showVideo && (
         <video
-          ref={(element) => registerVideo(item.id, element)}
+          ref={(element) =>
+            registerVideo(item.id, element)
+          }
           src={item.mediaUrl}
           poster={item.posterUrl || undefined}
           autoPlay={documentVisible}
@@ -51,19 +67,35 @@ export function HeroSlideMedia({
           aria-hidden="true"
           tabIndex={-1}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-            videoReady ? "opacity-100" : "opacity-0"
+            videoReady
+              ? "opacity-100"
+              : "opacity-0"
           }`}
           onCanPlay={(event) => {
             setVideoReady(true);
-            if (documentVisible) void event.currentTarget.play().catch(() => undefined);
+
+            if (documentVisible) {
+              void event.currentTarget
+                .play()
+                .catch(() => undefined);
+            }
           }}
-          onPlaying={() => setVideoReady(true)}
+          onPlaying={() =>
+            setVideoReady(true)
+          }
           onError={() => {
             registerVideo(item.id, null);
             setVideoReady(false);
             setVideoFailed(true);
-            if (process.env.NODE_ENV === "development") {
-              console.warn("Hero video failed to load", item.mediaUrl);
+
+            if (
+              process.env.NODE_ENV ===
+              "development"
+            ) {
+              console.warn(
+                "Hero video failed to load",
+                item.mediaUrl,
+              );
             }
           }}
         />

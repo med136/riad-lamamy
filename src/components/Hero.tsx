@@ -35,20 +35,21 @@ const FALLBACK_IMAGES = [
   "/images/hero/hero-3.svg",
 ];
 
-const FALLBACK_MEDIA: HeroMediaItem[] = FALLBACK_IMAGES.map(
-  (mediaUrl, position) => ({
-    id: `fallback-${position}`,
-    mediaType: "image",
-    mediaUrl,
-    posterUrl: null,
-    altText: null,
-    position,
-    isActive: true,
-    filename: null,
-    mimeType: null,
-    size: null,
-  }),
-);
+const FALLBACK_MEDIA: HeroMediaItem[] =
+  FALLBACK_IMAGES.map(
+    (mediaUrl, position) => ({
+      id: `fallback-${position}`,
+      mediaType: "image",
+      mediaUrl,
+      posterUrl: null,
+      altText: null,
+      position,
+      isActive: true,
+      filename: null,
+      mimeType: null,
+      size: null,
+    }),
+  );
 
 const MAX_SLIDES = 5;
 const AUTOPLAY_MS = 7500;
@@ -70,28 +71,43 @@ export function Hero() {
     setPrefersReducedMotion,
   ] = useState(false);
 
-  const [documentVisible, setDocumentVisible] =
-    useState(true);
+  const [
+    documentVisible,
+    setDocumentVisible,
+  ] = useState(true);
 
-  const touchStartX = useRef<number | null>(null);
+  const touchStartX =
+    useRef<number | null>(null);
 
   const videoRefs = useRef(
     new Map<string, HTMLVideoElement>(),
   );
 
-  const heroSlides = useMemo<HeroMediaItem[]>(() => {
-    if (settings?.display_mode === "static") {
-      return [
-        {
-          ...FALLBACK_MEDIA[0],
-          id: "static-background",
-          mediaUrl: settings?.background_image || FALLBACK_IMAGES[0],
-          position: 0,
-        },
-      ];
-    }
-    return slides.length ? slides : FALLBACK_MEDIA;
-  }, [settings?.background_image, settings?.display_mode, slides]);
+  const heroSlides =
+    useMemo<HeroMediaItem[]>(() => {
+      if (
+        settings?.display_mode === "static"
+      ) {
+        return [
+          {
+            ...FALLBACK_MEDIA[0],
+            id: "static-background",
+            mediaUrl:
+              settings?.background_image ||
+              FALLBACK_IMAGES[0],
+            position: 0,
+          },
+        ];
+      }
+
+      return slides.length
+        ? slides
+        : FALLBACK_MEDIA;
+    }, [
+      settings?.background_image,
+      settings?.display_mode,
+      slides,
+    ]);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -113,65 +129,71 @@ export function Hero() {
       }
     };
 
-    const fetchCarouselImages = async () => {
-      try {
-        const res = await fetch(
-          "/api/hero/carousel",
-          {
-            cache: "no-store",
-          },
-        );
-
-        const data = await res.json();
-
-        const items = Array.isArray(data?.items)
-          ? data.items
-          : [];
-
-        if (res.ok && items.length > 0) {
-          const carouselMedia = (
-            items as HeroMediaApiItem[]
-          )
-            .map(toHeroMediaItem)
-            .filter(
-              (item) =>
-                item.isActive &&
-                item.mediaUrl.trim(),
-            )
-            .slice(0, MAX_SLIDES);
-
-          setSlides(
-            carouselMedia.length
-              ? carouselMedia
-              : FALLBACK_MEDIA,
+    const fetchCarouselImages =
+      async () => {
+        try {
+          const res = await fetch(
+            "/api/hero/carousel",
+            {
+              cache: "no-store",
+            },
           );
 
-          return;
+          const data = await res.json();
+
+          const items = Array.isArray(
+            data?.items,
+          )
+            ? data.items
+            : [];
+
+          if (res.ok && items.length > 0) {
+            const carouselMedia = (
+              items as HeroMediaApiItem[]
+            )
+              .map(toHeroMediaItem)
+              .filter(
+                (item) =>
+                  item.isActive &&
+                  item.mediaUrl.trim(),
+              )
+              .slice(0, MAX_SLIDES);
+
+            setSlides(
+              carouselMedia.length
+                ? carouselMedia
+                : FALLBACK_MEDIA,
+            );
+
+            return;
+          }
+
+          setSlides(FALLBACK_MEDIA);
+        } catch (err) {
+          console.error(
+            "Error fetching carousel images:",
+            err,
+          );
+
+          setSlides(FALLBACK_MEDIA);
         }
+      };
 
-        setSlides(FALLBACK_MEDIA);
-      } catch (err) {
-        console.error(
-          "Error fetching carousel images:",
-          err,
-        );
-
-        setSlides(FALLBACK_MEDIA);
-      }
-    };
-
-    fetchSettings();
-    fetchCarouselImages();
+    void fetchSettings();
+    void fetchCarouselImages();
   }, []);
 
   useEffect(() => {
-    if (index >= heroSlides.length) setIndex(0);
+    if (index >= heroSlides.length) {
+      setIndex(0);
+    }
   }, [heroSlides.length, index]);
 
   useEffect(() => {
     const updateVisibility = () => {
       setDocumentVisible(
-        document.visibilityState === "visible",
+        document.visibilityState ===
+          "visible",
       );
     };
 
@@ -195,17 +217,20 @@ export function Hero() {
       "(prefers-reduced-motion: reduce)",
     );
 
-    if (!media) {
-      return;
-    }
+    if (!media) return;
 
     const update = () => {
-      setPrefersReducedMotion(media.matches);
+      setPrefersReducedMotion(
+        media.matches,
+      );
     };
 
     update();
 
-    media.addEventListener?.("change", update);
+    media.addEventListener?.(
+      "change",
+      update,
+    );
 
     return () => {
       media.removeEventListener?.(
@@ -253,30 +278,29 @@ export function Hero() {
     }
 
     const next =
-      heroSlides[(index + 1) % heroSlides.length];
+      heroSlides[
+        (index + 1) % heroSlides.length
+      ];
 
     const preloadUrl =
       next.mediaType === "image"
         ? next.mediaUrl
         : next.posterUrl;
 
-    if (!preloadUrl) {
-      return;
-    }
+    if (!preloadUrl) return;
 
     const img = new window.Image();
-
     img.decoding = "async";
     img.src = preloadUrl;
   }, [index, heroSlides]);
 
   useEffect(() => {
     const activeVideo =
-      videoRefs.current.get(heroSlides[index]?.id);
+      videoRefs.current.get(
+        heroSlides[index]?.id,
+      );
 
-    if (!activeVideo) {
-      return;
-    }
+    if (!activeVideo) return;
 
     if (
       !documentVisible ||
@@ -304,17 +328,28 @@ export function Hero() {
     settings?.cta_secondary_link ||
     "/chambres";
 
-  const title = settings?.title || "Dar LaMamy";
-  const subtitle = settings?.subtitle || "Un havre de paix au cœur de Fès";
-  const primaryLabel = settings?.cta_primary_text || "Découvrir le riad";
-  const secondaryLabel = settings?.cta_secondary_text || "Voir les chambres";
+  const title =
+    settings?.title || "Dar LaMamy";
+
+  const subtitle =
+    settings?.subtitle ||
+    "Un havre de paix au cœur de Fès";
+
+  const primaryLabel =
+    settings?.cta_primary_text ||
+    "Découvrir le riad";
+
+  const secondaryLabel =
+    settings?.cta_secondary_text ||
+    "Voir les chambres";
 
   const fallbackBackground =
     settings?.background_image ||
     FALLBACK_IMAGES[0];
 
   const activeItem =
-    heroSlides[index] || heroSlides[0] || {
+    heroSlides[index] ||
+    heroSlides[0] || {
       ...FALLBACK_MEDIA[0],
       mediaUrl: fallbackBackground,
     };
@@ -331,13 +366,8 @@ export function Hero() {
   };
 
   const goTo = (next: number) => {
-    if (heroSlides.length <= 1) {
-      return;
-    }
-
-    if (next === index) {
-      return;
-    }
+    if (heroSlides.length <= 1) return;
+    if (next === index) return;
 
     videoRefs.current
       .get(activeItem.id)
@@ -347,9 +377,7 @@ export function Hero() {
   };
 
   const goPrev = () => {
-    if (heroSlides.length <= 1) {
-      return;
-    }
+    if (heroSlides.length <= 1) return;
 
     videoRefs.current
       .get(activeItem.id)
@@ -363,9 +391,7 @@ export function Hero() {
   };
 
   const goNext = () => {
-    if (heroSlides.length <= 1) {
-      return;
-    }
+    if (heroSlides.length <= 1) return;
 
     videoRefs.current
       .get(activeItem.id)
@@ -381,14 +407,14 @@ export function Hero() {
     event: React.TouchEvent<HTMLElement>,
   ) => {
     touchStartX.current =
-      event.touches?.[0]?.clientX ?? null;
+      event.touches?.[0]?.clientX ??
+      null;
   };
 
   const onTouchEnd = (
     event: React.TouchEvent<HTMLElement>,
   ) => {
     const start = touchStartX.current;
-
     const end =
       event.changedTouches?.[0]?.clientX ??
       null;
@@ -415,7 +441,8 @@ export function Hero() {
     }
   };
 
-  if (settings?.is_active === false) return null;
+  if (settings?.is_active === false)
+    return null;
 
   return (
     <section
@@ -425,7 +452,7 @@ export function Hero() {
         isolate
         min-h-[calc(100vh-5.5rem)]
         overflow-hidden
-        bg-[#0f0b08]
+        bg-[#f6f1e8]
         touch-pan-y
       "
       onMouseEnter={() => setPaused(true)}
@@ -438,25 +465,20 @@ export function Hero() {
         <AnimatePresence initial={false}>
           <motion.div
             key={activeItem.id}
-            className="
-              absolute
-              inset-0
-              h-full
-              w-full
-            "
+            className="absolute inset-0 h-full w-full"
             initial={{
               opacity: prefersReducedMotion
                 ? 1
                 : 0,
               scale: prefersReducedMotion
                 ? 1
-                : 1.025,
+                : 1.02,
             }}
             animate={{
               opacity: 1,
               scale: prefersReducedMotion
                 ? 1
-                : 1.055,
+                : 1.05,
             }}
             exit={{
               opacity: prefersReducedMotion
@@ -465,17 +487,18 @@ export function Hero() {
             }}
             transition={{
               opacity: {
-                duration: prefersReducedMotion
-                  ? 0
-                  : FADE_S,
+                duration:
+                  prefersReducedMotion
+                    ? 0
+                    : FADE_S,
                 ease: [0.22, 1, 0.36, 1],
               },
-
               scale: {
-                duration: prefersReducedMotion
-                  ? 0
-                  : AUTOPLAY_MS / 1000 +
-                    0.5,
+                duration:
+                  prefersReducedMotion
+                    ? 0
+                    : AUTOPLAY_MS / 1000 +
+                      0.5,
                 ease: "linear",
               },
             }}
@@ -494,47 +517,28 @@ export function Hero() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Stronger dark treatment on left */}
+        {/* léger voile chaud, pas noir */}
         <div
           className="
             pointer-events-none
             absolute
             inset-0
-            bg-gradient-to-r
-            from-black/80
-            via-black/45
-            to-black/5
+            bg-[linear-gradient(90deg,rgba(255,253,248,0.14)_0%,rgba(255,253,248,0.06)_28%,rgba(255,253,248,0.00)_55%)]
           "
         />
 
-        {/* Bottom depth */}
+        {/* glow premium subtil */}
         <div
           className="
             pointer-events-none
             absolute
             inset-0
-            bg-gradient-to-b
-            from-black/5
-            via-transparent
-            to-black/30
-          "
-        />
-
-        {/* Warm glow */}
-        <div
-          className="
-            pointer-events-none
-            absolute
-            inset-0
-            bg-[radial-gradient(circle_at_28%_35%,rgba(190,135,55,0.08),transparent_55%)]
+            bg-[radial-gradient(circle_at_20%_32%,rgba(200,157,74,0.10),transparent_36%)]
           "
         />
       </div>
 
-      {/* =====================================================
-          CONTENT
-          ===================================================== */}
-
+      {/* Content */}
       <div
         className="
           relative
@@ -554,424 +558,341 @@ export function Hero() {
         >
           <div
             className="
-              max-w-[760px]
+              max-w-[680px]
               pt-10
               sm:pt-14
               lg:pt-20
             "
           >
-            {/* TITLE */}
-
-            <h1
-              className="
-                font-serif
-                text-[54px]
-                font-normal
-                leading-[0.95]
-                tracking-[-0.025em]
-                text-[#FFFDF8]
-                drop-shadow-[0_10px_28px_rgba(0,0,0,0.48)]
-                sm:text-[68px]
-                lg:text-[84px]
-                xl:text-[96px]
-              "
-            >
-              {title}
-            </h1>
-
-            {/* DIVIDER */}
-
             <div
               className="
-                mt-7
-                flex
-                w-[250px]
-                items-center
-                sm:w-[300px]
-                lg:w-[320px]
+                rounded-[30px]
+                border
+                border-white/45
+                bg-[rgba(255,253,248,0.72)]
+                p-6
+                shadow-[0_24px_80px_-30px_rgba(31,23,18,0.32)]
+                backdrop-blur-md
+                sm:p-8
+                lg:p-10
               "
-              aria-hidden="true"
             >
-              <span
+              <p
                 className="
-                  h-px
-                  flex-1
-                  bg-[#C89D4A]
-                "
-              />
-
-              <span
-                className="
-                  mx-3
-                  flex
-                  h-[14px]
-                  w-[14px]
-                  rotate-45
-                  items-center
-                  justify-center
-                  border
-                  border-[#C89D4A]
+                  mb-4
+                  text-[11px]
+                  font-semibold
+                  uppercase
+                  tracking-[0.30em]
+                  text-[#B28A47]
                 "
               >
+                Maison d’hôtes de charme à Fès
+              </p>
+
+              <h1
+                className="
+                  font-serif
+                  text-[46px]
+                  font-medium
+                  leading-[0.96]
+                  tracking-[-0.03em]
+                  text-[#1B1612]
+                  sm:text-[58px]
+                  lg:text-[72px]
+                  xl:text-[82px]
+                "
+              >
+                {title}
+              </h1>
+
+              <div
+                className="
+                  mt-5
+                  flex
+                  w-[190px]
+                  items-center
+                  sm:w-[230px]
+                "
+                aria-hidden="true"
+              >
+                <span className="h-px flex-1 bg-[#C89D4A]" />
+
                 <span
                   className="
-                    h-[4px]
-                    w-[4px]
-                    bg-[#C89D4A]
+                    mx-3
+                    h-[8px]
+                    w-[8px]
+                    rotate-45
+                    border
+                    border-[#C89D4A]
                   "
                 />
-              </span>
 
-              <span
+                <span className="h-px flex-1 bg-[#C89D4A]" />
+              </div>
+
+              <p
                 className="
-                  h-px
-                  flex-1
-                  bg-[#C89D4A]
-                "
-              />
-            </div>
-
-            {/* SUBTITLE */}
-
-            <p
-              className="
-                mt-6
-                font-serif
-                text-[20px]
-                font-normal
-                leading-relaxed
-                text-[#FFFDF8]
-                drop-shadow-[0_6px_18px_rgba(0,0,0,0.45)]
-                sm:text-[22px]
-                lg:text-[24px]
-              "
-            >
-              {subtitle}
-            </p>
-
-            {/* CTA BUTTONS */}
-
-            <div
-              className="
-                mt-8
-                flex
-                flex-col
-                gap-4
-                sm:flex-row
-                sm:items-center
-              "
-            >
-              {/* PRIMARY */}
-
-              <Link
-                href={primaryHref}
-                onClick={() =>
-                  trackEvent(
-                    "cta_reservation_click",
-                    {
-                      source: "hero",
-                    },
-                  )
-                }
-                className="
-                  group/cta
-                  inline-flex
-                  h-[58px]
-                  w-full
-                  items-center
-                  justify-between
-                  gap-8
-                  rounded-full
-
-                  border
-                  border-[#C89D4A]
-
-                  bg-[#0F5A46]
-
-                  px-8
-
-                  font-sans
-                  text-[15px]
-                  font-medium
-                  text-[#FFFDF8]
-
-                  shadow-[0_8px_24px_rgba(0,0,0,0.18)]
-
-                  transition-all
-                  duration-200
-                  ease-out
-
-                  hover:-translate-y-px
-                  hover:bg-[#12604B]
-                  hover:shadow-[0_10px_28px_rgba(0,0,0,0.24)]
-
-                  active:translate-y-0
-
-                  focus-visible:outline-none
-                  focus-visible:ring-2
-                  focus-visible:ring-[#C89D4A]
-                  focus-visible:ring-offset-2
-                  focus-visible:ring-offset-transparent
-
-                  sm:w-[260px]
+                  mt-5
+                  max-w-[560px]
+                  text-[17px]
+                  leading-relaxed
+                  text-[#4F463F]
+                  sm:text-[18px]
+                  lg:text-[19px]
                 "
               >
-                <span>
-                  {primaryLabel}
-                </span>
+                {subtitle}
+              </p>
 
-                <ArrowRight
-                  className="
-                    h-[18px]
-                    w-[18px]
-                    shrink-0
-                    text-[#D2AA5A]
-                    transition-transform
-                    duration-200
-                    group-hover/cta:translate-x-1
-                  "
-                  strokeWidth={1.8}
-                  aria-hidden="true"
-                />
-              </Link>
-
-              {/* SECONDARY */}
-
-              <Link
-                href={secondaryHref}
-                onClick={() =>
-                  trackEvent(
-                    "cta_secondary_click",
-                    {
-                      source: "hero",
-                    },
-                  )
-                }
-                className="
-                  group/cta
-                  inline-flex
-                  h-[58px]
-                  w-full
-                  items-center
-                  justify-between
-                  gap-8
-                  rounded-full
-
-                  border
-                  border-[#C89D4A]
-
-                  bg-[#FFFDF8]
-
-                  px-8
-
-                  font-sans
-                  text-[15px]
-                  font-medium
-                  text-[#174F40]
-
-                  shadow-[0_7px_20px_rgba(0,0,0,0.12)]
-
-                  transition-all
-                  duration-200
-                  ease-out
-
-                  hover:-translate-y-px
-                  hover:bg-[#FFF9EF]
-                  hover:shadow-[0_9px_24px_rgba(0,0,0,0.16)]
-
-                  active:translate-y-0
-
-                  focus-visible:outline-none
-                  focus-visible:ring-2
-                  focus-visible:ring-[#C89D4A]
-                  focus-visible:ring-offset-2
-                  focus-visible:ring-offset-transparent
-
-                  sm:w-[270px]
-                "
-              >
-                <span>
-                  {secondaryLabel}
-                </span>
-
-                <ArrowRight
-                  className="
-                    h-[18px]
-                    w-[18px]
-                    shrink-0
-                    text-[#C89D4A]
-                    transition-transform
-                    duration-200
-                    group-hover/cta:translate-x-1
-                  "
-                  strokeWidth={1.8}
-                  aria-hidden="true"
-                />
-              </Link>
-            </div>
-
-            {/* CAROUSEL CONTROLS */}
-
-            {heroSlides.length > 1 && (
               <div
                 className="
                   mt-8
                   flex
-                  items-center
+                  flex-col
                   gap-4
+                  sm:flex-row
+                  sm:items-center
                 "
               >
-                {/* dots */}
-
-                <nav
-                  aria-label="Hero slides"
+                <Link
+                  href={primaryHref}
+                  onClick={() =>
+                    trackEvent(
+                      "cta_reservation_click",
+                      { source: "hero" },
+                    )
+                  }
                   className="
-                    flex
+                    group/cta
+                    inline-flex
+                    h-[56px]
+                    w-full
                     items-center
-                    gap-2
-                    opacity-50
-                    transition-opacity
+                    justify-between
+                    gap-8
+                    rounded-full
+                    border
+                    border-[#C89D4A]
+                    bg-[#0F5A46]
+                    px-7
+                    text-[15px]
+                    font-semibold
+                    text-[#FFFDF8]
+                    shadow-[0_10px_24px_rgba(15,90,70,0.18)]
+                    transition-all
                     duration-200
-                    group-hover:opacity-100
-                    focus-within:opacity-100
+                    hover:-translate-y-px
+                    hover:bg-[#12604B]
+                    hover:shadow-[0_14px_30px_rgba(15,90,70,0.24)]
+                    focus-visible:outline-none
+                    focus-visible:ring-2
+                    focus-visible:ring-[#C89D4A]
+                    focus-visible:ring-offset-2
+                    focus-visible:ring-offset-transparent
+                    sm:w-[245px]
                   "
                 >
-                  {heroSlides.map((_, i) => {
-                    const active =
-                      i === index;
+                  <span>{primaryLabel}</span>
 
-                    return (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() =>
-                          goTo(i)
-                        }
-                        aria-label={`Aller à la slide ${
-                          i + 1
-                        }`}
-                        aria-current={
-                          active
-                            ? "true"
-                            : undefined
-                        }
-                        className={[
-                          `
-                            rounded-full
-                            transition-all
-                            duration-200
+                  <ArrowRight
+                    className="
+                      h-[18px]
+                      w-[18px]
+                      shrink-0
+                      text-[#D2AA5A]
+                      transition-transform
+                      duration-200
+                      group-hover/cta:translate-x-1
+                    "
+                    strokeWidth={1.8}
+                    aria-hidden="true"
+                  />
+                </Link>
 
-                            focus-visible:outline-none
-                            focus-visible:ring-2
-                            focus-visible:ring-[#D2AA5A]
-                            focus-visible:ring-offset-2
-                            focus-visible:ring-offset-transparent
-                          `,
-                          active
-                            ? "h-[6px] w-8 bg-[#FFFDF8]/85"
-                            : "h-[6px] w-[6px] bg-[#FFFDF8]/40 hover:bg-[#FFFDF8]/65",
-                        ].join(" ")}
-                      />
-                    );
-                  })}
-                </nav>
+                <Link
+                  href={secondaryHref}
+                  onClick={() =>
+                    trackEvent(
+                      "cta_secondary_click",
+                      { source: "hero" },
+                    )
+                  }
+                  className="
+                    group/cta
+                    inline-flex
+                    h-[56px]
+                    w-full
+                    items-center
+                    justify-between
+                    gap-8
+                    rounded-full
+                    border
+                    border-[#D8C29A]
+                    bg-white/88
+                    px-7
+                    text-[15px]
+                    font-semibold
+                    text-[#174F40]
+                    shadow-[0_8px_20px_rgba(20,20,20,0.08)]
+                    transition-all
+                    duration-200
+                    hover:-translate-y-px
+                    hover:bg-white
+                    hover:shadow-[0_10px_24px_rgba(20,20,20,0.12)]
+                    focus-visible:outline-none
+                    focus-visible:ring-2
+                    focus-visible:ring-[#C89D4A]
+                    focus-visible:ring-offset-2
+                    focus-visible:ring-offset-transparent
+                    sm:w-[255px]
+                  "
+                >
+                  <span>{secondaryLabel}</span>
 
-                {/* arrows */}
+                  <ArrowRight
+                    className="
+                      h-[18px]
+                      w-[18px]
+                      shrink-0
+                      text-[#C89D4A]
+                      transition-transform
+                      duration-200
+                      group-hover/cta:translate-x-1
+                    "
+                    strokeWidth={1.8}
+                    aria-hidden="true"
+                  />
+                </Link>
+              </div>
 
+              {heroSlides.length > 1 && (
                 <div
                   className="
+                    mt-8
                     flex
+                    flex-wrap
                     items-center
-                    gap-2
-                    opacity-50
-                    transition-opacity
-                    duration-200
-                    group-hover:opacity-100
-                    focus-within:opacity-100
+                    gap-4
+                    border-t
+                    border-[#B28A47]/15
+                    pt-6
                   "
                 >
-                  <button
-                    type="button"
-                    onClick={goPrev}
-                    aria-label="Média précédent"
-                    className="
-                      inline-flex
-                      h-9
-                      w-9
-                      items-center
-                      justify-center
-                      rounded-full
-
-                      border
-                      border-white/25
-
-                      bg-white/10
-
-                      text-white/90
-
-                      shadow-sm
-                      backdrop-blur
-
-                      transition-colors
-                      duration-200
-
-                      hover:bg-white/18
-
-                      focus-visible:outline-none
-                      focus-visible:ring-2
-                      focus-visible:ring-[#D2AA5A]
-                      focus-visible:ring-offset-2
-                      focus-visible:ring-offset-transparent
-                    "
+                  <nav
+                    aria-label="Hero slides"
+                    className="flex items-center gap-2"
                   >
-                    <ChevronLeft
-                      className="h-4 w-4"
-                      strokeWidth={1.8}
-                    />
-                  </button>
+                    {heroSlides.map((_, i) => {
+                      const active =
+                        i === index;
 
-                  <button
-                    type="button"
-                    onClick={goNext}
-                    aria-label="Image suivante"
-                    className="
-                      inline-flex
-                      h-9
-                      w-9
-                      items-center
-                      justify-center
-                      rounded-full
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() =>
+                            goTo(i)
+                          }
+                          aria-label={`Aller à la slide ${
+                            i + 1
+                          }`}
+                          aria-current={
+                            active
+                              ? "true"
+                              : undefined
+                          }
+                          className={[
+                            `
+                              rounded-full
+                              transition-all
+                              duration-200
+                              focus-visible:outline-none
+                              focus-visible:ring-2
+                              focus-visible:ring-[#D2AA5A]
+                              focus-visible:ring-offset-2
+                              focus-visible:ring-offset-transparent
+                            `,
+                            active
+                              ? "h-[7px] w-9 bg-[#0F5A46]"
+                              : "h-[7px] w-[7px] bg-[#B28A47]/35 hover:bg-[#B28A47]/60",
+                          ].join(" ")}
+                        />
+                      );
+                    })}
+                  </nav>
 
-                      border
-                      border-white/25
+                  <div className="flex items-center gap-2 sm:ml-auto">
+                    <button
+                      type="button"
+                      onClick={goPrev}
+                      aria-label="Média précédent"
+                      className="
+                        inline-flex
+                        h-10
+                        w-10
+                        items-center
+                        justify-center
+                        rounded-full
+                        border
+                        border-[#B28A47]/20
+                        bg-white/78
+                        text-[#1B1612]
+                        shadow-sm
+                        backdrop-blur
+                        transition-colors
+                        duration-200
+                        hover:bg-white
+                        focus-visible:outline-none
+                        focus-visible:ring-2
+                        focus-visible:ring-[#D2AA5A]
+                        focus-visible:ring-offset-2
+                        focus-visible:ring-offset-transparent
+                      "
+                    >
+                      <ChevronLeft
+                        className="h-4 w-4"
+                        strokeWidth={1.8}
+                      />
+                    </button>
 
-                      bg-white/10
-
-                      text-white/90
-
-                      shadow-sm
-                      backdrop-blur
-
-                      transition-colors
-                      duration-200
-
-                      hover:bg-white/18
-
-                      focus-visible:outline-none
-                      focus-visible:ring-2
-                      focus-visible:ring-[#D2AA5A]
-                      focus-visible:ring-offset-2
-                      focus-visible:ring-offset-transparent
-                    "
-                  >
-                    <ChevronRight
-                      className="h-4 w-4"
-                      strokeWidth={1.8}
-                    />
-                  </button>
+                    <button
+                      type="button"
+                      onClick={goNext}
+                      aria-label="Image suivante"
+                      className="
+                        inline-flex
+                        h-10
+                        w-10
+                        items-center
+                        justify-center
+                        rounded-full
+                        border
+                        border-[#B28A47]/20
+                        bg-white/78
+                        text-[#1B1612]
+                        shadow-sm
+                        backdrop-blur
+                        transition-colors
+                        duration-200
+                        hover:bg-white
+                        focus-visible:outline-none
+                        focus-visible:ring-2
+                        focus-visible:ring-[#D2AA5A]
+                        focus-visible:ring-offset-2
+                        focus-visible:ring-offset-transparent
+                      "
+                    >
+                      <ChevronRight
+                        className="h-4 w-4"
+                        strokeWidth={1.8}
+                      />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
