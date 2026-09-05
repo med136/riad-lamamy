@@ -36,21 +36,20 @@ const FALLBACK_IMAGES = [
   "/images/hero/hero-3.svg",
 ];
 
-const FALLBACK_MEDIA: HeroMediaItem[] =
-  FALLBACK_IMAGES.map(
-    (mediaUrl, position) => ({
-      id: `fallback-${position}`,
-      mediaType: "image",
-      mediaUrl,
-      posterUrl: null,
-      altText: null,
-      position,
-      isActive: true,
-      filename: null,
-      mimeType: null,
-      size: null,
-    }),
-  );
+const FALLBACK_MEDIA: HeroMediaItem[] = FALLBACK_IMAGES.map(
+  (mediaUrl, position) => ({
+    id: `fallback-${position}`,
+    mediaType: "image",
+    mediaUrl,
+    posterUrl: null,
+    altText: null,
+    position,
+    isActive: true,
+    filename: null,
+    mimeType: null,
+    size: null,
+  }),
+);
 
 const MAX_SLIDES = 5;
 const AUTOPLAY_MS = 7500;
@@ -59,6 +58,7 @@ const SWIPE_THRESHOLD_PX = 52;
 
 export function Hero() {
   const { t } = useLanguage();
+
   const [settings, setSettings] =
     useState<HeroSettings | null>(null);
 
@@ -78,38 +78,38 @@ export function Hero() {
     setDocumentVisible,
   ] = useState(true);
 
-  const touchStartX =
-    useRef<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
 
   const videoRefs = useRef(
     new Map<string, HTMLVideoElement>(),
   );
 
-  const heroSlides =
-    useMemo<HeroMediaItem[]>(() => {
-      if (
-        settings?.display_mode === "static"
-      ) {
-        return [
-          {
-            ...FALLBACK_MEDIA[0],
-            id: "static-background",
-            mediaUrl:
-              settings?.background_image ||
-              FALLBACK_IMAGES[0],
-            position: 0,
-          },
-        ];
-      }
+  const heroSlides = useMemo<HeroMediaItem[]>(() => {
+    if (settings?.display_mode === "static") {
+      return [
+        {
+          ...FALLBACK_MEDIA[0],
+          id: "static-background",
+          mediaUrl:
+            settings?.background_image ||
+            FALLBACK_IMAGES[0],
+          position: 0,
+        },
+      ];
+    }
 
-      return slides.length
-        ? slides
-        : FALLBACK_MEDIA;
-    }, [
-      settings?.background_image,
-      settings?.display_mode,
-      slides,
-    ]);
+    return slides.length
+      ? slides
+      : FALLBACK_MEDIA;
+  }, [
+    settings?.background_image,
+    settings?.display_mode,
+    slides,
+  ]);
+
+  /* =========================================================
+     LOAD HERO SETTINGS + CAROUSEL
+     ========================================================= */
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -131,59 +131,60 @@ export function Hero() {
       }
     };
 
-    const fetchCarouselImages =
-      async () => {
-        try {
-          const res = await fetch(
-            "/api/hero/carousel",
-            {
-              cache: "no-store",
-            },
-          );
+    const fetchCarouselImages = async () => {
+      try {
+        const res = await fetch(
+          "/api/hero/carousel",
+          {
+            cache: "no-store",
+          },
+        );
 
-          const data = await res.json();
+        const data = await res.json();
 
-          const items = Array.isArray(
-            data?.items,
+        const items = Array.isArray(data?.items)
+          ? data.items
+          : [];
+
+        if (res.ok && items.length > 0) {
+          const carouselMedia = (
+            items as HeroMediaApiItem[]
           )
-            ? data.items
-            : [];
-
-          if (res.ok && items.length > 0) {
-            const carouselMedia = (
-              items as HeroMediaApiItem[]
+            .map(toHeroMediaItem)
+            .filter(
+              (item) =>
+                item.isActive &&
+                item.mediaUrl.trim(),
             )
-              .map(toHeroMediaItem)
-              .filter(
-                (item) =>
-                  item.isActive &&
-                  item.mediaUrl.trim(),
-              )
-              .slice(0, MAX_SLIDES);
+            .slice(0, MAX_SLIDES);
 
-            setSlides(
-              carouselMedia.length
-                ? carouselMedia
-                : FALLBACK_MEDIA,
-            );
-
-            return;
-          }
-
-          setSlides(FALLBACK_MEDIA);
-        } catch (err) {
-          console.error(
-            "Error fetching carousel images:",
-            err,
+          setSlides(
+            carouselMedia.length
+              ? carouselMedia
+              : FALLBACK_MEDIA,
           );
 
-          setSlides(FALLBACK_MEDIA);
+          return;
         }
-      };
+
+        setSlides(FALLBACK_MEDIA);
+      } catch (err) {
+        console.error(
+          "Error fetching carousel images:",
+          err,
+        );
+
+        setSlides(FALLBACK_MEDIA);
+      }
+    };
 
     void fetchSettings();
     void fetchCarouselImages();
   }, []);
+
+  /* =========================================================
+     KEEP INDEX VALID
+     ========================================================= */
 
   useEffect(() => {
     if (index >= heroSlides.length) {
@@ -191,11 +192,14 @@ export function Hero() {
     }
   }, [heroSlides.length, index]);
 
+  /* =========================================================
+     DOCUMENT VISIBILITY
+     ========================================================= */
+
   useEffect(() => {
     const updateVisibility = () => {
       setDocumentVisible(
-        document.visibilityState ===
-          "visible",
+        document.visibilityState === "visible",
       );
     };
 
@@ -213,6 +217,10 @@ export function Hero() {
       );
     };
   }, []);
+
+  /* =========================================================
+     REDUCED MOTION
+     ========================================================= */
 
   useEffect(() => {
     const media = window.matchMedia?.(
@@ -242,6 +250,10 @@ export function Hero() {
     };
   }, []);
 
+  /* =========================================================
+     AUTOPLAY
+     ========================================================= */
+
   useEffect(() => {
     if (
       prefersReducedMotion ||
@@ -257,7 +269,10 @@ export function Hero() {
           .get(heroSlides[prev]?.id)
           ?.pause();
 
-        return (prev + 1) % heroSlides.length;
+        return (
+          (prev + 1) %
+          heroSlides.length
+        );
       });
     }, AUTOPLAY_MS);
 
@@ -270,6 +285,10 @@ export function Hero() {
     heroSlides,
   ]);
 
+  /* =========================================================
+     PRELOAD NEXT SLIDE
+     ========================================================= */
+
   useEffect(() => {
     if (typeof window === "undefined") {
       return;
@@ -281,7 +300,8 @@ export function Hero() {
 
     const next =
       heroSlides[
-        (index + 1) % heroSlides.length
+        (index + 1) %
+          heroSlides.length
       ];
 
     const preloadUrl =
@@ -292,9 +312,14 @@ export function Hero() {
     if (!preloadUrl) return;
 
     const img = new window.Image();
+
     img.decoding = "async";
     img.src = preloadUrl;
   }, [index, heroSlides]);
+
+  /* =========================================================
+     ACTIVE VIDEO
+     ========================================================= */
 
   useEffect(() => {
     const activeVideo =
@@ -322,6 +347,10 @@ export function Hero() {
     heroSlides,
   ]);
 
+  /* =========================================================
+     SETTINGS / LABELS
+     ========================================================= */
+
   const primaryHref =
     settings?.cta_primary_link ||
     "/reservations";
@@ -331,7 +360,8 @@ export function Hero() {
     "/chambres";
 
   const title =
-    settings?.title || "Dar LaMamy";
+    settings?.title ||
+    t("home.hero.title");
 
   const subtitle =
     settings?.subtitle ||
@@ -356,20 +386,36 @@ export function Hero() {
       mediaUrl: fallbackBackground,
     };
 
+  /* =========================================================
+     VIDEO REGISTER
+     ========================================================= */
+
   const registerVideo = (
     id: string,
     element: HTMLVideoElement | null,
   ) => {
     if (element) {
-      videoRefs.current.set(id, element);
+      videoRefs.current.set(
+        id,
+        element,
+      );
     } else {
       videoRefs.current.delete(id);
     }
   };
 
+  /* =========================================================
+     NAVIGATION
+     ========================================================= */
+
   const goTo = (next: number) => {
-    if (heroSlides.length <= 1) return;
-    if (next === index) return;
+    if (heroSlides.length <= 1) {
+      return;
+    }
+
+    if (next === index) {
+      return;
+    }
 
     videoRefs.current
       .get(activeItem.id)
@@ -379,7 +425,9 @@ export function Hero() {
   };
 
   const goPrev = () => {
-    if (heroSlides.length <= 1) return;
+    if (heroSlides.length <= 1) {
+      return;
+    }
 
     videoRefs.current
       .get(activeItem.id)
@@ -387,13 +435,17 @@ export function Hero() {
 
     setIndex(
       (prev) =>
-        (prev - 1 + heroSlides.length) %
+        (prev -
+          1 +
+          heroSlides.length) %
         heroSlides.length,
     );
   };
 
   const goNext = () => {
-    if (heroSlides.length <= 1) return;
+    if (heroSlides.length <= 1) {
+      return;
+    }
 
     videoRefs.current
       .get(activeItem.id)
@@ -401,29 +453,39 @@ export function Hero() {
 
     setIndex(
       (prev) =>
-        (prev + 1) % heroSlides.length,
+        (prev + 1) %
+        heroSlides.length,
     );
   };
+
+  /* =========================================================
+     SWIPE
+     ========================================================= */
 
   const onTouchStart = (
     event: React.TouchEvent<HTMLElement>,
   ) => {
     touchStartX.current =
-      event.touches?.[0]?.clientX ??
-      null;
+      event.touches?.[0]
+        ?.clientX ?? null;
   };
 
   const onTouchEnd = (
     event: React.TouchEvent<HTMLElement>,
   ) => {
-    const start = touchStartX.current;
+    const start =
+      touchStartX.current;
+
     const end =
-      event.changedTouches?.[0]?.clientX ??
-      null;
+      event.changedTouches?.[0]
+        ?.clientX ?? null;
 
     touchStartX.current = null;
 
-    if (start === null || end === null) {
+    if (
+      start === null ||
+      end === null
+    ) {
       return;
     }
 
@@ -443,8 +505,15 @@ export function Hero() {
     }
   };
 
-  if (settings?.is_active === false)
+  if (
+    settings?.is_active === false
+  ) {
     return null;
+  }
+
+  /* =========================================================
+     RENDER
+     ========================================================= */
 
   return (
     <section
@@ -454,38 +523,56 @@ export function Hero() {
         isolate
         min-h-[calc(100vh-5.5rem)]
         overflow-hidden
-        bg-[#f6f1e8]
+        bg-[#17130f]
         touch-pan-y
       "
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onMouseEnter={() =>
+        setPaused(true)
+      }
+      onMouseLeave={() =>
+        setPaused(false)
+      }
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
-      {/* Background carousel */}
+      {/* =====================================================
+          BACKGROUND CAROUSEL
+          ===================================================== */}
+
       <div className="absolute inset-0 z-0">
         <AnimatePresence initial={false}>
           <motion.div
             key={activeItem.id}
-            className="absolute inset-0 h-full w-full"
+            className="
+              absolute
+              inset-0
+              h-full
+              w-full
+            "
             initial={{
-              opacity: prefersReducedMotion
-                ? 1
-                : 0,
-              scale: prefersReducedMotion
-                ? 1
-                : 1.02,
+              opacity:
+                prefersReducedMotion
+                  ? 1
+                  : 0,
+
+              scale:
+                prefersReducedMotion
+                  ? 1
+                  : 1.015,
             }}
             animate={{
               opacity: 1,
-              scale: prefersReducedMotion
-                ? 1
-                : 1.05,
+
+              scale:
+                prefersReducedMotion
+                  ? 1
+                  : 1.045,
             }}
             exit={{
-              opacity: prefersReducedMotion
-                ? 1
-                : 0,
+              opacity:
+                prefersReducedMotion
+                  ? 1
+                  : 0,
             }}
             transition={{
               opacity: {
@@ -493,14 +580,23 @@ export function Hero() {
                   prefersReducedMotion
                     ? 0
                     : FADE_S,
-                ease: [0.22, 1, 0.36, 1],
+
+                ease: [
+                  0.22,
+                  1,
+                  0.36,
+                  1,
+                ],
               },
+
               scale: {
                 duration:
                   prefersReducedMotion
                     ? 0
-                    : AUTOPLAY_MS / 1000 +
+                    : AUTOPLAY_MS /
+                        1000 +
                       0.5,
+
                 ease: "linear",
               },
             }}
@@ -514,33 +610,54 @@ export function Hero() {
               documentVisible={
                 documentVisible
               }
-              registerVideo={registerVideo}
+              registerVideo={
+                registerVideo
+              }
             />
           </motion.div>
         </AnimatePresence>
 
-        {/* léger voile chaud, pas noir */}
+        {/* ===================================================
+            DARK LEFT OVERLAY
+            =================================================== */}
+
         <div
           className="
             pointer-events-none
             absolute
             inset-0
-            bg-[linear-gradient(90deg,rgba(255,253,248,0.14)_0%,rgba(255,253,248,0.06)_28%,rgba(255,253,248,0.00)_55%)]
+            bg-[linear-gradient(90deg,rgba(17,14,11,0.82)_0%,rgba(17,14,11,0.66)_18%,rgba(17,14,11,0.38)_34%,rgba(17,14,11,0.14)_50%,rgba(17,14,11,0.02)_66%,rgba(17,14,11,0)_76%)]
           "
         />
 
-        {/* glow premium subtil */}
+        {/* mobile readability */}
+
         <div
           className="
             pointer-events-none
             absolute
             inset-0
-            bg-[radial-gradient(circle_at_20%_32%,rgba(200,157,74,0.10),transparent_36%)]
+            bg-[linear-gradient(180deg,rgba(12,9,7,0.12)_0%,rgba(12,9,7,0.04)_32%,rgba(12,9,7,0.20)_100%)]
+            lg:bg-[linear-gradient(180deg,rgba(12,9,7,0.03)_40%,rgba(12,9,7,0.20)_100%)]
+          "
+        />
+
+        {/* premium warmth */}
+
+        <div
+          className="
+            pointer-events-none
+            absolute
+            inset-0
+            bg-[radial-gradient(circle_at_17%_43%,rgba(178,138,71,0.14),transparent_38%)]
           "
         />
       </div>
 
-      {/* Content */}
+      {/* =====================================================
+          HERO CONTENT
+          ===================================================== */}
+
       <div
         className="
           relative
@@ -553,351 +670,546 @@ export function Hero() {
         <div
           className="
             w-full
-            px-5
-            sm:px-8
-            lg:px-[4.2vw]
+            px-6
+            sm:px-10
+            lg:px-[5.8vw]
           "
         >
           <div
             className="
-              max-w-[680px]
-              pt-10
-              sm:pt-14
-              lg:pt-20
+              max-w-[660px]
+              py-16
+              sm:py-20
+              lg:py-24
             "
           >
-            <div
+            {/* KICKER */}
+
+            <motion.p
+              key={`kicker-${activeItem.id}`}
+              initial={
+                prefersReducedMotion
+                  ? false
+                  : {
+                      opacity: 0,
+                      y: 12,
+                    }
+              }
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                duration: 0.7,
+                delay: 0.1,
+                ease: [
+                  0.22,
+                  1,
+                  0.36,
+                  1,
+                ],
+              }}
               className="
-                rounded-[30px]
-                border
-                border-white/45
-                bg-[rgba(255,253,248,0.72)]
-                p-6
-                shadow-[0_24px_80px_-30px_rgba(31,23,18,0.32)]
-                backdrop-blur-md
-                sm:p-8
-                lg:p-10
+                text-[9px]
+                font-semibold
+                uppercase
+                tracking-[0.34em]
+                text-[#D8B46E]
+                sm:text-[10px]
+                lg:text-[11px]
               "
             >
-              <p
-                className="
-                  mb-4
-                  text-[11px]
-                  font-semibold
-                  uppercase
-                  tracking-[0.30em]
-                  text-[#B28A47]
-                "
-              >
-                Maison d’hôtes de charme à Fès
-              </p>
-
-              <h1
-                className="
-                  font-serif
-                  text-[46px]
-                  font-medium
-                  leading-[0.96]
-                  tracking-[-0.03em]
-                  text-[#1B1612]
-                  sm:text-[58px]
-                  lg:text-[72px]
-                  xl:text-[82px]
-                "
-              >
-                {title}
-              </h1>
-
-              <div
-                className="
-                  mt-5
-                  flex
-                  w-[190px]
-                  items-center
-                  sm:w-[230px]
-                "
-                aria-hidden="true"
-              >
-                <span className="h-px flex-1 bg-[#C89D4A]" />
-
-                <span
-                  className="
-                    mx-3
-                    h-[8px]
-                    w-[8px]
-                    rotate-45
-                    border
-                    border-[#C89D4A]
-                  "
-                />
-
-                <span className="h-px flex-1 bg-[#C89D4A]" />
-              </div>
-
-              <p
-                className="
-                  mt-5
-                  max-w-[560px]
-                  text-[17px]
-                  leading-relaxed
-                  text-[#4F463F]
-                  sm:text-[18px]
-                  lg:text-[19px]
-                "
-              >
-                {subtitle}
-              </p>
-
-              <div
-                className="
-                  mt-8
-                  flex
-                  flex-col
-                  gap-4
-                  sm:flex-row
-                  sm:items-center
-                "
-              >
-                <Link
-                  href={primaryHref}
-                  onClick={() =>
-                    trackEvent(
-                      "cta_reservation_click",
-                      { source: "hero" },
-                    )
-                  }
-                  className="
-                    group/cta
-                    inline-flex
-                    h-[56px]
-                    w-full
-                    items-center
-                    justify-between
-                    gap-8
-                    rounded-full
-                    border
-                    border-[#C89D4A]
-                    bg-[#0F5A46]
-                    px-7
-                    text-[15px]
-                    font-semibold
-                    text-[#FFFDF8]
-                    shadow-[0_10px_24px_rgba(15,90,70,0.18)]
-                    transition-all
-                    duration-200
-                    hover:-translate-y-px
-                    hover:bg-[#12604B]
-                    hover:shadow-[0_14px_30px_rgba(15,90,70,0.24)]
-                    focus-visible:outline-none
-                    focus-visible:ring-2
-                    focus-visible:ring-[#C89D4A]
-                    focus-visible:ring-offset-2
-                    focus-visible:ring-offset-transparent
-                    sm:w-[245px]
-                  "
-                >
-                  <span>{primaryLabel}</span>
-
-                  <ArrowRight
-                    className="
-                      h-[18px]
-                      w-[18px]
-                      shrink-0
-                      text-[#D2AA5A]
-                      transition-transform
-                      duration-200
-                      group-hover/cta:translate-x-1
-                    "
-                    strokeWidth={1.8}
-                    aria-hidden="true"
-                  />
-                </Link>
-
-                <Link
-                  href={secondaryHref}
-                  onClick={() =>
-                    trackEvent(
-                      "cta_secondary_click",
-                      { source: "hero" },
-                    )
-                  }
-                  className="
-                    group/cta
-                    inline-flex
-                    h-[56px]
-                    w-full
-                    items-center
-                    justify-between
-                    gap-8
-                    rounded-full
-                    border
-                    border-[#D8C29A]
-                    bg-white/88
-                    px-7
-                    text-[15px]
-                    font-semibold
-                    text-[#174F40]
-                    shadow-[0_8px_20px_rgba(20,20,20,0.08)]
-                    transition-all
-                    duration-200
-                    hover:-translate-y-px
-                    hover:bg-white
-                    hover:shadow-[0_10px_24px_rgba(20,20,20,0.12)]
-                    focus-visible:outline-none
-                    focus-visible:ring-2
-                    focus-visible:ring-[#C89D4A]
-                    focus-visible:ring-offset-2
-                    focus-visible:ring-offset-transparent
-                    sm:w-[255px]
-                  "
-                >
-                  <span>{secondaryLabel}</span>
-
-                  <ArrowRight
-                    className="
-                      h-[18px]
-                      w-[18px]
-                      shrink-0
-                      text-[#C89D4A]
-                      transition-transform
-                      duration-200
-                      group-hover/cta:translate-x-1
-                    "
-                    strokeWidth={1.8}
-                    aria-hidden="true"
-                  />
-                </Link>
-              </div>
-
-              {heroSlides.length > 1 && (
-                <div
-                  className="
-                    mt-8
-                    flex
-                    flex-wrap
-                    items-center
-                    gap-4
-                    border-t
-                    border-[#B28A47]/15
-                    pt-6
-                  "
-                >
-                  <nav
-                    aria-label={t("home.hero.slides_label")}
-                    className="flex items-center gap-2"
-                  >
-                    {heroSlides.map((_, i) => {
-                      const active =
-                        i === index;
-
-                      return (
-                        <button
-                          key={i}
-                          type="button"
-                          onClick={() =>
-                            goTo(i)
-                          }
-                          aria-label={`${t("home.hero.go_to_slide")} ${
-                            i + 1
-                          }`}
-                          aria-current={
-                            active
-                              ? "true"
-                              : undefined
-                          }
-                          className={[
-                            `
-                              rounded-full
-                              transition-all
-                              duration-200
-                              focus-visible:outline-none
-                              focus-visible:ring-2
-                              focus-visible:ring-[#D2AA5A]
-                              focus-visible:ring-offset-2
-                              focus-visible:ring-offset-transparent
-                            `,
-                            active
-                              ? "h-[7px] w-9 bg-[#0F5A46]"
-                              : "h-[7px] w-[7px] bg-[#B28A47]/35 hover:bg-[#B28A47]/60",
-                          ].join(" ")}
-                        />
-                      );
-                    })}
-                  </nav>
-
-                  <div className="flex items-center gap-2 sm:ml-auto">
-                    <button
-                      type="button"
-                      onClick={goPrev}
-                      aria-label={t("home.hero.previous_media")}
-                      className="
-                        inline-flex
-                        h-10
-                        w-10
-                        items-center
-                        justify-center
-                        rounded-full
-                        border
-                        border-[#B28A47]/20
-                        bg-white/78
-                        text-[#1B1612]
-                        shadow-sm
-                        backdrop-blur
-                        transition-colors
-                        duration-200
-                        hover:bg-white
-                        focus-visible:outline-none
-                        focus-visible:ring-2
-                        focus-visible:ring-[#D2AA5A]
-                        focus-visible:ring-offset-2
-                        focus-visible:ring-offset-transparent
-                      "
-                    >
-                      <ChevronLeft
-                        className="h-4 w-4"
-                        strokeWidth={1.8}
-                      />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={goNext}
-                      aria-label={t("home.hero.next_image")}
-                      className="
-                        inline-flex
-                        h-10
-                        w-10
-                        items-center
-                        justify-center
-                        rounded-full
-                        border
-                        border-[#B28A47]/20
-                        bg-white/78
-                        text-[#1B1612]
-                        shadow-sm
-                        backdrop-blur
-                        transition-colors
-                        duration-200
-                        hover:bg-white
-                        focus-visible:outline-none
-                        focus-visible:ring-2
-                        focus-visible:ring-[#D2AA5A]
-                        focus-visible:ring-offset-2
-                        focus-visible:ring-offset-transparent
-                      "
-                    >
-                      <ChevronRight
-                        className="h-4 w-4"
-                        strokeWidth={1.8}
-                      />
-                    </button>
-                  </div>
-                </div>
+              {t(
+                "home.hero.kicker",
               )}
-            </div>
+            </motion.p>
+
+            {/* GOLD DIVIDER */}
+
+            <motion.div
+              key={`divider-${activeItem.id}`}
+              initial={
+                prefersReducedMotion
+                  ? false
+                  : {
+                      opacity: 0,
+                      scaleX: 0,
+                    }
+              }
+              animate={{
+                opacity: 1,
+                scaleX: 1,
+              }}
+              transition={{
+                duration: 0.8,
+                delay: 0.18,
+                ease: [
+                  0.22,
+                  1,
+                  0.36,
+                  1,
+                ],
+              }}
+              className="
+                mt-5
+                flex
+                w-[215px]
+                origin-left
+                items-center
+                sm:w-[240px]
+              "
+              aria-hidden="true"
+            >
+              <span
+                className="
+                  h-px
+                  w-[100px]
+                  bg-[#D2AA5A]/90
+                  sm:w-[112px]
+                "
+              />
+
+              <span
+                className="
+                  mx-3
+                  h-[7px]
+                  w-[7px]
+                  rotate-45
+                  border
+                  border-[#D2AA5A]/90
+                "
+              />
+
+              <span
+                className="
+                  h-px
+                  flex-1
+                  bg-[#D2AA5A]/45
+                "
+              />
+            </motion.div>
+
+            {/* TITLE */}
+
+            <motion.h1
+              key={`title-${activeItem.id}`}
+              initial={
+                prefersReducedMotion
+                  ? false
+                  : {
+                      opacity: 0,
+                      y: 20,
+                    }
+              }
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                duration: 0.85,
+                delay: 0.16,
+                ease: [
+                  0.22,
+                  1,
+                  0.36,
+                  1,
+                ],
+              }}
+              className="
+                mt-6
+                max-w-[620px]
+                font-serif
+                text-[42px]
+                font-medium
+                leading-[0.98]
+                tracking-[-0.035em]
+                text-[#FFFDF8]
+                drop-shadow-[0_4px_24px_rgba(0,0,0,0.22)]
+                sm:text-[56px]
+                lg:text-[66px]
+                xl:text-[72px]
+              "
+            >
+              {title}
+            </motion.h1>
+
+            {/* DESCRIPTION */}
+
+            <motion.p
+              key={`subtitle-${activeItem.id}`}
+              initial={
+                prefersReducedMotion
+                  ? false
+                  : {
+                      opacity: 0,
+                      y: 16,
+                    }
+              }
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                duration: 0.8,
+                delay: 0.28,
+                ease: [
+                  0.22,
+                  1,
+                  0.36,
+                  1,
+                ],
+              }}
+              className="
+                mt-6
+                max-w-[555px]
+                text-[14px]
+                font-light
+                leading-[1.7]
+                text-white/82
+                sm:text-[16px]
+                lg:text-[17px]
+              "
+            >
+              {subtitle}
+            </motion.p>
+
+            {/* =================================================
+                CTA
+                ================================================= */}
+
+            <motion.div
+              key={`buttons-${activeItem.id}`}
+              initial={
+                prefersReducedMotion
+                  ? false
+                  : {
+                      opacity: 0,
+                      y: 14,
+                    }
+              }
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                duration: 0.8,
+                delay: 0.38,
+                ease: [
+                  0.22,
+                  1,
+                  0.36,
+                  1,
+                ],
+              }}
+              className="
+                mt-8
+                flex
+                flex-col
+                gap-3
+                sm:flex-row
+                sm:items-center
+              "
+            >
+              {/* PRIMARY */}
+
+              <Link
+                href={primaryHref}
+                onClick={() =>
+                  trackEvent(
+                    "cta_reservation_click",
+                    {
+                      source:
+                        "hero",
+                    },
+                  )
+                }
+                className="
+                  group/primary
+                  inline-flex
+                  h-[52px]
+                  w-full
+                  items-center
+                  justify-between
+                  gap-8
+                  rounded-full
+                  border
+                  border-[#D2AA5A]/85
+                  bg-[#0F5A46]
+                  px-6
+                  text-[13px]
+                  font-semibold
+                  text-[#FFFDF8]
+                  shadow-[0_14px_34px_-16px_rgba(0,0,0,0.55)]
+                  transition-all
+                  duration-300
+                  hover:-translate-y-0.5
+                  hover:border-[#D2AA5A]
+                  hover:bg-[#0B4A3A]
+                  hover:shadow-[0_16px_36px_-16px_rgba(0,0,0,0.62)]
+                  focus-visible:outline-none
+                  focus-visible:ring-2
+                  focus-visible:ring-[#D2AA5A]
+                  focus-visible:ring-offset-2
+                  focus-visible:ring-offset-transparent
+                  sm:w-[235px]
+                  lg:h-[54px]
+                  lg:text-[14px]
+                "
+              >
+                <span>
+                  {primaryLabel}
+                </span>
+
+                <ArrowRight
+                  className="
+                    h-[17px]
+                    w-[17px]
+                    shrink-0
+                    text-[#D2AA5A]
+                    transition-transform
+                    duration-300
+                    group-hover/primary:translate-x-1
+                  "
+                  strokeWidth={1.7}
+                  aria-hidden="true"
+                />
+              </Link>
+
+              {/* SECONDARY */}
+
+              <Link
+                href={secondaryHref}
+                onClick={() =>
+                  trackEvent(
+                    "cta_secondary_click",
+                    {
+                      source:
+                        "hero",
+                    },
+                  )
+                }
+                className="
+                  group/secondary
+                  inline-flex
+                  h-[52px]
+                  w-full
+                  items-center
+                  justify-between
+                  gap-8
+                  rounded-full
+                  border
+                  border-white/40
+                  bg-black/10
+                  px-6
+                  text-[13px]
+                  font-semibold
+                  text-[#FFFDF8]
+                  backdrop-blur-[2px]
+                  transition-all
+                  duration-300
+                  hover:-translate-y-0.5
+                  hover:border-[#D2AA5A]/85
+                  hover:bg-black/22
+                  focus-visible:outline-none
+                  focus-visible:ring-2
+                  focus-visible:ring-[#D2AA5A]
+                  focus-visible:ring-offset-2
+                  focus-visible:ring-offset-transparent
+                  sm:w-[235px]
+                  lg:h-[54px]
+                  lg:text-[14px]
+                "
+              >
+                <span>
+                  {secondaryLabel}
+                </span>
+
+                <ArrowRight
+                  className="
+                    h-[17px]
+                    w-[17px]
+                    shrink-0
+                    text-[#D2AA5A]
+                    transition-transform
+                    duration-300
+                    group-hover/secondary:translate-x-1
+                  "
+                  strokeWidth={1.7}
+                  aria-hidden="true"
+                />
+              </Link>
+            </motion.div>
           </div>
         </div>
       </div>
+
+      {/* =====================================================
+          CAROUSEL NAVIGATION
+          ===================================================== */}
+
+      {heroSlides.length > 1 && (
+        <>
+          {/* DOTS */}
+
+          <nav
+            aria-label={t(
+              "home.hero.slides_label",
+            )}
+            className="
+              absolute
+              bottom-6
+              left-1/2
+              z-20
+              flex
+              -translate-x-1/2
+              items-center
+              gap-2
+              rounded-full
+              border
+              border-white/15
+              bg-black/10
+              px-3
+              py-2
+              backdrop-blur-sm
+              sm:bottom-7
+            "
+          >
+            {heroSlides.map(
+              (_, i) => {
+                const active =
+                  i === index;
+
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() =>
+                      goTo(i)
+                    }
+                    aria-label={`${t(
+                      "home.hero.go_to_slide",
+                    )} ${i + 1}`}
+                    aria-current={
+                      active
+                        ? "true"
+                        : undefined
+                    }
+                    className={`
+                      rounded-full
+                      transition-all
+                      duration-300
+                      focus-visible:outline-none
+                      focus-visible:ring-2
+                      focus-visible:ring-[#D2AA5A]
+
+                      ${
+                        active
+                          ? `
+                            h-[6px]
+                            w-8
+                            bg-[#D2AA5A]
+                          `
+                          : `
+                            h-[6px]
+                            w-[6px]
+                            bg-white/45
+                            hover:bg-white/75
+                          `
+                      }
+                    `}
+                  />
+                );
+              },
+            )}
+          </nav>
+
+          {/* PREVIOUS */}
+
+          <button
+            type="button"
+            onClick={goPrev}
+            aria-label={t(
+              "home.hero.previous_media",
+            )}
+            className="
+              absolute
+              left-5
+              top-1/2
+              z-20
+              hidden
+              h-11
+              w-11
+              -translate-y-1/2
+              items-center
+              justify-center
+              rounded-full
+              border
+              border-white/25
+              bg-black/10
+              text-white
+              opacity-0
+              backdrop-blur-sm
+              transition-all
+              duration-300
+              hover:border-[#D2AA5A]/70
+              hover:bg-black/25
+              group-hover:opacity-100
+              lg:flex
+            "
+          >
+            <ChevronLeft
+              className="
+                h-[18px]
+                w-[18px]
+              "
+              strokeWidth={1.7}
+            />
+          </button>
+
+          {/* NEXT */}
+
+          <button
+            type="button"
+            onClick={goNext}
+            aria-label={t(
+              "home.hero.next_image",
+            )}
+            className="
+              absolute
+              right-5
+              top-1/2
+              z-20
+              hidden
+              h-11
+              w-11
+              -translate-y-1/2
+              items-center
+              justify-center
+              rounded-full
+              border
+              border-white/25
+              bg-black/10
+              text-white
+              opacity-0
+              backdrop-blur-sm
+              transition-all
+              duration-300
+              hover:border-[#D2AA5A]/70
+              hover:bg-black/25
+              group-hover:opacity-100
+              lg:flex
+            "
+          >
+            <ChevronRight
+              className="
+                h-[18px]
+                w-[18px]
+              "
+              strokeWidth={1.7}
+            />
+          </button>
+        </>
+      )}
     </section>
   );
 }

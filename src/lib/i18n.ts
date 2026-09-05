@@ -31,6 +31,9 @@ const fr = {
   "nav.close": "Fermer",
   "nav.book": "Réserver",
   "nav.book_now": "Réserver maintenant",
+  "home.hero.title": "Un refuge élégant au cœur de Fès",
+  "home.hero.subtitle": "Entre lumière, artisanat et hospitalité marocaine, découvrez un séjour intime et raffiné au cœur de Dar LaMamy.",
+  "home.hero.kicker": "Maison d’hôtes de charme à Fès",
 
   "footer.default_tagline": "Une maison fassie au cœur de Fès.",
   "footer.navigation": "Navigation",
@@ -185,7 +188,6 @@ const fr = {
   "contact.form.error.message": "Votre message est trop court.",
   "contact.form.error.consent": "Merci d’accepter la politique de confidentialité.",
   "contact.form.error.generic": "Une erreur est survenue lors de l’envoi. Merci de réessayer.",
-  "home.hero.subtitle": "Un havre de paix au cœur de Fès",
   "home.hero.primary_cta": "Découvrir le riad",
   "home.hero.secondary_cta": "Voir les chambres",
   "home.hero.slides_label": "Diapositives du hero",
@@ -197,6 +199,11 @@ const fr = {
 type Messages = typeof fr;
 
 const en: Messages = {
+  "home.hero.kicker":
+  "A charming guest house in Fès",
+  "home.hero.title": "An elegant retreat in the heart of Fès",
+  "home.hero.subtitle": "Surrounded by light, craftsmanship and Moroccan hospitality, discover an intimate and refined stay at Dar LaMamy.",
+
   "nav.skip_to_content": "Skip to content",
   "nav.main_navigation": "Main navigation",
   "nav.home": "Home",
@@ -369,7 +376,6 @@ const en: Messages = {
   "contact.form.error.message": "Your message is too short.",
   "contact.form.error.consent": "Please accept the privacy policy.",
   "contact.form.error.generic": "We could not send your message. Please try again.",
-  "home.hero.subtitle": "A peaceful retreat in the heart of Fès",
   "home.hero.primary_cta": "Discover the riad",
   "home.hero.secondary_cta": "View the rooms",
   "home.hero.slides_label": "Hero slides",
