@@ -6,6 +6,7 @@ import { AboutPreview } from "@/components/AboutPreview";
 import { Testimonials, type TestimonialItem } from "@/components/Testimonials";
 import { GalleryPreview } from "@/components/GalleryPreview";
 import { Experience } from "@/components/Experience";
+import { ContentSection } from "@/components/cms/ContentSection";
 import Script from "next/script";
 import { cookies } from "next/headers";
 import {
@@ -100,14 +101,14 @@ export default async function HomePage() {
           }),
         }}
       />
-      <Hero />
-      <BookingWidget />
-      <AboutPreview />
-      <RoomPreview />
-      <Services />
-      <Experience />
-      <GalleryPreview />
-      <Testimonials items={items} />
+      <ContentSection pageKey="home" sectionKey="hero"><Hero /></ContentSection>
+      <ContentSection pageKey="home" sectionKey="booking"><BookingWidget /></ContentSection>
+      <ContentSection pageKey="home" sectionKey="about"><AboutPreview /></ContentSection>
+      <ContentSection pageKey="home" sectionKey="rooms"><RoomPreview /></ContentSection>
+      <ContentSection pageKey="home" sectionKey="services"><Services /></ContentSection>
+      <ContentSection pageKey="home" sectionKey="experience"><Experience /></ContentSection>
+      <ContentSection pageKey="home" sectionKey="gallery"><GalleryPreview /></ContentSection>
+      <ContentSection pageKey="home" sectionKey="testimonials"><Testimonials items={items} /></ContentSection>
     </div>
   );
 }

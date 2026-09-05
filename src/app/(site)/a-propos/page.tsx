@@ -3,6 +3,7 @@ import AboutHero from "@/components/AboutHero";
 import Values from "@/components/Values";
 import Team from "@/components/Team";
 import { Experience } from "@/components/Experience";
+import { ContentSection } from "@/components/cms/ContentSection";
 
 export const metadata: Metadata = {
   title: "À propos | Dar LaMamy — Riad à Fès",
@@ -38,9 +39,9 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <main className="bg-[#FFFDF8]">
-      <AboutHero />
-      <Values />
-      <Team />
+      <ContentSection pageKey="about" sectionKey="hero"><AboutHero /></ContentSection>
+      <ContentSection pageKey="about" sectionKey="values"><Values /></ContentSection>
+      <ContentSection pageKey="about" sectionKey="team"><Team /></ContentSection>
       <Experience />
     </main>
   );

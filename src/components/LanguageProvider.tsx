@@ -53,6 +53,7 @@ export function LanguageProvider({
   const [language, setLanguage] = useState<Language>(
     initialLanguage ?? defaultLanguage
   );
+  const [overrides, setOverrides] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -82,10 +83,35 @@ export function LanguageProvider({
     document.documentElement.lang = language;
   }, [language]);
 
-  const value = useMemo<LanguageContextValue>(() => {
-    const t = (key: MessageKey) => translate(language, key);
-    return { language, setLanguage, t };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const controller = new AbortController();
+    const loadOverrides = async () => {
+      try {
+        const res = await fetch(`/api/public/translations?lang=${language}`, {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data?.overrides && typeof data.overrides === "object") {
+          setOverrides(data.overrides as Record<string, string>);
+        }
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          console.error("Translation overrides load failed:", error);
+        }
+      }
+    };
+    void loadOverrides();
+    return () => controller.abort();
   }, [language]);
+
+  const value = useMemo<LanguageContextValue>(() => {
+    const t = (key: MessageKey) => overrides[key] ?? translate(language, key);
+    return { language, setLanguage, t };
+  }, [language, overrides]);
 
   return (
     <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>

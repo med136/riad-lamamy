@@ -11,7 +11,7 @@ export const isSupportedLanguage = (value: unknown): value is Language =>
 export const getLocaleForLanguage = (language: Language) =>
   language === "en" ? "en-US" : "fr-FR";
 
-const fr = {
+export const frMessages = {
   "nav.skip_to_content": "Aller au contenu",
   "nav.main_navigation": "Navigation principale",
   "nav.home": "Accueil",
@@ -196,9 +196,9 @@ const fr = {
   "home.hero.next_image": "Image suivante",
 };
 
-type Messages = typeof fr;
+type Messages = typeof frMessages;
 
-const en: Messages = {
+export const enMessages: Messages = {
   "home.hero.kicker":
   "A charming guest house in Fès",
   "home.hero.title": "An elegant retreat in the heart of Fès",
@@ -386,7 +386,14 @@ const en: Messages = {
 
 export type MessageKey = keyof Messages;
 
+export const baseMessages: Record<Language, Messages> = {
+  fr: frMessages,
+  en: enMessages,
+};
+
+export const allMessageKeys = Object.keys(frMessages) as MessageKey[];
+
 export const translate = (language: Language, key: MessageKey) => {
-  const dict = language === "en" ? en : fr;
-  return dict[key] ?? fr[key];
+  const dict = language === "en" ? enMessages : frMessages;
+  return dict[key] ?? frMessages[key];
 };

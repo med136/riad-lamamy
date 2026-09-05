@@ -17,11 +17,15 @@ import {
   Wrench,
   Bell,
   ChevronDown,
-  Home
+  Home,
+  Languages,
+  PanelsTopLeft
 } from 'lucide-react'
 import { signOut } from '@/lib/supabase/client'
 
 const menuItems = [
+  { href: '/admin/contenu', icon: PanelsTopLeft, label: 'Contenu du site' },
+  { href: '/admin/traductions', icon: Languages, label: 'Traductions' },
   { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Tableau de bord' },
   { href: '/admin/chambres', icon: Bed, label: 'Chambres' },
   { href: '/admin/reservations', icon: Calendar, label: 'Réservations' },
