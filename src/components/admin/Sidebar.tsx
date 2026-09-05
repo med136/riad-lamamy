@@ -143,7 +143,7 @@ export default function AdminSidebar() {
             onClick={() => setIsMobileMenuOpen(false)}
             className="flex items-center gap-3"
           >
-            <span className="relative flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-[18px] border border-[#D2AA5A]/20 bg-[#FFFDF8]/[0.07] p-2">
+            <span className="relative flex h-[65px] w-[65px] shrink-0 items-center justify-center p-0">
               <img
                 src={adminLogoUrl}
                 alt="Dar LaMamy"
