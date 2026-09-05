@@ -7,6 +7,7 @@ import {
 } from "react";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "@/components/LanguageProvider";
 
 import {
   Calendar,
@@ -86,6 +87,7 @@ const AUTOPLAY_MS = 6500;
 export function Testimonials({
   items: initialItems,
 }: TestimonialsProps) {
+  const { t } = useLanguage();
   const [items, setItems] =
     useState<TestimonialItem[]>(
       initialItems &&
@@ -499,7 +501,7 @@ export function Testimonials({
                 strokeWidth={1.5}
               />
 
-              Témoignages
+              {t("home.testimonials.kicker")}
             </span>
 
             <span
@@ -523,10 +525,10 @@ export function Testimonials({
               lg:text-[3.35rem]
             "
           >
-            Ce que disent
+            {t("home.testimonials.title_before")}
             <span className="text-[#0F5A46]">
               {" "}
-              nos voyageurs
+              {t("home.testimonials.title_accent")}
             </span>
           </h2>
 
@@ -542,11 +544,7 @@ export function Testimonials({
               sm:text-[16px]
             "
           >
-            Des expériences
-            authentiques,
-            racontées par celles et
-            ceux qui ont séjourné à
-            Dar LaMamy.
+            {t("home.testimonials.description")}
           </p>
         </motion.div>
 

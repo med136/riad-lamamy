@@ -1,30 +1,13 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/adminClient";
+import { requireAdminSession } from "@/lib/auth/admin";
 
+/**
+ * Content Studio uses the exact same authentication contract as the existing
+ * Dar LaMamy admin APIs. Any authenticated admin session that can access the
+ * current admin is therefore accepted here too.
+ */
 export async function requireAdmin() {
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => cookieStore.getAll(),
-        setAll: () => {},
-      },
-    },
-  );
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("UNAUTHORIZED");
-
+  const user = await requireAdminSession();
   const admin = createAdminClient();
-  const { data: profile, error } = await admin
-    .from("admin_profiles")
-    .select("id, role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (error || !profile) throw new Error("FORBIDDEN");
-  return { user, admin, profile };
+  return { user, admin };
 }

@@ -7,6 +7,7 @@ import {
   Moon,
   Sunrise,
 } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
 
 const experiences = [
   {
@@ -40,6 +41,7 @@ const experiences = [
 ];
 
 export function Experience() {
+  const { t } = useLanguage();
   return (
     <section
       className="
@@ -126,7 +128,7 @@ export function Experience() {
                 text-[#B28A47]
               "
             >
-              L’expérience Dar LaMamy
+              {t("home.experience.kicker")}
             </span>
 
             <span
@@ -150,10 +152,10 @@ export function Experience() {
               lg:text-[3.2rem]
             "
           >
-            Une journée à
+            {t("home.experience.title_before")}
             <span className="text-[#0F5A46]">
               {" "}
-              Dar LaMamy
+              {t("home.experience.title_accent")}
             </span>
           </h2>
 
@@ -169,8 +171,7 @@ export function Experience() {
               sm:text-[16px]
             "
           >
-            Du premier café du matin au silence de la nuit, découvrez le
-            rythme d’un séjour au cœur de Fès.
+            {t("home.experience.description")}
           </p>
 
           <div
@@ -500,7 +501,7 @@ export function Experience() {
               sm:text-[19px]
             "
           >
-            Chaque moment trouve naturellement sa place à Dar LaMamy.
+            {t("home.experience.closing")}
           </p>
         </motion.div>
       </div>

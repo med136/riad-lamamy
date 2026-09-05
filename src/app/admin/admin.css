@@ -1,36 +1,318 @@
-/* Styles spécifiques à l'admin */
+/* ==========================================================
+   DAR LAMAMY — ADMIN DESIGN SYSTEM
+   Scoped to .admin-layout so public website styles stay intact.
+   ========================================================== */
 
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+.admin-layout {
+  --admin-green: #0f5a46;
+  --admin-green-deep: #083d31;
+  --admin-green-soft: #e8f0ec;
+  --admin-gold: #b28a47;
+  --admin-gold-light: #d2aa5a;
+  --admin-ivory: #f8f5ef;
+  --admin-paper: #fffdf8;
+  --admin-ink: #2b1c17;
+  --admin-body: #5d514c;
+  --admin-muted: #7a6c65;
+  --admin-line: rgba(178, 138, 71, 0.16);
+  --admin-line-strong: rgba(178, 138, 71, 0.28);
+  --admin-shadow: 0 18px 48px -34px rgba(43, 28, 23, 0.30);
+  color: var(--admin-ink);
+  background: var(--admin-ivory);
+}
+
+.admin-layout * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(178, 138, 71, 0.34) transparent;
+}
+
+.admin-layout ::selection {
+  background: rgba(178, 138, 71, 0.2);
+  color: var(--admin-ink);
+}
+
+.admin-layout main {
+  background:
+    radial-gradient(circle at 88% 8%, rgba(178, 138, 71, 0.055), transparent 26rem),
+    var(--admin-ivory) !important;
+}
+
+/* ---------- Reusable surfaces ---------- */
+.admin-surface,
+.admin-layout .admin-card {
+  border: 1px solid var(--admin-line);
+  border-radius: 22px;
+  background: rgba(255, 253, 248, 0.96);
+  box-shadow: var(--admin-shadow);
+}
+
+.admin-page-header {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--admin-line);
+  border-radius: 24px;
+  background: linear-gradient(135deg, #fffdf8 0%, #faf6ee 58%, #f4eee2 100%);
+  box-shadow: var(--admin-shadow);
+}
+
+.admin-page-header::after {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  top: -130px;
+  right: -80px;
+  border-radius: 999px;
+  border: 1px solid rgba(178, 138, 71, 0.11);
+  box-shadow: 0 0 0 34px rgba(178, 138, 71, 0.025), 0 0 0 70px rgba(178, 138, 71, 0.018);
+  pointer-events: none;
+}
+
+.admin-kicker {
+  color: var(--admin-gold);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .25em;
+}
+
+/* ---------- Animation ---------- */
+@keyframes adminFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.fade-in {
-  animation: fadeIn 0.3s ease-out;
-}
-
-/* Loader */
-.loader {
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #3b82f6;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  animation: spin 1s linear infinite;
-}
+.fade-in { animation: adminFadeIn .28s ease-out; }
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* Card hover effects */
-.hover-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.loader {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 2px solid rgba(178, 138, 71, 0.16);
+  border-top-color: var(--admin-green);
+  animation: spin .8s linear infinite;
 }
 
+.hover-lift {
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
 .hover-lift:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-color: var(--admin-line-strong) !important;
+  box-shadow: 0 20px 42px -30px rgba(43, 28, 23, .32) !important;
+}
+
+/* ==========================================================
+   GLOBAL ADMIN UTILITY NORMALIZATION
+   Existing pages keep their logic/classes while inheriting the
+   new Dar LaMamy visual system.
+   ========================================================== */
+
+/* backgrounds */
+.admin-layout .bg-gray-50,
+.admin-layout .bg-slate-50 { background-color: var(--admin-ivory) !important; }
+.admin-layout .bg-white,
+.admin-layout .bg-white\/90,
+.admin-layout .bg-white\/95 { background-color: var(--admin-paper) !important; }
+.admin-layout .bg-gray-900,
+.admin-layout .hover\:bg-gray-800:hover { background-color: var(--admin-green) !important; }
+.admin-layout .bg-blue-600,
+.admin-layout .hover\:bg-blue-700:hover { background-color: var(--admin-green) !important; }
+.admin-layout .bg-blue-50,
+.admin-layout .bg-blue-100 { background-color: rgba(15, 90, 70, 0.08) !important; }
+.admin-layout .bg-purple-50,
+.admin-layout .bg-purple-100 { background-color: rgba(178, 138, 71, 0.10) !important; }
+.admin-layout .bg-yellow-50,
+.admin-layout .bg-yellow-100,
+.admin-layout .bg-amber-50,
+.admin-layout .bg-amber-50\/70 { background-color: rgba(178, 138, 71, 0.08) !important; }
+.admin-layout .bg-green-50,
+.admin-layout .bg-green-100,
+.admin-layout .bg-emerald-50,
+.admin-layout .bg-emerald-100 { background-color: rgba(15, 90, 70, 0.08) !important; }
+
+/* text */
+.admin-layout .text-gray-900,
+.admin-layout .text-slate-900 { color: var(--admin-ink) !important; }
+.admin-layout .text-gray-800,
+.admin-layout .text-gray-700,
+.admin-layout .text-slate-700 { color: var(--admin-body) !important; }
+.admin-layout .text-gray-600,
+.admin-layout .text-gray-500,
+.admin-layout .text-gray-400 { color: var(--admin-muted) !important; }
+.admin-layout .text-blue-600,
+.admin-layout .text-blue-700,
+.admin-layout .text-emerald-600,
+.admin-layout .text-emerald-700,
+.admin-layout .text-green-600,
+.admin-layout .text-green-700 { color: var(--admin-green) !important; }
+.admin-layout .text-purple-600,
+.admin-layout .text-purple-700,
+.admin-layout .text-yellow-600,
+.admin-layout .text-yellow-700,
+.admin-layout .text-amber-500,
+.admin-layout .text-amber-600,
+.admin-layout .text-amber-700,
+.admin-layout .text-amber-800 { color: var(--admin-gold) !important; }
+
+/* borders */
+.admin-layout .border-gray-100,
+.admin-layout .border-gray-200,
+.admin-layout .border-gray-300,
+.admin-layout .border-amber-100,
+.admin-layout .border-amber-200\/60,
+.admin-layout .border-amber-200\/70 { border-color: var(--admin-line) !important; }
+
+/* generic cards used by existing pages */
+.admin-layout div.bg-white.border,
+.admin-layout section.bg-white.border,
+.admin-layout article.bg-white.border,
+.admin-layout .bg-white\/90.border {
+  border-color: var(--admin-line) !important;
+  box-shadow: var(--admin-shadow) !important;
+}
+
+/* page intro headers currently using amber gradients */
+.admin-layout .bg-gradient-to-r.from-white.via-amber-50.to-white {
+  background: linear-gradient(135deg, #fffdf8 0%, #faf6ee 60%, #f4eee2 100%) !important;
+  border-color: var(--admin-line) !important;
+  box-shadow: var(--admin-shadow) !important;
+}
+
+/* buttons */
+.admin-layout button,
+.admin-layout a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.admin-layout button:focus-visible,
+.admin-layout a:focus-visible,
+.admin-layout input:focus-visible,
+.admin-layout textarea:focus-visible,
+.admin-layout select:focus-visible {
+  outline: 2px solid rgba(178, 138, 71, .75);
+  outline-offset: 2px;
+}
+
+.admin-layout .bg-gray-900.text-white,
+.admin-layout .bg-blue-600.text-white {
+  background-color: var(--admin-green) !important;
+  border-color: rgba(178, 138, 71, 0.42) !important;
+  box-shadow: 0 12px 28px -18px rgba(15, 90, 70, .7) !important;
+}
+
+.admin-layout .bg-gray-900.text-white:hover,
+.admin-layout .bg-blue-600.text-white:hover {
+  background-color: var(--admin-green-deep) !important;
+}
+
+/* form controls */
+.admin-layout input:not([type="checkbox"]):not([type="radio"]),
+.admin-layout textarea,
+.admin-layout select {
+  border-color: var(--admin-line-strong) !important;
+  background-color: var(--admin-paper) !important;
+  color: var(--admin-ink) !important;
+  box-shadow: none !important;
+}
+.admin-layout input:not([type="checkbox"]):not([type="radio"]):focus,
+.admin-layout textarea:focus,
+.admin-layout select:focus {
+  border-color: rgba(15, 90, 70, .5) !important;
+  box-shadow: 0 0 0 3px rgba(15, 90, 70, .08) !important;
+}
+.admin-layout input::placeholder,
+.admin-layout textarea::placeholder { color: rgba(93, 81, 76, .42) !important; }
+
+.admin-layout input[type="checkbox"],
+.admin-layout input[type="radio"] { accent-color: var(--admin-green); }
+
+/* tables */
+.admin-layout table { color: var(--admin-body); }
+.admin-layout thead {
+  background: rgba(178, 138, 71, 0.055) !important;
+  color: var(--admin-body);
+}
+.admin-layout tbody tr { border-color: var(--admin-line) !important; }
+.admin-layout tbody tr:hover { background-color: rgba(178, 138, 71, .045) !important; }
+
+/* badges */
+.admin-layout .ring-blue-200\/70,
+.admin-layout .ring-green-200\/70,
+.admin-layout .ring-emerald-200\/70 { --tw-ring-color: rgba(15,90,70,.2) !important; }
+.admin-layout .ring-amber-200\/70,
+.admin-layout .ring-yellow-200\/70 { --tw-ring-color: rgba(178,138,71,.22) !important; }
+
+/* toaster */
+.admin-layout + div[data-hot-toast],
+.admin-layout [data-hot-toast] {
+  font-family: inherit;
+}
+
+@media (max-width: 1023px) {
+  .admin-layout main { padding-top: 0; }
+}
+
+/* ---------- Typography harmonization ---------- */
+.admin-layout h1.text-3xl,
+.admin-layout h1.text-4xl,
+.admin-layout h2.text-2xl,
+.admin-layout h2.text-3xl {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 500 !important;
+  letter-spacing: -0.02em;
+  color: var(--admin-ink) !important;
+}
+
+.admin-layout .rounded-3xl { border-radius: 24px !important; }
+.admin-layout .rounded-2xl { border-radius: 18px !important; }
+
+/* ---------- Actions / filter pills ---------- */
+.admin-layout .bg-amber-600,
+.admin-layout .bg-amber-500 {
+  background-color: var(--admin-green) !important;
+}
+.admin-layout .text-amber-100,
+.admin-layout .text-amber-200,
+.admin-layout .text-amber-300 { color: #f0d79f !important; }
+.admin-layout .hover\:bg-amber-50:hover { background-color: rgba(178,138,71,.07) !important; }
+
+/* ---------- Upload zones ---------- */
+.admin-layout .border-dashed {
+  border-color: rgba(178,138,71,.28) !important;
+  background: rgba(248,245,239,.75) !important;
+}
+.admin-layout .border-dashed:hover {
+  border-color: rgba(15,90,70,.35) !important;
+  background: rgba(15,90,70,.035) !important;
+}
+
+/* ---------- Dashboard / CRUD icon tiles ---------- */
+.admin-layout .p-3.rounded-lg.bg-blue-100,
+.admin-layout .p-3.rounded-lg.bg-green-100,
+.admin-layout .p-3.rounded-lg.bg-purple-100,
+.admin-layout .p-3.rounded-lg.bg-yellow-100,
+.admin-layout .p-3.rounded-lg.bg-amber-100 {
+  border: 1px solid var(--admin-line);
+  border-radius: 14px !important;
+}
+
+/* ---------- Shadows ---------- */
+.admin-layout .shadow-sm,
+.admin-layout .shadow,
+.admin-layout .shadow-lg,
+.admin-layout .shadow-xl {
+  box-shadow: var(--admin-shadow) !important;
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 640px) {
+  .admin-layout main > div[class*="px-6"] { padding-left: 1rem !important; padding-right: 1rem !important; }
+  .admin-layout h1.text-3xl,
+  .admin-layout h1.text-4xl { font-size: 1.8rem !important; }
 }

@@ -15,51 +15,52 @@ export default function DeleteConfirmation({
   onClose,
   onConfirm,
   itemName,
-  message = "Cette action est irréversible. Êtes-vous sûr de vouloir supprimer cet élément ?"
+  message = "Cette action est irréversible. Êtes-vous sûr de vouloir supprimer cet élément ?",
 }: DeleteConfirmationProps) {
   if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        {/* Overlay */}
-        <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onClick={onClose} />
+      <div className="flex min-h-screen items-center justify-center px-4 py-8">
+        <button
+          type="button"
+          aria-label="Fermer"
+          className="fixed inset-0 bg-[#17130F]/35 backdrop-blur-[2px]"
+          onClick={onClose}
+        />
 
-        {/* Modal */}
-        <div className="inline-block w-full max-w-md my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
-          <div className="px-6 pt-6 pb-4">
-            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
+        <div className="relative z-10 w-full max-w-md overflow-hidden rounded-[24px] border border-[#B28A47]/20 bg-[#FFFDF8] shadow-[0_32px_90px_-38px_rgba(43,28,23,.55)]">
+          <div className="px-6 pb-5 pt-7 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-rose-200 bg-rose-50">
+              <AlertTriangle className="h-5 w-5 text-rose-600" strokeWidth={1.7} />
             </div>
-            <h3 className="text-lg font-medium text-center text-gray-900">
+            <p className="mt-5 text-[9px] font-semibold uppercase tracking-[0.22em] text-[#B28A47]">
+              Confirmation
+            </p>
+            <h3 className="mt-1 font-serif text-[24px] font-medium text-[#2B1C17]">
               Supprimer {itemName}
             </h3>
-            <div className="mt-2">
-              <p className="text-sm text-gray-500 text-center">
-                {message}
-              </p>
-            </div>
+            <p className="mx-auto mt-3 max-w-sm text-[13px] leading-6 text-[#6F625C]">{message}</p>
           </div>
-          <div className="px-6 py-4 bg-gray-50">
-            <div className="flex justify-center space-x-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50"
-              >
-                Annuler
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  onConfirm()
-                  onClose()
-                }}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700"
-              >
-                Supprimer définitivement
-              </button>
-            </div>
+
+          <div className="flex justify-center gap-3 border-t border-[#B28A47]/15 bg-[#F8F5EF]/70 px-6 py-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="h-10 rounded-full border border-[#B28A47]/22 bg-[#FFFDF8] px-5 text-[12px] font-semibold text-[#5D514C] transition hover:border-[#B28A47]/40"
+            >
+              Annuler
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onConfirm()
+                onClose()
+              }}
+              className="h-10 rounded-full border border-rose-300 bg-rose-600 px-5 text-[12px] font-semibold text-white transition hover:bg-rose-700"
+            >
+              Supprimer définitivement
+            </button>
           </div>
         </div>
       </div>

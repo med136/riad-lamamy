@@ -64,6 +64,73 @@ export const frMessages = {
   "whatsapp.tooltip": "Contactez-nous sur WhatsApp",
   "whatsapp.message": "Bonjour, je souhaite avoir des informations sur le riad.",
 
+
+
+  "rooms.hero.kicker": "Chambres",
+  "rooms.hero.title": "Nos chambres & suites",
+  "rooms.hero.subtitle": "L’élégance de Fès, le confort d’aujourd’hui.",
+  "rooms.hero.tag_1": "Charme authentique",
+  "rooms.hero.tag_2": "Confort contemporain",
+  "rooms.hero.tag_3": "Réservation directe",
+
+  "services.hero.kicker": "Services",
+  "services.hero.title": "Des attentions qui prolongent le séjour",
+  "services.hero.subtitle": "Table, bien-être et expériences choisies pour découvrir Fès à votre rythme.",
+  "services.hero.tag_1": "Sur demande",
+  "services.hero.tag_2": "Conseils personnalisés",
+  "services.hero.tag_3": "Fès · Maroc",
+
+  "gallery.hero.kicker": "Galerie",
+  "gallery.hero.title": "L’âme de Dar LaMamy en images",
+  "gallery.hero.subtitle": "Architecture, matières, lumière et détails : découvrez l’atmosphère de notre maison à Fès.",
+  "gallery.hero.tag_1": "Architecture",
+  "gallery.hero.tag_2": "Chambres",
+  "gallery.hero.tag_3": "Détails fassis",
+
+  "reservations.hero.kicker": "Réservation",
+  "reservations.hero.title": "Réservez votre séjour",
+  "reservations.hero.subtitle": "Choisissez vos dates et préparez votre séjour au cœur de Fès, à Dar LaMamy.",
+  "reservations.hero.tag_1": "Réservation directe",
+  "reservations.hero.tag_2": "Confirmation rapide",
+  "reservations.hero.tag_3": "Assistance personnalisée",
+
+  "home.about.kicker": "Notre histoire",
+  "home.about.title_before": "Plus qu’un riad,",
+  "home.about.title_accent": "une passion familiale",
+  "home.about.description": "Depuis trois générations, notre famille s’attache à préserver l’âme de cette demeure historique tout en y apportant le confort moderne. Chaque détail raconte une histoire, chaque pièce respire l’authenticité marocaine.",
+  "home.about.cta": "Découvrir notre histoire",
+
+  "home.rooms.kicker": "Nos chambres",
+  "home.rooms.title_before": "Nos chambres",
+  "home.rooms.title_accent": "d’exception",
+  "home.rooms.description": "Des espaces intimes où le confort contemporain rencontre l’élégance de l’artisanat marocain.",
+  "home.rooms.cta": "Découvrir toutes les chambres",
+
+  "home.services.kicker": "Nos services",
+  "home.services.title_before": "Des attentions pensées",
+  "home.services.title_accent": "pour votre séjour",
+  "home.services.description": "De votre arrivée à vos découvertes dans Fès, notre équipe veille à rendre chaque moment simple et agréable.",
+  "home.services.experience_kicker": "L’expérience Dar LaMamy",
+  "home.services.experience_title": "Pourquoi nous choisir ?",
+  "home.services.experience_description": "Une maison d’hôtes attentive à chaque détail de votre séjour.",
+
+  "home.experience.kicker": "L’expérience Dar LaMamy",
+  "home.experience.title_before": "Une journée à",
+  "home.experience.title_accent": "Dar LaMamy",
+  "home.experience.description": "Du premier café du matin au silence de la nuit, découvrez le rythme d’un séjour au cœur de Fès.",
+  "home.experience.closing": "Chaque moment trouve naturellement sa place à Dar LaMamy.",
+
+  "home.gallery.kicker": "Galerie",
+  "home.gallery.title_before": "L’âme de",
+  "home.gallery.title_accent": "Dar LaMamy",
+  "home.gallery.description": "Découvrez les détails, les matières et les atmosphères qui donnent à notre maison son caractère unique.",
+  "home.gallery.cta": "Découvrir la galerie",
+
+  "home.testimonials.kicker": "Témoignages",
+  "home.testimonials.title_before": "Ce que disent",
+  "home.testimonials.title_accent": "nos voyageurs",
+  "home.testimonials.description": "Des expériences authentiques, racontées par celles et ceux qui ont séjourné à Dar LaMamy.",
+
   "booking_banner.title": "Prêt pour l'expérience ?",
   "booking_banner.subtitle":
     "Réservez maintenant et bénéficiez de nos meilleurs tarifs",
@@ -252,6 +319,73 @@ export const enMessages: Messages = {
 
   "whatsapp.tooltip": "Contact us on WhatsApp",
   "whatsapp.message": "Hello, I would like more information about the riad.",
+
+
+
+  "rooms.hero.kicker": "Rooms",
+  "rooms.hero.title": "Our rooms & suites",
+  "rooms.hero.subtitle": "The elegance of Fès, with today’s comfort.",
+  "rooms.hero.tag_1": "Authentic charm",
+  "rooms.hero.tag_2": "Contemporary comfort",
+  "rooms.hero.tag_3": "Direct booking",
+
+  "services.hero.kicker": "Services",
+  "services.hero.title": "Thoughtful touches that enrich your stay",
+  "services.hero.subtitle": "Dining, wellbeing and curated experiences to discover Fès at your own pace.",
+  "services.hero.tag_1": "On request",
+  "services.hero.tag_2": "Personalised advice",
+  "services.hero.tag_3": "Fès · Morocco",
+
+  "gallery.hero.kicker": "Gallery",
+  "gallery.hero.title": "The soul of Dar LaMamy in pictures",
+  "gallery.hero.subtitle": "Architecture, materials, light and details: discover the atmosphere of our home in Fès.",
+  "gallery.hero.tag_1": "Architecture",
+  "gallery.hero.tag_2": "Rooms",
+  "gallery.hero.tag_3": "Fassi details",
+
+  "reservations.hero.kicker": "Booking",
+  "reservations.hero.title": "Book your stay",
+  "reservations.hero.subtitle": "Choose your dates and prepare your stay in the heart of Fès at Dar LaMamy.",
+  "reservations.hero.tag_1": "Direct booking",
+  "reservations.hero.tag_2": "Quick confirmation",
+  "reservations.hero.tag_3": "Personalised assistance",
+
+  "home.about.kicker": "Our story",
+  "home.about.title_before": "More than a riad,",
+  "home.about.title_accent": "a family passion",
+  "home.about.description": "For three generations, our family has worked to preserve the soul of this historic home while bringing it modern comfort. Every detail tells a story and every room reflects Moroccan authenticity.",
+  "home.about.cta": "Discover our story",
+
+  "home.rooms.kicker": "Our rooms",
+  "home.rooms.title_before": "Our exceptional",
+  "home.rooms.title_accent": "rooms",
+  "home.rooms.description": "Intimate spaces where contemporary comfort meets the elegance of Moroccan craftsmanship.",
+  "home.rooms.cta": "Discover all rooms",
+
+  "home.services.kicker": "Our services",
+  "home.services.title_before": "Thoughtful touches",
+  "home.services.title_accent": "for your stay",
+  "home.services.description": "From your arrival to discovering Fès, our team makes every moment simple and enjoyable.",
+  "home.services.experience_kicker": "The Dar LaMamy experience",
+  "home.services.experience_title": "Why stay with us?",
+  "home.services.experience_description": "A guest house attentive to every detail of your stay.",
+
+  "home.experience.kicker": "The Dar LaMamy experience",
+  "home.experience.title_before": "A day at",
+  "home.experience.title_accent": "Dar LaMamy",
+  "home.experience.description": "From the first morning coffee to the quiet of the night, discover the rhythm of a stay in the heart of Fès.",
+  "home.experience.closing": "Every moment naturally finds its place at Dar LaMamy.",
+
+  "home.gallery.kicker": "Gallery",
+  "home.gallery.title_before": "The soul of",
+  "home.gallery.title_accent": "Dar LaMamy",
+  "home.gallery.description": "Discover the details, materials and atmosphere that give our home its unique character.",
+  "home.gallery.cta": "Discover the gallery",
+
+  "home.testimonials.kicker": "Guest reviews",
+  "home.testimonials.title_before": "What our",
+  "home.testimonials.title_accent": "guests say",
+  "home.testimonials.description": "Authentic experiences shared by guests who have stayed at Dar LaMamy.",
 
   "booking_banner.title": "Ready for the experience?",
   "booking_banner.subtitle": "Book now and get our best rates",

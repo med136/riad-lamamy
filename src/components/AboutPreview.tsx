@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
 
 const stats = [
   {
@@ -25,6 +26,8 @@ const stats = [
 ];
 
 export function AboutPreview() {
+  const { t } = useLanguage();
+
   return (
     <section
       className="
@@ -110,7 +113,7 @@ export function AboutPreview() {
                   text-[#B28A47]
                 "
               >
-                Notre histoire
+                {t("home.about.kicker")}
               </span>
 
               <span
@@ -138,7 +141,7 @@ export function AboutPreview() {
                 lg:text-[3.4rem]
               "
             >
-              Plus qu’un riad,
+              {t("home.about.title_before")}
               <span
                 className="
                   mt-1
@@ -146,7 +149,7 @@ export function AboutPreview() {
                   text-[#0F5A46]
                 "
               >
-                une passion familiale
+                {t("home.about.title_accent")}
               </span>
             </h2>
 
@@ -163,10 +166,7 @@ export function AboutPreview() {
                 sm:text-[17px]
               "
             >
-              Depuis trois générations, notre famille s’attache à préserver
-              l’âme de cette demeure historique tout en y apportant le confort
-              moderne. Chaque détail raconte une histoire, chaque pièce
-              respire l’authenticité marocaine.
+              {t("home.about.description")}
             </p>
 
             {/* Ligne décorative */}

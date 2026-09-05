@@ -1,7 +1,7 @@
 'use client'
 
 import { X } from 'lucide-react'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 interface ModalProps {
   isOpen: boolean
@@ -18,51 +18,56 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
     sm: 'max-w-md',
     md: 'max-w-lg',
     lg: 'max-w-2xl',
-    xl: 'max-w-4xl'
+    xl: 'max-w-4xl',
   }
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        {/* Overlay */}
-        <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onClick={onClose} />
+      <div className="flex min-h-screen items-center justify-center px-4 py-8">
+        <button
+          type="button"
+          aria-label="Fermer"
+          className="fixed inset-0 bg-[#17130F]/35 backdrop-blur-[2px]"
+          onClick={onClose}
+        />
 
-        {/* Modal */}
-        <div className={`inline-block w-full ${sizeClasses[size]} my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl`}>
-          {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+        <div
+          className={`relative z-10 w-full ${sizeClasses[size]} overflow-hidden rounded-[24px] border border-[#B28A47]/20 bg-[#FFFDF8] text-left shadow-[0_32px_90px_-38px_rgba(43,28,23,.55)]`}
+        >
+          <div className="flex items-center justify-between border-b border-[#B28A47]/15 px-6 py-5">
+            <div>
+              <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#B28A47]">
+                Dar LaMamy
+              </p>
+              <h3 className="mt-1 font-serif text-[24px] font-medium text-[#2B1C17]">{title}</h3>
+            </div>
             <button
+              type="button"
               onClick={onClose}
-              className="p-1 text-gray-400 rounded-full hover:text-gray-500 hover:bg-gray-100"
+              aria-label="Fermer"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#B28A47]/18 bg-[#F8F5EF] text-[#6F625C] transition hover:border-[#B28A47]/35 hover:text-[#0F5A46]"
             >
-              <X size={20} />
+              <X size={17} strokeWidth={1.6} />
             </button>
           </div>
 
-          {/* Content */}
-          <div className="px-6 py-4">
-            {children}
-          </div>
+          <div className="max-h-[68vh] overflow-y-auto px-6 py-5">{children}</div>
 
-          {/* Footer */}
-          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-            <div className="flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50"
-              >
-                Annuler
-              </button>
-              <button
-                type="submit"
-                form="crud-form"
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700"
-              >
-                Enregistrer
-              </button>
-            </div>
+          <div className="flex justify-end gap-3 border-t border-[#B28A47]/15 bg-[#F8F5EF]/70 px-6 py-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="h-10 rounded-full border border-[#B28A47]/22 bg-[#FFFDF8] px-5 text-[12px] font-semibold text-[#5D514C] transition hover:border-[#B28A47]/40 hover:bg-white"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              form="crud-form"
+              className="h-10 rounded-full border border-[#D2AA5A]/40 bg-[#0F5A46] px-5 text-[12px] font-semibold text-[#FFFDF8] transition hover:bg-[#083D31]"
+            >
+              Enregistrer
+            </button>
           </div>
         </div>
       </div>

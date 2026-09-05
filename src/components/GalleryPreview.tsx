@@ -9,6 +9,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/components/LanguageProvider";
 
 import {
   ArrowRight,
@@ -59,6 +60,7 @@ const fallbackImages: GalleryItem[] = [
 ];
 
 export function GalleryPreview() {
+  const { t } = useLanguage();
   const [items, setItems] =
     useState<GalleryItem[]>([]);
 
@@ -429,7 +431,7 @@ export function GalleryPreview() {
                 text-[#B28A47]
               "
             >
-              Galerie
+              {t("home.gallery.kicker")}
             </span>
 
             <span
@@ -453,10 +455,10 @@ export function GalleryPreview() {
               lg:text-[3.3rem]
             "
           >
-            L&apos;âme de
+            {t("home.gallery.title_before")}
             <span className="text-[#0F5A46]">
               {" "}
-              Dar LaMamy
+              {t("home.gallery.title_accent")}
             </span>
           </h2>
 
@@ -472,11 +474,7 @@ export function GalleryPreview() {
               sm:text-[16px]
             "
           >
-            Découvrez les détails,
-            les matières et les
-            atmosphères qui donnent
-            à notre maison son
-            caractère unique.
+            {t("home.gallery.description")}
           </p>
         </motion.div>
 

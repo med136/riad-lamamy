@@ -3,6 +3,8 @@ import ContactForm from "@/components/ContactForm";
 import ContactInfo from "@/components/ContactInfo";
 import Map from "@/components/Map";
 import FAQ from "@/components/FAQ";
+import { CmsHeroBackground } from "@/components/cms/CmsHeroBackground";
+import { ContentSection } from "@/components/cms/ContentSection";
 
 export const metadata: Metadata = {
   title: "Contact | Dar LaMamy — Riad à Fès",
@@ -39,11 +41,14 @@ export default function ContactPage() {
   return (
     <main className="bg-[#F8F5EF]">
       {/* HERO */}
+      <ContentSection pageKey="contact" sectionKey="hero">
       <section className="relative min-h-[300px] overflow-hidden border-b border-[#B28A47]/15 bg-[#F8F5EF] sm:min-h-[320px] lg:min-h-[350px]">
         <div className="absolute inset-y-0 right-0 w-full sm:w-[58%] lg:w-[47%] xl:w-[44%]">
-          <div
-            className="absolute inset-0 bg-[url('/images/contact/hero-darlamamy-contact.jpeg')] bg-cover bg-center"
-            aria-hidden="true"
+          <CmsHeroBackground
+            pageKey="contact"
+            fallbackSrc="/images/contact/hero-darlamamy-contact.jpeg"
+            className="absolute inset-0"
+            position="center"
           />
           <div
             className="absolute inset-0 bg-[linear-gradient(90deg,#F8F5EF_0%,rgba(248,245,239,0.95)_10%,rgba(248,245,239,0.66)_24%,rgba(248,245,239,0.18)_46%,rgba(248,245,239,0)_68%)] sm:bg-[linear-gradient(90deg,#F8F5EF_0%,rgba(248,245,239,0.94)_12%,rgba(248,245,239,0.52)_31%,rgba(248,245,239,0.08)_58%,rgba(248,245,239,0)_74%)]"
@@ -80,6 +85,7 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
+      </ContentSection>
 
       {/* CONTENT */}
       <section className="site-container py-10 sm:py-12 lg:py-14">

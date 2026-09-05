@@ -171,7 +171,7 @@ export default function UtilisateursPage() {
           <button
             onClick={handleAdd}
             type="button"
-            className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2 text-xs font-semibold text-white shadow-lg hover:bg-gray-800"
+            className="inline-flex items-center gap-2 rounded-full border border-[#D2AA5A]/35 bg-[#0F5A46] px-5 py-2 text-xs font-semibold text-[#FFFDF8] shadow-sm transition hover:bg-[#083D31]"
           >
             <UserPlus size={16} />
             Ajouter un utilisateur
@@ -413,7 +413,7 @@ export default function UtilisateursPage() {
               <div className="flex justify-end mt-4">
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2 text-xs font-semibold text-white shadow-lg hover:bg-gray-800"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#D2AA5A]/35 bg-[#0F5A46] px-5 py-2 text-xs font-semibold text-[#FFFDF8] shadow-sm transition hover:bg-[#083D31]"
                 >
                   Enregistrer
                 </button>
@@ -475,7 +475,7 @@ export default function UtilisateursPage() {
               <div className="flex justify-end mt-4">
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2 text-xs font-semibold text-white shadow-lg hover:bg-gray-800"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#D2AA5A]/35 bg-[#0F5A46] px-5 py-2 text-xs font-semibold text-[#FFFDF8] shadow-sm transition hover:bg-[#083D31]"
                 >
                   Créer
                 </button>

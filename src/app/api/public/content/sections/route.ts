@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -20,5 +20,8 @@ export async function GET(request: Request) {
     .order("position");
 
   if (error) return NextResponse.json({ items: [] });
-  return NextResponse.json({ items: data ?? [] }, { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" } });
+  return NextResponse.json(
+    { items: data ?? [] },
+    { headers: { "Cache-Control": "no-store, max-age=0" } },
+  );
 }

@@ -32,6 +32,11 @@ export default function ContentStudioPage() {
               </div>
               <h2 className="mt-5 font-serif text-2xl font-medium text-[#2B1C17]">{page.label}</h2>
               <p className="mt-2 min-h-12 text-sm leading-6 text-[#6F625C]">{page.description}</p>
+              {page.dedicatedModule ? (
+                <div className="mt-3 rounded-xl border border-[#0F5A46]/10 bg-[#0F5A46]/[0.04] px-3 py-2">
+                  <p className="text-[10px] font-semibold text-[#0F5A46]">Éditorial uniquement · données métier dans {page.dedicatedModule.label}</p>
+                </div>
+              ) : null}
               <div className="mt-5 border-t border-[#B28A47]/12 pt-4">
                 <Link href={`/admin/contenu/${page.key}`} className="flex items-center justify-between rounded-xl px-1 py-2 text-sm font-semibold text-[#0F5A46]">
                   Gérer la page

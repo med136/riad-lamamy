@@ -1,8 +1,23 @@
 'use client'
 
-import { Search, Bell, HelpCircle, Sparkles } from 'lucide-react'
-import { useState } from 'react'
+import { Bell, ExternalLink, HelpCircle, Search } from 'lucide-react'
 import { usePathname } from 'next/navigation'
+import Link from 'next/link'
+import { useState } from 'react'
+
+const routeTitles: Record<string, string> = {
+  '/admin/dashboard': 'Tableau de bord',
+  '/admin/contenu': 'Contenu du site',
+  '/admin/traductions': 'Traductions',
+  '/admin/chambres': 'Chambres',
+  '/admin/reservations': 'Réservations',
+  '/admin/galerie': 'Galerie',
+  '/admin/services': 'Services',
+  '/admin/temoignages': 'Témoignages',
+  '/admin/utilisateurs': 'Utilisateurs',
+  '/admin/parametres': 'Paramètres',
+  '/admin/parametres/hero': 'Section Hero',
+}
 
 export default function AdminHeader() {
   const pathname = usePathname()
@@ -10,45 +25,67 @@ export default function AdminHeader() {
 
   if (pathname?.startsWith('/admin/login')) return null
 
+  const currentTitle =
+    routeTitles[pathname || ''] ||
+    (pathname?.startsWith('/admin/contenu/') ? 'Éditeur de page' : 'Administration')
+
   return (
-    <header className="sticky top-0 z-30 border-b border-amber-200/60 bg-gradient-to-r from-white via-amber-50 to-white">
-      <div className="px-6 py-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-1 items-center gap-4">
-          <div className="hidden lg:flex items-center gap-2 rounded-full border border-amber-200/60 bg-white px-3 py-1 text-xs font-semibold text-amber-700">
-            <Sparkles size={14} />
-            Control Center
-          </div>
-          <div className="relative flex-1 max-w-2xl">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-amber-400" size={18} />
+    <header className="sticky top-0 z-30 border-b border-[#B28A47]/15 bg-[#FFFDF8]/95 backdrop-blur-xl">
+      <div className="flex min-h-[72px] items-center gap-4 px-5 sm:px-6 lg:px-8">
+        <div className="min-w-0 flex-1 pl-12 lg:pl-0">
+          <p className="text-[9px] font-semibold uppercase tracking-[0.24em] text-[#B28A47]">
+            Administration
+          </p>
+          <h2 className="mt-0.5 truncate font-serif text-[22px] font-medium leading-none text-[#2B1C17]">
+            {currentTitle}
+          </h2>
+        </div>
+
+        <div className="hidden w-full max-w-[430px] lg:block">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#B28A47]" size={16} />
             <input
-              type="text"
-              placeholder="Rechercher reservations, chambres, clients..."
+              type="search"
+              placeholder="Rechercher dans l’administration..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-full border border-amber-200/60 bg-white px-10 py-2 text-sm text-gray-700 shadow-sm outline-none transition focus:border-amber-300"
+              className="h-10 w-full rounded-full border border-[#B28A47]/20 bg-[#F8F5EF]/70 pl-10 pr-4 text-[12px] text-[#2B1C17] outline-none transition focus:border-[#0F5A46]/40 focus:ring-2 focus:ring-[#0F5A46]/10"
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3 lg:justify-end">
-          <div className="flex items-center gap-2 rounded-full border border-amber-200/60 bg-white px-3 py-1 text-xs text-gray-600">
-            <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
-            Sync auto
-          </div>
-          <button className="relative rounded-full border border-amber-200/60 bg-white p-2 text-amber-700 hover:bg-amber-50">
-            <Bell size={18} />
-            <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-amber-500"></span>
+        <div className="flex shrink-0 items-center gap-2">
+          <Link
+            href="/"
+            target="_blank"
+            className="hidden h-10 items-center gap-2 rounded-full border border-[#B28A47]/20 bg-[#FFFDF8] px-4 text-[11px] font-semibold text-[#0F5A46] transition hover:border-[#B28A47]/40 hover:bg-[#F8F5EF] sm:inline-flex"
+          >
+            Voir le site
+            <ExternalLink size={14} strokeWidth={1.6} />
+          </Link>
+
+          <button
+            type="button"
+            aria-label="Aide"
+            className="hidden h-10 w-10 items-center justify-center rounded-full border border-[#B28A47]/20 bg-[#FFFDF8] text-[#6F625C] transition hover:bg-[#F8F5EF] sm:inline-flex"
+          >
+            <HelpCircle size={17} strokeWidth={1.6} />
           </button>
-          <button className="rounded-full border border-amber-200/60 bg-white p-2 text-amber-700 hover:bg-amber-50">
-            <HelpCircle size={18} />
+
+          <button
+            type="button"
+            aria-label="Notifications"
+            className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#B28A47]/20 bg-[#FFFDF8] text-[#0F5A46] transition hover:bg-[#F8F5EF]"
+          >
+            <Bell size={17} strokeWidth={1.6} />
+            <span className="absolute right-[8px] top-[8px] h-1.5 w-1.5 rounded-full bg-[#D2AA5A]" />
           </button>
-          <div className="hidden md:block rounded-full border border-amber-200/60 bg-white px-4 py-2 text-xs font-semibold text-gray-700">
-            {new Date().toLocaleDateString('fr-FR', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}
+
+          <div className="hidden items-center gap-2 rounded-full border border-[#B28A47]/20 bg-[#F8F5EF]/65 py-1.5 pl-2 pr-3 md:flex">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#0F5A46] text-[9px] font-bold text-[#FFFDF8]">
+              AD
+            </span>
+            <span className="text-[11px] font-semibold text-[#2B1C17]">Admin</span>
           </div>
         </div>
       </div>

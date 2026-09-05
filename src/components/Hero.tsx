@@ -1008,6 +1008,7 @@ lg:py-24
                   sm:w-[235px]
                   lg:h-[54px]
                   lg:text-[14px]
+                  whitespace-nowrap
                 "
               >
                 <span>

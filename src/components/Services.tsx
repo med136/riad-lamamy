@@ -9,6 +9,7 @@ import {
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/components/LanguageProvider";
 
 import {
   ArrowRight,
@@ -108,6 +109,7 @@ const highlights = [
 ];
 
 export function Services() {
+  const { t } = useLanguage();
   const [services, setServices] =
     useState<ApiService[]>([]);
 
@@ -402,7 +404,7 @@ export function Services() {
                 text-[#B28A47]
               "
             >
-              Nos services
+              {t("home.services.kicker")}
             </span>
 
             <span className="h-px w-9 bg-[#B28A47]/45" />
@@ -420,10 +422,10 @@ export function Services() {
               lg:text-[3.15rem]
             "
           >
-            Des attentions pensées
+            {t("home.services.title_before")}
             <span className="text-[#0F5A46]">
               {" "}
-              pour votre séjour
+              {t("home.services.title_accent")}
             </span>
           </h2>
 
@@ -439,11 +441,7 @@ export function Services() {
               sm:text-[15px]
             "
           >
-            De votre arrivée à vos
-            découvertes dans Fès,
-            notre équipe veille à
-            rendre chaque moment
-            simple et agréable.
+            {t("home.services.description")}
           </p>
         </motion.div>
 
@@ -855,7 +853,7 @@ export function Services() {
                     text-[#E8C982]
                   "
                 >
-                  L’expérience Dar LaMamy
+                  {t("home.services.experience_kicker")}
                 </span>
 
                 <span className="h-px w-8 bg-[#D2AA5A]/55" />
@@ -871,7 +869,7 @@ export function Services() {
                   sm:text-[32px]
                 "
               >
-                Pourquoi nous choisir ?
+                {t("home.services.experience_title")}
               </h3>
 
               <p
@@ -886,9 +884,7 @@ export function Services() {
                   sm:text-[14px]
                 "
               >
-                Une maison d’hôtes
-                attentive à chaque
-                détail de votre séjour.
+                {t("home.services.experience_description")}
               </p>
             </div>
 

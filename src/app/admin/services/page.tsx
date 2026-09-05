@@ -197,7 +197,7 @@ export default function ServicesPage() {
             </div>
             <button
               type="button"
-              className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2 text-xs font-semibold text-white shadow-lg hover:bg-gray-800"
+              className="inline-flex items-center gap-2 rounded-full border border-[#D2AA5A]/35 bg-[#0F5A46] px-5 py-2 text-xs font-semibold text-[#FFFDF8] shadow-sm transition hover:bg-[#083D31]"
               onClick={() => setCreating((v) => !v)}
             >
               <Plus size={16} />
@@ -305,7 +305,7 @@ export default function ServicesPage() {
               <button
                 type="button"
                 disabled={createLoading}
-                className="rounded-full bg-gray-900 px-5 py-2 text-xs font-semibold text-white shadow-lg hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-full border border-[#D2AA5A]/35 bg-[#0F5A46] px-5 py-2 text-xs font-semibold text-[#FFFDF8] shadow-sm transition hover:bg-[#083D31] disabled:cursor-not-allowed disabled:opacity-70"
                 onClick={createService}
               >
                 {createLoading ? 'Création...' : 'Créer'}

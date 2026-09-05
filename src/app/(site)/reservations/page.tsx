@@ -6,6 +6,9 @@ import BookingForm from "@/components/BookingForm";
 import ReservationInfo from "@/components/ReservationInfo";
 import PaymentOptions from "@/components/PaymentOptions";
 import CancellationPolicy from "@/components/CancellationPolicy";
+import { CmsHeroBackground } from "@/components/cms/CmsHeroBackground";
+import { CmsEditorialHeroContent } from "@/components/cms/CmsEditorialHeroContent";
+import { ContentSection } from "@/components/cms/ContentSection";
 
 export const metadata: Metadata = {
   title: "Réservations | Dar LaMamy",
@@ -71,6 +74,7 @@ export default function ReservationsPage() {
 {/* =========================================================
     HERO RESERVATIONS — DAR LAMAMY
     ========================================================= */}
+<ContentSection pageKey="reservations" sectionKey="hero">
 <section
   className="
     relative
@@ -101,15 +105,11 @@ export default function ReservationsPage() {
         xl:w-[44%]
       "
     >
-      <div
-        className="
-          absolute
-          inset-0
-          bg-[url('/images/reservations/hero-darlamamy.jpeg')]
-          bg-cover
-          bg-center
-          lg:bg-[center_48%]
-        "
+      <CmsHeroBackground
+        pageKey="reservations"
+        fallbackSrc="/images/reservations/hero-darlamamy.jpeg"
+        className="absolute inset-0"
+        position="center 48%"
       />
 
       <div className="absolute inset-0 bg-[#B28A47]/[0.025]" />
@@ -147,170 +147,17 @@ export default function ReservationsPage() {
           xl:w-[62%]
         "
       >
-        <div className="mx-auto max-w-[650px] text-center">
-          {/* KICKER */}
-          <p
-            className="
-              text-[9px]
-              font-semibold
-              uppercase
-              tracking-[0.30em]
-              text-[#0F5A46]
-              sm:text-[10px]
-            "
-          >
-            Réservation
-          </p>
-
-          {/* séparateur */}
-          <div
-            className="
-              mx-auto
-              mt-2.5
-              flex
-              w-[120px]
-              items-center
-            "
-            aria-hidden="true"
-          >
-            <span className="h-px flex-1 bg-[#B28A47]/55" />
-
-            <span
-              className="
-                mx-3
-                h-[6px]
-                w-[6px]
-                rotate-45
-                border
-                border-[#B28A47]
-                bg-[#F8F5EF]
-              "
-            />
-
-            <span className="h-px flex-1 bg-[#B28A47]/55" />
-          </div>
-
-          {/* TITRE */}
-          <h1
-            className="
-              mt-5
-              font-serif
-              text-[32px]
-              font-medium
-              leading-[1.03]
-              tracking-[-0.012em]
-              text-[#2B1C17]
-              sm:text-[36px]
-              lg:text-[40px]
-              xl:text-[44px]
-            "
-          >
-            Réservez votre séjour
-          </h1>
-
-          {/* décoration */}
-          <div
-            className="
-              mx-auto
-              mt-4
-              flex
-              w-[145px]
-              items-center
-              justify-center
-              gap-3
-            "
-            aria-hidden="true"
-          >
-            <span className="h-px flex-1 bg-[#B28A47]/40" />
-
-            <div className="relative h-3.5 w-3.5">
-              <span
-                className="
-                  absolute
-                  left-1/2
-                  top-1/2
-                  h-2
-                  w-2
-                  -translate-x-1/2
-                  -translate-y-1/2
-                  rotate-45
-                  border
-                  border-[#B28A47]
-                "
+        <CmsEditorialHeroContent
+                kickerKey="reservations.hero.kicker"
+                titleKey="reservations.hero.title"
+                subtitleKey="reservations.hero.subtitle"
+                tagKeys={["reservations.hero.tag_1", "reservations.hero.tag_2", "reservations.hero.tag_3"]}
               />
-
-              <span
-                className="
-                  absolute
-                  left-1/2
-                  top-1/2
-                  h-1
-                  w-1
-                  -translate-x-1/2
-                  -translate-y-1/2
-                  rotate-45
-                  bg-[#B28A47]
-                "
-              />
-            </div>
-
-            <span className="h-px flex-1 bg-[#B28A47]/40" />
-          </div>
-
-          {/* DESCRIPTION */}
-          <p
-            className="
-              mx-auto
-              mt-4
-              max-w-[500px]
-              text-[13px]
-              leading-6
-              text-[#5D514C]
-              sm:text-[14px]
-              lg:text-[15px]
-            "
-          >
-            Choisissez vos dates et préparez votre séjour
-            au cœur de Fès, à Dar LaMamy.
-          </p>
-
-          {/* TRUST */}
-          <div
-            className="
-              mt-4
-              hidden
-              items-center
-              justify-center
-              gap-4
-              text-[10px]
-              text-[#6F625C]
-              sm:flex
-            "
-          >
-            <span className="flex items-center gap-2">
-              <span className="h-1 w-1 rounded-full bg-[#B28A47]" />
-              Réservation directe
-            </span>
-
-            <span className="h-3 w-px bg-[#B28A47]/25" />
-
-            <span className="flex items-center gap-2">
-              <span className="h-1 w-1 rounded-full bg-[#B28A47]" />
-              Confirmation rapide
-            </span>
-
-            <span className="h-3 w-px bg-[#B28A47]/25" />
-
-            <span className="flex items-center gap-2">
-              <span className="h-1 w-1 rounded-full bg-[#B28A47]" />
-              Assistance personnalisée
-            </span>
-          </div>
-        </div>
       </div>
     </div>
   </div>
 </section>
+</ContentSection>
 
       {/* ======================================================
           BOOKING SECTION

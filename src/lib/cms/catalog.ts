@@ -7,11 +7,18 @@ export type CmsSectionDefinition = {
   translationPrefixes: string[];
 };
 
+export type CmsDedicatedModule = {
+  label: string;
+  href: string;
+  description: string;
+};
+
 export type CmsPageDefinition = {
   key: string;
   label: string;
   description: string;
   route: string;
+  dedicatedModule?: CmsDedicatedModule;
   sections: CmsSectionDefinition[];
 };
 
@@ -22,14 +29,70 @@ export const CMS_PAGES: CmsPageDefinition[] = [
     description: "Hero, présentation, chambres, services, expérience, galerie et témoignages.",
     route: "/",
     sections: [
-      { key: "hero", label: "Hero", description: "Titre, sous-titre et boutons principaux.", translationPrefixes: ["home.hero."] },
-      { key: "booking", label: "Réservation rapide", description: "Textes du module de réservation.", translationPrefixes: ["booking_", "booking."] },
+      { key: "hero", label: "Hero", description: "Titre, sous-titre, boutons et médias principaux.", translationPrefixes: ["home.hero."] },
+      { key: "booking", label: "Réservation rapide", description: "Textes du module de réservation rapide affiché sur l’accueil.", translationPrefixes: ["booking_", "booking."] },
       { key: "about", label: "Présentation", description: "Introduction à Dar LaMamy.", translationPrefixes: ["home.about."] },
-      { key: "rooms", label: "Chambres mises en avant", description: "Textes de présentation des chambres.", translationPrefixes: ["home.rooms.", "rooms."] },
-      { key: "services", label: "Services", description: "Présentation des services sur l’accueil.", translationPrefixes: ["home.services.", "services."] },
-      { key: "experience", label: "Expérience / Fès", description: "Contenu éditorial autour de l’expérience à Fès.", translationPrefixes: ["home.experience.", "experience."] },
-      { key: "gallery", label: "Galerie", description: "Textes de l’aperçu galerie.", translationPrefixes: ["home.gallery.", "gallery."] },
-      { key: "testimonials", label: "Témoignages", description: "Titres et labels de la zone avis.", translationPrefixes: ["home.testimonials.", "testimonials."] },
+      { key: "rooms", label: "Chambres mises en avant", description: "Textes éditoriaux de présentation des chambres sur l’accueil.", translationPrefixes: ["home.rooms."] },
+      { key: "services", label: "Services", description: "Textes éditoriaux de présentation des services sur l’accueil.", translationPrefixes: ["home.services."] },
+      { key: "experience", label: "Expérience / Fès", description: "Contenu éditorial autour de l’expérience à Fès.", translationPrefixes: ["home.experience."] },
+      { key: "gallery", label: "Galerie", description: "Textes de l’aperçu galerie sur l’accueil.", translationPrefixes: ["home.gallery."] },
+      { key: "testimonials", label: "Témoignages", description: "Titres et labels de la zone avis.", translationPrefixes: ["home.testimonials."] },
+    ],
+  },
+  {
+    key: "rooms",
+    label: "Chambres",
+    description: "Contenu éditorial de la page Chambres non géré par le module Chambres.",
+    route: "/chambres",
+    dedicatedModule: {
+      label: "Module Chambres",
+      href: "/admin/chambres",
+      description: "Les chambres, prix, équipements, photos et autres données métier restent gérés dans le module Chambres.",
+    },
+    sections: [
+      { key: "hero", label: "Hero", description: "Image, titre, sous-titre et accroches du Hero de la page.", translationPrefixes: ["rooms.hero."] },
+    ],
+  },
+  {
+    key: "services",
+    label: "Services",
+    description: "Contenu éditorial de la page Services non géré par le module Services.",
+    route: "/services",
+    dedicatedModule: {
+      label: "Module Services",
+      href: "/admin/services",
+      description: "Les services, catégories, tarifs et descriptions métier restent gérés dans le module Services.",
+    },
+    sections: [
+      { key: "hero", label: "Hero", description: "Image, titre, sous-titre et accroches du Hero de la page.", translationPrefixes: ["services.hero."] },
+    ],
+  },
+  {
+    key: "gallery",
+    label: "Galerie",
+    description: "Contenu éditorial de la page Galerie non géré par le module Galerie.",
+    route: "/galerie",
+    dedicatedModule: {
+      label: "Module Galerie",
+      href: "/admin/galerie",
+      description: "Les photos, catégories et médias de la galerie restent gérés dans le module Galerie.",
+    },
+    sections: [
+      { key: "hero", label: "Hero", description: "Image, titre, sous-titre et accroches du Hero de la page.", translationPrefixes: ["gallery.hero."] },
+    ],
+  },
+  {
+    key: "reservations",
+    label: "Réservations",
+    description: "Contenu éditorial de la page Réservations non géré par le module Réservations.",
+    route: "/reservations",
+    dedicatedModule: {
+      label: "Module Réservations",
+      href: "/admin/reservations",
+      description: "Les demandes, statuts, disponibilités et données de réservation restent gérés dans le module Réservations.",
+    },
+    sections: [
+      { key: "hero", label: "Hero", description: "Image, titre, sous-titre et éléments de réassurance du Hero.", translationPrefixes: ["reservations.hero."] },
     ],
   },
   {
@@ -46,9 +109,10 @@ export const CMS_PAGES: CmsPageDefinition[] = [
   {
     key: "contact",
     label: "Contact",
-    description: "Formulaire, coordonnées et questions fréquentes.",
+    description: "Hero, formulaire, coordonnées et questions fréquentes.",
     route: "/contact",
     sections: [
+      { key: "hero", label: "Hero", description: "Image et textes d’introduction de la page Contact.", translationPrefixes: ["contact.hero."] },
       { key: "form", label: "Formulaire", description: "Libellés, erreurs et confirmations.", translationPrefixes: ["contact.form."] },
       { key: "info", label: "Coordonnées", description: "Textes autour des coordonnées.", translationPrefixes: ["contact.info."] },
       { key: "faq", label: "FAQ", description: "Questions et réponses fréquentes.", translationPrefixes: ["contact.faq."] },

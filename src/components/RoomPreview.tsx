@@ -9,6 +9,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/components/LanguageProvider";
 
 import {
   ArrowRight,
@@ -43,6 +44,7 @@ interface Room {
 }
 
 export function RoomPreview() {
+  const { t } = useLanguage();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -284,7 +286,7 @@ export function RoomPreview() {
                 text-[#B28A47]
               "
             >
-              Nos chambres
+              {t("home.rooms.kicker")}
             </span>
 
             <span className="h-px w-8 bg-[#B28A47]/45" />
@@ -302,10 +304,10 @@ export function RoomPreview() {
               lg:text-[3rem]
             "
           >
-            Nos chambres
+            {t("home.rooms.title_before")}
             <span className="text-[#0F5A46]">
               {" "}
-              d’exception
+              {t("home.rooms.title_accent")}
             </span>
           </h2>
 
@@ -321,8 +323,7 @@ export function RoomPreview() {
               sm:text-[15px]
             "
           >
-            Des espaces intimes où le confort contemporain rencontre
-            l’élégance de l’artisanat marocain.
+            {t("home.rooms.description")}
           </p>
         </motion.div>
 

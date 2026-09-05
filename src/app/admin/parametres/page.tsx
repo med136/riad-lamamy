@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Info, Save, UploadCloud } from 'lucide-react'

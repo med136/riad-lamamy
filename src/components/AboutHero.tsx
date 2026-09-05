@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useLanguage } from "@/components/LanguageProvider";
+import { CmsHeroBackground } from "@/components/cms/CmsHeroBackground";
 
 export default function AboutHero() {
   const { t } = useLanguage();
@@ -9,9 +10,11 @@ export default function AboutHero() {
     <section className="relative overflow-hidden bg-[#F8F5EF]">
       <div className="relative min-h-[300px] sm:min-h-[320px] lg:min-h-[350px]">
         {/* Photo */}
-        <div
-          className="absolute inset-y-0 right-0 w-full bg-[url('/images/about/hero-darlamamy-about.jpeg')] bg-cover bg-center sm:w-[58%] lg:w-[47%] xl:w-[44%]"
-          aria-hidden="true"
+        <CmsHeroBackground
+          pageKey="about"
+          fallbackSrc="/images/about/hero-darlamamy-about.jpeg"
+          className="absolute inset-y-0 right-0 w-full sm:w-[58%] lg:w-[47%] xl:w-[44%]"
+          position="center"
         />
 
         {/* Soft photo-to-ivory fade */}
