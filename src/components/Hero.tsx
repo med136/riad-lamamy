@@ -677,10 +677,10 @@ export function Hero() {
         >
           <div
             className="
-              max-w-[660px]
-              py-16
-              sm:py-20
-              lg:py-24
+             max-w-[660px]
+py-16
+sm:py-20
+lg:py-24
             "
           >
             {/* KICKER */}
@@ -790,88 +790,78 @@ export function Hero() {
             </motion.div>
 
             {/* TITLE */}
+{/* TITLE */}
+<motion.h1
+  key={`title-${activeItem.id}`}
+  initial={
+    prefersReducedMotion
+      ? false
+      : {
+          opacity: 0,
+          y: 20,
+        }
+  }
+  animate={{
+    opacity: 1,
+    y: 0,
+  }}
+  transition={{
+    duration: 0.85,
+    delay: 0.16,
+    ease: [0.22, 1, 0.36, 1],
+  }}
+  className="
+    mt-6
+    max-w-[560px]
+    font-serif
+    text-[38px]
+    font-medium
+    leading-[1.02]
+    tracking-[-0.03em]
+    text-[#FFFDF8]
+    drop-shadow-[0_4px_22px_rgba(0,0,0,0.22)]
+    sm:text-[46px]
+    lg:text-[54px]
+    xl:text-[60px]
+  "
+>
+  {title}
+</motion.h1>
 
-            <motion.h1
-              key={`title-${activeItem.id}`}
-              initial={
-                prefersReducedMotion
-                  ? false
-                  : {
-                      opacity: 0,
-                      y: 20,
-                    }
-              }
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              transition={{
-                duration: 0.85,
-                delay: 0.16,
-                ease: [
-                  0.22,
-                  1,
-                  0.36,
-                  1,
-                ],
-              }}
-              className="
-                mt-6
-                max-w-[620px]
-                font-serif
-                text-[42px]
-                font-medium
-                leading-[0.98]
-                tracking-[-0.035em]
-                text-[#FFFDF8]
-                drop-shadow-[0_4px_24px_rgba(0,0,0,0.22)]
-                sm:text-[56px]
-                lg:text-[66px]
-                xl:text-[72px]
-              "
-            >
-              {title}
-            </motion.h1>
-
-            {/* DESCRIPTION */}
-
-            <motion.p
-              key={`subtitle-${activeItem.id}`}
-              initial={
-                prefersReducedMotion
-                  ? false
-                  : {
-                      opacity: 0,
-                      y: 16,
-                    }
-              }
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              transition={{
-                duration: 0.8,
-                delay: 0.28,
-                ease: [
-                  0.22,
-                  1,
-                  0.36,
-                  1,
-                ],
-              }}
-              className="
-                mt-6
-                max-w-[555px]
-                text-[14px]
-                font-light
-                leading-[1.7]
-                text-white/82
-                sm:text-[16px]
-                lg:text-[17px]
-              "
-            >
-              {subtitle}
-            </motion.p>
+{/* DESCRIPTION */}
+<motion.p
+  key={`subtitle-${activeItem.id}`}
+  initial={
+    prefersReducedMotion
+      ? false
+      : {
+          opacity: 0,
+          y: 16,
+        }
+  }
+  animate={{
+    opacity: 1,
+    y: 0,
+  }}
+  transition={{
+    duration: 0.8,
+    delay: 0.28,
+    ease: [0.22, 1, 0.36, 1],
+  }}
+  className="
+    mt-5
+    max-w-[520px]
+    text-[14px]
+    font-light
+    leading-[1.7]
+    text-[#F3EEE6]
+    drop-shadow-[0_2px_12px_rgba(0,0,0,0.22)]
+    sm:text-[15px]
+    lg:text-[16px]
+  "
+>
+  {subtitle}
+</motion.p>
 
             {/* =================================================
                 CTA
