@@ -137,7 +137,7 @@ export default function AdminSidebar() {
           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
-        <div className="border-b border-white/8 px-5 py-5">
+        <div className="border-b-2 border-[#B28A47]/15 px-5 py-5">
           <Link
             href="/admin/dashboard"
             onClick={() => setIsMobileMenuOpen(false)}
@@ -262,7 +262,7 @@ export default function AdminSidebar() {
           )}
         </nav>
 
-        <div className="border-t border-white/8 p-4">
+        <div className="border-t-2 border-[#B28A47]/15 p-4">
           <div className="mb-3 flex items-center gap-3 rounded-[16px] border border-white/[0.07] bg-white/[0.05] p-3">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#D2AA5A]/25 bg-[#D2AA5A]/10 text-[10px] font-bold text-[#F4D99E]">
               AD
