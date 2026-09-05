@@ -1,21 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  Utensils,
-  Car,
-  Map,
-  Umbrella,
-  Music,
   Camera,
-  Gift,
+  Car,
+  Check,
+  Map as MapIcon,
   Sparkles,
-  CheckCircle,
-  Clock,
-  Users,
-  Heart,
+  Utensils,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 type ServiceItem = {
   id: number;
@@ -26,78 +22,61 @@ type ServiceItem = {
   duration_minutes: number | null;
 };
 
-const fallbackServices = [
+type DisplayService = {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  included: boolean;
+  price?: string;
+  duration?: number;
+};
+
+type DisplayCategory = {
+  category: string;
+  items: DisplayService[];
+};
+
+const fallbackServices: DisplayCategory[] = [
   {
-    category: "Restauration",
+    category: "La table",
     items: [
       {
-        icon: <Utensils size={24} />,
-        title: "Petit-dejeuner marocain",
+        icon: Utensils,
+        title: "Petit-déjeuner marocain",
         description:
-          "Servi sur la terrasse ou en chambre, avec produits frais locaux.",
-        included: true,
+          "Un moment gourmand inspiré des saveurs locales, selon l’organisation de votre séjour.",
+        included: false,
       },
       {
-        icon: <Utensils size={24} />,
-        title: "Diner aux chandelles",
+        icon: Utensils,
+        title: "Repas sur demande",
         description:
-          "Cuisine traditionnelle preparee par notre chef dans une ambiance romantique.",
+          "Des plats marocains peuvent être organisés sur réservation et selon disponibilité.",
         included: false,
-        price: "35 EUR / pers",
-      },
-      {
-        icon: <Utensils size={24} />,
-        title: "Cours de cuisine",
-        description:
-          "Apprenez les secrets de la cuisine marocaine avec notre chef.",
-        included: false,
-        price: "60 EUR / pers",
       },
     ],
   },
   {
-    category: "Transport",
+    category: "Déplacements",
     items: [
       {
-        icon: <Car size={24} />,
-        title: "Transfert aeroport",
-        description: "Service prive avec chauffeur francophone.",
+        icon: Car,
+        title: "Transfert",
+        description:
+          "Notre équipe peut vous aider à organiser votre arrivée ou votre départ.",
         included: false,
-        price: "25 EUR / trajet",
-      },
-      {
-        icon: <Car size={24} />,
-        title: "Location de vehicule",
-        description: "Voiture avec chauffeur pour vos deplacements dans Marrakech.",
-        included: false,
-        price: "Sur demande",
       },
     ],
   },
   {
-    category: "Activites",
+    category: "Découvrir Fès",
     items: [
       {
-        icon: <Map size={24} />,
-        title: "Visites guidees",
+        icon: MapIcon,
+        title: "Visite de la médina",
         description:
-          "Decouverte de la medina et des sites historiques avec guide certifie.",
+          "Nous pouvons vous orienter vers des visites et expériences adaptées à vos envies.",
         included: false,
-        price: "45 EUR / pers",
-      },
-      {
-        icon: <Umbrella size={24} />,
-        title: "Excursion Atlas",
-        description:
-          "Journee complete dans les montagnes de l'Atlas avec dejeuner berbere.",
-        included: false,
-        price: "85 EUR / pers",
-      },
-      {
-        icon: <Music size={24} />,
-        title: "Soiree Gnawa",
-        description: "Musique traditionnelle marocaine dans le patio.",
-        included: true,
       },
     ],
   },
@@ -105,233 +84,681 @@ const fallbackServices = [
     category: "Sur mesure",
     items: [
       {
-        icon: <Camera size={24} />,
-        title: "Seance photo",
-        description: "Photographe professionnel pour immortaliser votre sejour.",
-        included: false,
-        price: "150 EUR",
-      },
-      {
-        icon: <Gift size={24} />,
-        title: "Organisation evenements",
+        icon: Camera,
+        title: "Expérience personnalisée",
         description:
-          "Mariages, anniversaires, seminaires dans un cadre exceptionnel.",
+          "Une occasion particulière ou une demande spécifique ? Parlez-nous de votre projet.",
         included: false,
-        price: "Sur devis",
-      },
-      {
-        icon: <Sparkles size={24} />,
-        title: "Surprise romantique",
-        description: "Chambre decoree, petals, champagne...",
-        included: false,
-        price: "A partir de 75 EUR",
       },
     ],
   },
 ];
 
+function iconForCategory(category: string): LucideIcon {
+  const key = category.toLowerCase();
+
+  if (
+    key.includes("resta") ||
+    key.includes("table") ||
+    key.includes("repas")
+  ) {
+    return Utensils;
+  }
+
+  if (
+    key.includes("trans") ||
+    key.includes("aeroport") ||
+    key.includes("aéroport")
+  ) {
+    return Car;
+  }
+
+  if (
+    key.includes("activ") ||
+    key.includes("excurs") ||
+    key.includes("visite")
+  ) {
+    return MapIcon;
+  }
+
+  if (key.includes("photo")) {
+    return Camera;
+  }
+
+  return Sparkles;
+}
+
+function categorySubtitle(category: string) {
+  const key = category.toLowerCase();
+
+  if (
+    key.includes("resta") ||
+    key.includes("table") ||
+    key.includes("repas")
+  ) {
+    return "Saveurs & moments à partager";
+  }
+
+  if (
+    key.includes("trans") ||
+    key.includes("aeroport") ||
+    key.includes("aéroport") ||
+    key.includes("déplacement")
+  ) {
+    return "Arriver et se déplacer en toute sérénité";
+  }
+
+  if (
+    key.includes("activ") ||
+    key.includes("excurs") ||
+    key.includes("visite") ||
+    key.includes("fès")
+  ) {
+    return "Explorer Fès autrement";
+  }
+
+  if (
+    key.includes("sur mesure") ||
+    key.includes("personnalis")
+  ) {
+    return "Des attentions pensées pour vous";
+  }
+
+  return "Pensé autour de votre séjour";
+}
+
 export function ServiceList() {
   const [remoteServices, setRemoteServices] = useState<ServiceItem[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const load = async () => {
       try {
-        setLoading(true);
-        const res = await fetch("/api/services");
-        const json = await res.json();
-        if (res.ok && Array.isArray(json.services)) {
+        const response = await fetch("/api/services", {
+          signal: controller.signal,
+          cache: "no-store",
+        });
+
+        const json = await response.json();
+
+        if (
+          response.ok &&
+          Array.isArray(json.services)
+        ) {
           setRemoteServices(json.services);
         }
-      } catch (e) {
-        // silent fallback to static content
+      } catch (error) {
+        if (
+          (error as Error).name !==
+          "AbortError"
+        ) {
+          // fallback statique volontaire
+        }
       } finally {
         setLoading(false);
       }
     };
-    load();
+
+    void load();
+
+    return () => controller.abort();
   }, []);
 
-  const iconForCategory = (cat: string) => {
-    const key = cat.toLowerCase();
-    if (key.includes("resta")) return <Utensils size={24} />;
-    if (key.includes("trans") || key.includes("aeroport")) return <Car size={24} />;
-    if (key.includes("activ") || key.includes("excurs") || key.includes("visite")) return <Map size={24} />;
-    if (key.includes("photo")) return <Camera size={24} />;
-    if (key.includes("sur mesure") || key.includes("evenement")) return <Sparkles size={24} />;
-    return <Sparkles size={24} />;
-  };
+  const dynamicCategories = useMemo<DisplayCategory[]>(
+    () => {
+      if (!remoteServices.length) {
+        return [];
+      }
 
-  const dynamicCategories = useMemo(() => {
-    if (!remoteServices.length) return [] as Array<{ category: string; items: any[] }>;
-    const groups: Record<string, any[]> = {};
-    for (const s of remoteServices) {
-      const cat = s.category || "Autres";
-      if (!groups[cat]) groups[cat] = [];
-      groups[cat].push({
-        icon: iconForCategory(cat),
-        title: s.name,
-        description: s.description || "",
-        included: (s.price || 0) === 0,
-        price: (s.price || 0) > 0 ? `${s.price} EUR` : undefined,
-        duration: s.duration_minutes || undefined,
-      });
-    }
-    return Object.entries(groups).map(([category, items]) => ({ category, items }));
-  }, [remoteServices]);
+      const groups =
+        new globalThis.Map<
+          string,
+          DisplayService[]
+        >();
 
-  const categories = dynamicCategories.length ? dynamicCategories : fallbackServices;
+      for (const service of remoteServices) {
+        const category =
+          service.category || "Autres";
+
+        const items =
+          groups.get(category) ?? [];
+
+        items.push({
+          icon: iconForCategory(category),
+          title: service.name,
+          description:
+            service.description ||
+            "Informations disponibles sur demande.",
+          included:
+            Number(service.price || 0) === 0,
+          price:
+            Number(service.price || 0) > 0
+              ? `${Number(
+                  service.price,
+                ).toLocaleString(
+                  "fr-FR",
+                )} EUR`
+              : undefined,
+          duration:
+            service.duration_minutes ||
+            undefined,
+        });
+
+        groups.set(
+          category,
+          items,
+        );
+      }
+
+      return Array.from(
+        groups.entries(),
+      ).map(
+        ([category, items]) => ({
+          category,
+          items,
+        }),
+      );
+    },
+    [remoteServices],
+  );
+
+  const categories =
+    dynamicCategories.length > 0
+      ? dynamicCategories
+      : fallbackServices;
 
   return (
-    <div className="mb-16">
-      <div className="text-center mb-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+    <section className="mb-14">
+      {/* =====================================================
+          MAIN INTRO
+          ===================================================== */}
+
+      <div className="mx-auto mb-12 max-w-2xl text-center">
+        <p
+          className="
+            text-[10px]
+            font-semibold
+            uppercase
+            tracking-[0.30em]
+            text-[#B28A47]
+          "
         >
-          <div className="lux-kicker text-amber-700/80 mb-3">SERVICES</div>
-          <h3 className="text-3xl md:text-4xl font-serif font-bold mb-4">
-            Nos services detailles
-          </h3>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Une palette complete pour personnaliser votre experience marocaine
-          </p>
-        </motion.div>
+          À votre disposition
+        </p>
+
+        <div
+          className="
+            mx-auto
+            mt-3
+            flex
+            w-[120px]
+            items-center
+          "
+          aria-hidden="true"
+        >
+          <span className="h-px flex-1 bg-[#B28A47]/45" />
+
+          <span
+            className="
+              mx-3
+              h-[6px]
+              w-[6px]
+              rotate-45
+              border
+              border-[#B28A47]
+            "
+          />
+
+          <span className="h-px flex-1 bg-[#B28A47]/45" />
+        </div>
+
+        <h2
+          className="
+            mt-5
+            font-serif
+            text-[32px]
+            font-medium
+            leading-tight
+            text-[#2B1C17]
+            sm:text-[38px]
+          "
+        >
+          Des services pensés autour
+          de votre séjour
+        </h2>
+
+        <p
+          className="
+            mx-auto
+            mt-3
+            max-w-xl
+            text-[14px]
+            leading-6
+            text-[#6F625C]
+            sm:text-[15px]
+          "
+        >
+          Quelques attentions utiles,
+          à organiser selon vos
+          besoins et les
+          disponibilités.
+        </p>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-6 mb-10">
-        <div className="flex items-center space-x-2">
-          <CheckCircle size={20} className="text-emerald-600" />
-          <span className="text-gray-700">Inclus dans votre sejour</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-5 h-5 rounded-full border-2 border-amber-600 flex items-center justify-center">
-            <span className="text-amber-600 text-[10px] font-bold">EUR</span>
-          </div>
-          <span className="text-gray-700">Service supplementaire</span>
-        </div>
-      </div>
+      {/* =====================================================
+          LOADING
+          ===================================================== */}
 
-      <div className="space-y-12">
-        {categories.map((category, categoryIndex) => (
-          <motion.div
-            key={category.category}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: categoryIndex * 0.2 }}
-          >
-            <h4 className="text-2xl font-bold text-gray-900 mb-6 pb-3 border-b border-amber-200/60">
-              {category.category}
-            </h4>
+      {loading &&
+      remoteServices.length === 0 ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {[0, 1, 2].map(
+            (item) => (
+              <div
+                key={item}
+                className="
+                  h-36
+                  animate-pulse
+                  rounded-[20px]
+                  bg-[#F8F5EF]
+                "
+              />
+            ),
+          )}
+        </div>
+      ) : (
+        <div className="space-y-14">
+          {categories.map(
+            (
+              category,
+              categoryIndex,
+            ) => (
+              <motion.section
+                key={
+                  category.category
+                }
+                initial={{
+                  opacity: 0,
+                  y: 12,
+                }}
+                whileInView={{
+                  opacity: 1,
+                  y: 0,
+                }}
+                viewport={{
+                  once: true,
+                  amount: 0.15,
+                }}
+                transition={{
+                  duration: 0.35,
+                  delay:
+                    categoryIndex *
+                    0.04,
+                }}
+              >
+                {/* ===========================================
+                    CATEGORY TITLE — NEW DESIGN
+                    =========================================== */}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {category.items.map((service, serviceIndex) => (
-                <motion.div
-                  key={serviceIndex}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: categoryIndex * 0.2 + serviceIndex * 0.1 }}
-                  whileHover={{ y: -4 }}
-                  className={`lux-panel rounded-2xl p-6 border ${
-                    service.included
-                      ? "border-emerald-200/60"
-                      : "border-amber-200/60"
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-4">
+                <div className="mb-6">
+                  <div
+                    className="
+                      flex
+                      items-start
+                      gap-4
+                    "
+                  >
+                    {/* NUMBER */}
+
                     <div
-                      className={`p-3 rounded-xl ${
-                        service.included
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-amber-100 text-amber-700"
-                      }`}
+                      className="
+                        flex
+                        h-10
+                        w-10
+                        shrink-0
+                        items-center
+                        justify-center
+                        rounded-full
+                        border
+                        border-[#B28A47]/30
+                        bg-[#F8F5EF]
+                        text-[11px]
+                        font-semibold
+                        tracking-[0.08em]
+                        text-[#0F5A46]
+                      "
+                      aria-hidden="true"
                     >
-                      {service.icon}
+                      {String(
+                        categoryIndex +
+                          1,
+                      ).padStart(
+                        2,
+                        "0",
+                      )}
                     </div>
 
-                    {service.included ? (
-                      <div className="flex items-center space-x-1 text-emerald-600">
-                        <CheckCircle size={18} />
-                        <span className="text-sm font-semibold">INCLUS</span>
-                      </div>
-                    ) : (
-                      <div className="text-amber-700 font-bold">
-                        {service.price}
-                      </div>
-                    )}
+                    {/* TITLE */}
+
+                    <div className="min-w-0">
+                      <p
+                        className="
+                          text-[9px]
+                          font-semibold
+                          uppercase
+                          tracking-[0.24em]
+                          text-[#B28A47]
+                        "
+                      >
+                        Services Dar LaMamy
+                      </p>
+
+                      <h3
+                        className="
+                          mt-1
+                          font-serif
+                          text-[27px]
+                          font-medium
+                          leading-[1.05]
+                          text-[#2B1C17]
+                          sm:text-[30px]
+                        "
+                      >
+                        {
+                          category.category
+                        }
+                      </h3>
+
+                      <p
+                        className="
+                          mt-1.5
+                          text-[13px]
+                          leading-5
+                          text-[#6F625C]
+                        "
+                      >
+                        {categorySubtitle(
+                          category.category,
+                        )}
+                      </p>
+                    </div>
                   </div>
 
-                  <h5 className="text-lg font-bold text-gray-900 mb-2">
-                    {service.title}
-                  </h5>
-                  <p className="text-gray-600 text-sm">{service.description}</p>
-                  {service.duration && (
-                    <p className="text-gray-500 text-xs mt-2">
-                      Duree: {service.duration} min
-                    </p>
+                  {/* PREMIUM DIVIDER */}
+
+                  <div
+                    className="
+                      mt-5
+                      flex
+                      items-center
+                      gap-3
+                    "
+                    aria-hidden="true"
+                  >
+                    <span className="h-px w-12 bg-[#B28A47]/40" />
+
+                    <span
+                      className="
+                        h-1.5
+                        w-1.5
+                        rotate-45
+                        bg-[#B28A47]/70
+                      "
+                    />
+
+                    <span className="h-px flex-1 bg-[#B28A47]/15" />
+                  </div>
+                </div>
+
+                {/* ===========================================
+                    SERVICE CARDS
+                    =========================================== */}
+
+                <div
+                  className="
+                    grid
+                    grid-cols-1
+                    gap-4
+                    md:grid-cols-2
+                    lg:grid-cols-3
+                  "
+                >
+                  {category.items.map(
+                    (
+                      service,
+                      serviceIndex,
+                    ) => {
+                      const Icon =
+                        service.icon;
+
+                      return (
+                        <motion.article
+                          key={`${category.category}-${service.title}-${serviceIndex}`}
+                          initial={{
+                            opacity: 0,
+                            y: 10,
+                          }}
+                          whileInView={{
+                            opacity: 1,
+                            y: 0,
+                          }}
+                          viewport={{
+                            once: true,
+                          }}
+                          transition={{
+                            duration: 0.3,
+                            delay:
+                              serviceIndex *
+                              0.04,
+                          }}
+                          className="
+                            rounded-[20px]
+                            border
+                            border-[#B28A47]/15
+                            bg-[#FFFDF8]
+                            p-5
+                            transition-all
+                            duration-200
+                            hover:-translate-y-px
+                            hover:border-[#B28A47]/30
+                          "
+                        >
+                          <div
+                            className="
+                              flex
+                              items-start
+                              justify-between
+                              gap-4
+                            "
+                          >
+                            <div
+                              className="
+                                flex
+                                h-9
+                                w-9
+                                shrink-0
+                                items-center
+                                justify-center
+                                rounded-full
+                                border
+                                border-[#B28A47]/20
+                                bg-[#F8F5EF]
+                              "
+                            >
+                              <Icon
+                                className="
+                                  h-4
+                                  w-4
+                                  text-[#0F5A46]
+                                "
+                                strokeWidth={
+                                  1.6
+                                }
+                              />
+                            </div>
+
+                            {service.included ? (
+                              <span
+                                className="
+                                  inline-flex
+                                  items-center
+                                  gap-1.5
+                                  rounded-full
+                                  border
+                                  border-[#0F5A46]/15
+                                  bg-[#0F5A46]/5
+                                  px-2.5
+                                  py-1
+                                  text-[9px]
+                                  font-semibold
+                                  uppercase
+                                  tracking-[0.12em]
+                                  text-[#0F5A46]
+                                "
+                              >
+                                <Check className="h-3 w-3" />
+
+                                Inclus
+                              </span>
+                            ) : service.price ? (
+                              <span
+                                className="
+                                  text-[12px]
+                                  font-semibold
+                                  text-[#0F5A46]
+                                "
+                              >
+                                {
+                                  service.price
+                                }
+                              </span>
+                            ) : null}
+                          </div>
+
+                          <h4
+                            className="
+                              mt-4
+                              text-[15px]
+                              font-semibold
+                              text-[#2B1C17]
+                            "
+                          >
+                            {
+                              service.title
+                            }
+                          </h4>
+
+                          <p
+                            className="
+                              mt-2
+                              text-[13px]
+                              leading-5
+                              text-[#6F625C]
+                            "
+                          >
+                            {
+                              service.description
+                            }
+                          </p>
+
+                          {service.duration ? (
+                            <p
+                              className="
+                                mt-3
+                                text-[11px]
+                                text-[#6F625C]/75
+                              "
+                            >
+                              Durée indicative
+                              :{" "}
+                              {
+                                service.duration
+                              }{" "}
+                              min
+                            </p>
+                          ) : null}
+                        </motion.article>
+                      );
+                    },
                   )}
-
-                  {!service.included && (
-                    <button className="mt-4 w-full bg-amber-700 text-white py-2 rounded-xl hover:bg-amber-800 transition-colors text-sm font-semibold">
-                      Reserver ce service
-                    </button>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="mt-16 bg-gradient-to-r from-slate-950 to-slate-900 rounded-3xl p-8 md:p-12 text-white"
-      >
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-white/10 rounded-full mb-4">
-                <Clock size={24} />
-              </div>
-              <h5 className="font-bold mb-2">Disponibilite</h5>
-              <p className="text-slate-200 text-sm">
-                Tous nos services sont disponibles 24/7 sur reservation
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-white/10 rounded-full mb-4">
-                <Users size={24} />
-              </div>
-              <h5 className="font-bold mb-2">Personnalisation</h5>
-              <p className="text-slate-200 text-sm">
-                Chaque service est adapte a vos besoins
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-white/10 rounded-full mb-4">
-                <Heart size={24} />
-              </div>
-              <h5 className="font-bold mb-2">Qualite</h5>
-              <p className="text-slate-200 text-sm">
-                Partenaires selectionnes pour une experience premium
-              </p>
-            </div>
-          </div>
-
-          <div className="text-center mt-8">
-            <p className="text-amber-200">
-              Pour toute demande speciale, contactez notre conciergerie.
-            </p>
-          </div>
+                </div>
+              </motion.section>
+            ),
+          )}
         </div>
-      </motion.div>
-    </div>
+      )}
+
+      {/* =====================================================
+          CTA
+          ===================================================== */}
+
+      <div
+        className="
+          mt-12
+          rounded-[22px]
+          bg-[#0F5A46]
+          px-6
+          py-7
+          text-[#FFFDF8]
+          sm:flex
+          sm:items-center
+          sm:justify-between
+          sm:gap-8
+          sm:px-8
+        "
+      >
+        <div>
+          <p
+            className="
+              text-[9px]
+              font-semibold
+              uppercase
+              tracking-[0.24em]
+              text-[#D2AA5A]
+            "
+          >
+            Une demande particulière ?
+          </p>
+
+          <p
+            className="
+              mt-2
+              font-serif
+              text-[25px]
+              font-medium
+            "
+          >
+            Notre équipe vous aide à
+            préparer votre séjour.
+          </p>
+        </div>
+
+        <Link
+          href="/contact"
+          className="
+            mt-5
+            inline-flex
+            h-11
+            shrink-0
+            items-center
+            justify-center
+            rounded-full
+            border
+            border-[#D2AA5A]/50
+            px-5
+            text-[13px]
+            font-semibold
+            transition
+            hover:bg-[#FFFDF8]
+            hover:text-[#0F5A46]
+            sm:mt-0
+          "
+        >
+          Nous contacter
+        </Link>
+      </div>
+    </section>
   );
 }

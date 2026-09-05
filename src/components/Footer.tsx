@@ -34,9 +34,6 @@ export function Footer() {
 
   const { t } = useLanguage();
 
-  const [logoUrl, setLogoUrl] =
-    useState<string | null>(null);
-
   const [brandName, setBrandName] =
     useState("Dar LaMamy");
 
@@ -214,27 +211,6 @@ export function Footer() {
             );
           }
 
-          /* Logo */
-
-          const nextLogo =
-            data.footer_logo_url ||
-            data.footerLogoUrl ||
-            data.logo_preview_url ||
-            data.site_logo ||
-            data.logo ||
-            data.logoPreviewUrl ||
-            null;
-
-          if (
-            typeof nextLogo ===
-              "string" &&
-            nextLogo.trim()
-          ) {
-            setLogoUrl(
-              nextLogo.trim(),
-            );
-          }
-
           /* Email */
 
           const nextEmail =
@@ -407,12 +383,6 @@ export function Footer() {
      COMPUTED VALUES
      ========================================================= */
 
-  const logoSrc =
-    logoUrl || "/logo.svg";
-
-  const hasCustomLogo =
-    Boolean(logoUrl);
-
   const socialLinks =
     useMemo(
       () =>
@@ -482,7 +452,7 @@ export function Footer() {
       "
     >
       {/* =====================================================
-          BACKGROUND DECORATION
+          BACKGROUND
           ===================================================== */}
 
       <div
@@ -494,7 +464,7 @@ export function Footer() {
           h-[34rem]
           w-[34rem]
           rounded-full
-          bg-[#D2AA5A]/[0.055]
+          bg-[#D2AA5A]/[0.045]
           blur-3xl
         "
         aria-hidden="true"
@@ -509,13 +479,11 @@ export function Footer() {
           h-[30rem]
           w-[30rem]
           rounded-full
-          bg-[#12604B]/25
+          bg-[#12604B]/20
           blur-3xl
         "
         aria-hidden="true"
       />
-
-      {/* Fine gold line */}
 
       <div
         className="
@@ -526,7 +494,7 @@ export function Footer() {
           h-px
           bg-gradient-to-r
           from-transparent
-          via-[#D2AA5A]/70
+          via-[#D2AA5A]/65
           to-transparent
         "
         aria-hidden="true"
@@ -560,92 +528,93 @@ export function Footer() {
 
           <div
             className="
-              lg:col-span-5
-              lg:pr-8
+              flex
+    h-full
+    flex-col
+    lg:col-span-5
+    lg:pr-8
             "
           >
             <Link
               href="/"
+              aria-label="Dar LaMamy - Accueil"
               className="
                 group
                 inline-flex
-                flex-col
-                items-start
+                items-center
+                gap-3.5
               "
             >
+              {/* LOGO MARK */}
+
               <div
                 className="
                   relative
-                  h-[84px]
-                  w-[190px]
+                  h-[62px]
+                  w-[62px]
+                  shrink-0
                   transition-transform
                   duration-300
                   group-hover:-translate-y-0.5
-                  sm:h-[94px]
-                  sm:w-[215px]
+                  sm:h-[68px]
+                  sm:w-[68px]
                 "
               >
                 <Image
-                  src={logoSrc}
-                  alt={brandName}
+                  src="/logo-mark.png"
+                  alt=""
                   fill
-                  sizes="
-                    (max-width: 640px) 190px,
-                    215px
-                  "
+                  sizes="68px"
                   className="
                     object-contain
-                    object-left
                   "
+                  aria-hidden="true"
                 />
               </div>
 
-              {!hasCustomLogo && (
-                <div className="mt-2">
-                  <p
-                    className="
-                      font-serif
-                      text-[24px]
-                      font-medium
-                      tracking-[-0.02em]
-                      text-[#FFFDF8]
-                    "
-                  >
-                    {brandName}
-                  </p>
+              {/* BRAND TEXT */}
 
-                  <p
-                    className="
-                      mt-1
-                      text-[9px]
-                      font-semibold
-                      uppercase
-                      tracking-[0.32em]
-                      text-[#D2AA5A]
-                    "
-                  >
-                  </p>
-                </div>
-              )}
-            </Link>
-
-            {/* TAGLINE */}
-
-            {brandTagline && (
-              <p
+              <div
                 className="
-                  mt-4
-                  max-w-sm
-                  font-serif
-                  text-[17px]
-                  font-normal
-                  leading-relaxed
-                  text-white/70
+                  flex
+                  flex-col
+                  items-start
                 "
               >
-                {brandTagline}
-              </p>
-            )}
+                <span
+                  className="
+                    font-serif
+                    text-[28px]
+                    font-medium
+                    leading-none
+                    tracking-[0.025em]
+                    text-[#FFFDF8]
+                    sm:text-[31px]
+                  "
+                >
+                  {brandName}
+                </span>
+
+                <span
+                  className="
+                    mt-2
+                    text-[8px]
+                    font-semibold
+                    uppercase
+                    tracking-[0.34em]
+                    text-[#D2AA5A]
+                    sm:text-[9px]
+                  "
+                >
+                  Fès · Maroc
+                </span>
+              </div>
+            </Link>
+
+            
+            {/* SMALL DIVIDER */}
+
+
 
             {/* SOCIAL */}
 
@@ -653,10 +622,11 @@ export function Footer() {
               0 && (
               <div
                 className="
-                  mt-5
-                  flex
-                  items-center
-                  gap-2.5
+                  mt-auto
+    flex
+    items-center
+    gap-2.5
+    pt-6
                 "
               >
                 {socialLinks.map(
@@ -679,19 +649,15 @@ export function Footer() {
                       }
                       className="
                         inline-flex
-                        h-10
-                        w-10
+                        h-9
+                        w-9
                         items-center
                         justify-center
                         rounded-full
-
                         border
                         border-white/10
-
                         bg-white/[0.035]
-
-                        text-white/65
-
+                        text-white/60
                         transition-all
                         duration-200
 
@@ -708,9 +674,9 @@ export function Footer() {
                       "
                     >
                       <Icon
-                        size={17}
+                        size={16}
                         strokeWidth={
-                          1.7
+                          1.6
                         }
                         aria-hidden="true"
                       />
@@ -1062,12 +1028,23 @@ function FooterTitle({
       <div
         className="
           mt-2
-          h-px
-          w-7
-          bg-[#B28A47]/45
+          flex
+          items-center
+          gap-1.5
         "
         aria-hidden="true"
-      />
+      >
+        <span className="h-px w-6 bg-[#D2AA5A]/50" />
+
+        <span
+          className="
+            h-1
+            w-1
+            rotate-45
+            bg-[#D2AA5A]/60
+          "
+        />
+      </div>
     </div>
   );
 }

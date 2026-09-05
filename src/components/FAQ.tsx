@@ -1,33 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, HelpCircle } from "lucide-react";
+import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 
 const faqs = [
   {
-    question: "Quels sont les horaires de check-in et check-out ?",
+    question: "Comment effectuer une demande de réservation ?",
     answer:
-      "Le check-in est possible a partir de 14h et le check-out jusqu'a 12h. Nous pouvons adapter ces horaires sur demande en fonction des disponibilites.",
+      "Vous pouvez utiliser notre page Réservations ou nous contacter directement. Toute demande reste soumise à disponibilité et confirmation.",
   },
   {
-    question: "Le petit-dejeuner est-il inclus ?",
+    question: "Puis-je vous contacter pour organiser un transfert ?",
     answer:
-      "Oui, un petit-dejeuner marocain traditionnel est inclus pour tous nos clients. Il est servi sur la terrasse ou en chambre selon votre preference.",
+      "Oui. Indiquez votre besoin dans le formulaire de contact et notre équipe vous confirmera les possibilités disponibles pour vos dates.",
   },
   {
-    question: "Proposez-vous le service de navette aeroport ?",
+    question: "Pouvez-vous nous conseiller pour découvrir Fès ?",
     answer:
-      "Oui, nous proposons un service de transfert prive depuis et vers l'aeroport de Marrakech. Le tarif est de 25 EUR par trajet. Reservez-le a l'avance pour garantir sa disponibilite.",
+      "Oui. Nous pouvons vous orienter vers des visites, adresses et expériences adaptées à vos envies pendant votre séjour.",
   },
   {
-    question: "Le riad est-il adapte aux enfants ?",
+    question: "Puis-je faire une demande particulière avant mon arrivée ?",
     answer:
-      "Absolument ! Nous sommes family-friendly et pouvons fournir des lits bebes, chaises hautes, et organiser des activites adaptees aux enfants. La piscine est surveillee.",
-  },
-  {
-    question: "Acceptez-vous les animaux de compagnie ?",
-    answer:
-      "Nous acceptons les petits animaux (moins de 10 kg) sur demande prealable. Des frais supplementaires de 15 EUR par nuit s'appliquent.",
+      "Bien sûr. Précisez votre demande dans votre message afin que nous puissions vous répondre selon les possibilités et disponibilités du moment.",
   },
 ];
 
@@ -35,54 +31,67 @@ export default function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <div className="lux-panel rounded-3xl border border-amber-200/40 p-8 shadow-xl">
-      <div className="flex items-center space-x-3 mb-8">
-        <HelpCircle size={28} className="text-amber-700" />
-        <div>
-          <div className="lux-kicker text-amber-700/80 mb-1">FAQ</div>
-          <h3 className="text-2xl font-serif font-bold">Questions frequentes</h3>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        {faqs.map((faq, index) => (
-          <div
-            key={index}
-            className="border border-amber-200/60 rounded-2xl overflow-hidden bg-white/80"
-          >
-            <button
-              onClick={() => setOpenIndex(openIndex === index ? null : index)}
-              className="w-full text-left p-6 flex justify-between items-center hover:bg-amber-50 transition-colors"
-            >
-              <span className="font-semibold text-gray-900">{faq.question}</span>
-              <ChevronDown
-                size={20}
-                className={`text-gray-500 transition-transform ${
-                  openIndex === index ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {openIndex === index && (
-              <div className="p-6 pt-0">
-                <p className="text-gray-600">{faq.answer}</p>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-8 text-center">
-        <p className="text-gray-600">
-          Vous n'avez pas trouve la reponse a votre question ?
-          <a
-            href="/contact"
-            className="text-amber-700 hover:underline font-semibold ml-1"
-          >
-            Contactez-nous directement
-          </a>
+    <section className="rounded-[24px] border border-[#B28A47]/15 bg-[#FFFDF8] px-6 py-7 sm:px-8 sm:py-9">
+      <div className="mx-auto max-w-2xl text-center">
+        <p className="text-[9px] font-semibold uppercase tracking-[0.26em] text-[#B28A47]">
+          Avant de nous écrire
+        </p>
+        <h2 className="mt-2 font-serif text-[28px] font-medium text-[#2B1C17] sm:text-[32px]">
+          Questions fréquentes
+        </h2>
+        <p className="mt-2 text-[13px] leading-6 text-[#6F625C]">
+          Quelques réponses utiles pour préparer votre séjour à Dar LaMamy.
         </p>
       </div>
-    </div>
+
+      <div className="mx-auto mt-7 max-w-3xl divide-y divide-[#B28A47]/12 border-y border-[#B28A47]/12">
+        {faqs.map((faq, index) => {
+          const open = openIndex === index;
+
+          return (
+            <div key={faq.question}>
+              <button
+                type="button"
+                aria-expanded={open}
+                onClick={() => setOpenIndex(open ? null : index)}
+                className="flex w-full items-center justify-between gap-4 py-5 text-left"
+              >
+                <span className="font-serif text-[18px] font-medium text-[#2B1C17] sm:text-[19px]">
+                  {faq.question}
+                </span>
+
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#B28A47]/20 text-[#0F5A46]">
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform duration-200 ${
+                      open ? "rotate-180" : ""
+                    }`}
+                    strokeWidth={1.6}
+                  />
+                </span>
+              </button>
+
+              {open && (
+                <div className="pb-5 pr-12">
+                  <p className="text-[13px] leading-6 text-[#6F625C]">
+                    {faq.answer}
+                  </p>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="mt-6 text-center text-[12px] text-[#6F625C]">
+        Vous n’avez pas trouvé votre réponse ?{" "}
+        <Link
+          href="/contact"
+          className="font-semibold text-[#0F5A46] underline decoration-[#B28A47]/40 underline-offset-4"
+        >
+          Écrivez-nous directement
+        </Link>
+        .
+      </p>
+    </section>
   );
 }

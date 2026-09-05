@@ -5,42 +5,43 @@ import Team from "@/components/Team";
 import { Experience } from "@/components/Experience";
 
 export const metadata: Metadata = {
-  title: "A propos | Riad Dar Al Andalus",
+  title: "À propos | Dar LaMamy — Riad à Fès",
   description:
-    "Decouvrez l'histoire du Riad Dar Al Andalus, notre equipe et nos valeurs.",
+    "Découvrez l'esprit de Dar LaMamy, une maison d'hôtes au cœur de Fès où l'architecture, l'accueil et l'art de vivre marocain se rencontrent.",
   alternates: {
-    canonical: "/a-propos",
+    canonical: "https://darlamamy.com/a-propos",
   },
   openGraph: {
-    title: "A propos | Riad Dar Al Andalus",
-    description: "Decouvrez l'histoire du Riad Dar Al Andalus, notre equipe et nos valeurs.",
-    url: "https://riad-al-andalus.com/a-propos",
+    title: "À propos | Dar LaMamy — Riad à Fès",
+    description:
+      "Découvrez l'esprit de Dar LaMamy, une maison d'hôtes au cœur de Fès.",
+    url: "https://darlamamy.com/a-propos",
     type: "website",
     images: [
       {
-        url: "/images/hero/riad-exterior.jpg",
+        url: "/images/about/hero-darlamamy-about.jpeg",
         width: 1200,
         height: 630,
-        alt: "Riad Dar Al Andalus",
+        alt: "Dar LaMamy à Fès",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "A propos | Riad Dar Al Andalus",
-    description: "Decouvrez l'histoire du Riad Dar Al Andalus, notre equipe et nos valeurs.",
-    images: ["/images/hero/riad-exterior.jpg"],
+    title: "À propos | Dar LaMamy — Riad à Fès",
+    description:
+      "Découvrez l'esprit de Dar LaMamy, une maison d'hôtes au cœur de Fès.",
+    images: ["/images/about/hero-darlamamy-about.jpeg"],
   },
-
 };
 
 export default function AboutPage() {
   return (
-    <div>
+    <main className="bg-[#FFFDF8]">
       <AboutHero />
       <Values />
       <Team />
       <Experience />
-    </div>
+    </main>
   );
 }

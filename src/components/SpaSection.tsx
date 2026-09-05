@@ -1,89 +1,61 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Droplets, Heart } from "lucide-react";
 
-export function SpaSection() {
-  const treatments = [
-    {
-      name: "Hammam traditionnel",
-      duration: "60 min",
-      price: "45 EUR",
-      description: "Rituel de purification et relaxation profonde.",
-    },
-    {
-      name: "Massage aux huiles bio",
-      duration: "90 min",
-      price: "75 EUR",
-      description: "Massage therapeutique aux huiles essentielles.",
-    },
-    {
-      name: "Soin du visage",
-      duration: "45 min",
-      price: "55 EUR",
-      description: "Soin revitalisant aux produits naturels marocains.",
-    },
-  ];
+const treatments = [
+  {
+    name: "Hammam traditionnel",
+    description: "Un rituel de détente inspiré des traditions marocaines, organisé sur demande.",
+  },
+  {
+    name: "Massage",
+    description: "Un moment de relaxation qui peut être organisé selon les disponibilités de nos partenaires.",
+  },
+  {
+    name: "Soin bien-être",
+    description: "Des soins peuvent être proposés selon vos envies et les prestations disponibles lors de votre séjour.",
+  },
+];
 
+export function SpaSection() {
   return (
-    <div className="lux-panel rounded-3xl p-8 md:p-10 border border-amber-200/40 shadow-xl">
-      <div className="flex items-center space-x-4 mb-8">
-        <div className="p-3 bg-amber-100 rounded-xl">
-          <Droplets size={28} className="text-amber-700" />
+    <section className="h-full rounded-[24px] border border-[#B28A47]/15 bg-[#FFFDF8] p-6 sm:p-7 lg:p-8">
+      <div className="flex items-start gap-4">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#B28A47]/20 bg-[#F8F5EF]">
+          <Droplets className="h-4 w-4 text-[#0F5A46]" strokeWidth={1.6} />
         </div>
         <div>
-          <div className="lux-kicker text-amber-700/80 mb-1">SPA</div>
-          <h3 className="text-2xl font-serif font-bold">Spa et bien-etre</h3>
-          <p className="text-gray-600">Oasis de detente au coeur du riad</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#B28A47]">Bien-être</p>
+          <h3 className="mt-1 font-serif text-[27px] font-medium leading-tight text-[#2B1C17]">Prendre le temps</h3>
+          <p className="mt-2 text-sm leading-6 text-[#6F625C]">Des moments de détente que notre équipe peut vous aider à organiser pendant votre séjour.</p>
         </div>
       </div>
 
-      <div className="space-y-6 mb-8">
+      <div className="mt-6 divide-y divide-[#B28A47]/15 border-y border-[#B28A47]/15">
         {treatments.map((treatment, index) => (
           <motion.div
-            key={index}
-            initial={{ opacity: 0, x: -20 }}
+            key={treatment.name}
+            initial={{ opacity: 0, x: -10 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: index * 0.1 }}
-            className="bg-white/80 p-6 rounded-2xl border border-amber-200/50"
+            transition={{ duration: 0.3, delay: index * 0.05 }}
+            className="py-4"
           >
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <h4 className="font-bold text-lg text-gray-900">
-                  {treatment.name}
-                </h4>
-                <p className="text-gray-600 text-sm">{treatment.description}</p>
-              </div>
-              <div className="text-right">
-                <div className="text-amber-700 font-bold text-xl">
-                  {treatment.price}
-                </div>
-                <div className="text-gray-500 text-sm">{treatment.duration}</div>
-              </div>
-            </div>
-            <button className="w-full bg-amber-700 text-white py-2 rounded-xl hover:bg-amber-800 transition-colors">
-              Reserver ce soin
-            </button>
+            <h4 className="text-[14px] font-semibold text-[#2B1C17]">{treatment.name}</h4>
+            <p className="mt-1 text-[13px] leading-5 text-[#6F625C]">{treatment.description}</p>
           </motion.div>
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-4 text-center">
-        <div className="bg-amber-50 p-4 rounded-xl border border-amber-200/50">
-          <div className="text-amber-700 font-bold">100%</div>
-          <div className="text-gray-600 text-sm">Naturel</div>
-        </div>
-        <div className="bg-amber-50 p-4 rounded-xl border border-amber-200/50">
-          <div className="text-amber-700 font-bold">24/7</div>
-          <div className="text-gray-600 text-sm">Disponible</div>
+      <div className="mt-5 flex items-start gap-3 rounded-[16px] border border-[#B28A47]/15 bg-[#F8F5EF]/65 p-4">
+        <Heart className="mt-0.5 h-4 w-4 shrink-0 text-[#0F5A46]" strokeWidth={1.6} />
+        <div>
+          <p className="text-[13px] leading-5 text-[#5D514C]">Les prestations de bien-être sont à organiser à l’avance selon disponibilité.</p>
+          <Link href="/contact" className="mt-2 inline-flex text-[12px] font-semibold text-[#0F5A46] hover:text-[#063F33]">Faire une demande →</Link>
         </div>
       </div>
-
-      <div className="mt-6 flex items-center justify-center text-sm text-amber-700">
-        <Heart size={16} className="mr-2" />
-        Massage sur demande - reservation requise
-      </div>
-    </div>
+    </section>
   );
 }

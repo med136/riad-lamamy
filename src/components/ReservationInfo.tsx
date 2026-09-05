@@ -1,89 +1,258 @@
-import { 
-  CheckCircle, Clock, CreditCard, 
-  Shield, HelpCircle, Star 
+import Link from "next/link";
+import {
+  CheckCircle2,
+  Clock3,
+  CreditCard,
+  HelpCircle,
+  ShieldCheck,
 } from "lucide-react";
 
 const policies = [
   {
-    icon: <Clock size={20} />,
-    title: "Check-in/out Flexible",
+    icon: Clock3,
+    title: "Arrivée & départ",
     description: "Arrivée après 14h • Départ avant 12h",
   },
   {
-    icon: <CreditCard size={20} />,
-    title: "Paiement Sécurisé",
-    description: "CB, Visa, Mastercard, espèces acceptés",
+    icon: CreditCard,
+    title: "Paiement",
+    description: "Carte bancaire et espèces selon les modalités du séjour",
   },
   {
-    icon: <CheckCircle size={20} />,
-    title: "Annulation Gratuite",
-    description: "Jusqu'à 48h avant l'arrivée",
+    icon: CheckCircle2,
+    title: "Annulation",
+    description: "Les conditions applicables sont précisées avant confirmation",
   },
   {
-    icon: <Shield size={20} />,
-    title: "Garantie",
-    description: "Meilleur prix garanti",
+    icon: ShieldCheck,
+    title: "Réservation directe",
+    description: "Échange direct avec Dar LaMamy pour préparer votre séjour",
   },
 ];
 
 export default function ReservationInfo() {
   return (
-    <div className="lux-panel rounded-3xl p-8 border border-amber-200/40 shadow-2xl bg-gradient-to-br from-amber-50 via-white to-amber-100">
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-100 rounded-full mb-4">
-          <Star size={28} className="text-amber-700" />
-        </div>
-        <h3 className="text-2xl font-serif font-bold mb-2">
-          Informations Importantes
+    <div className="space-y-6">
+      {/* =====================================================
+          HEADER
+          ===================================================== */}
+
+      <div>
+        <p
+          className="
+            text-[10px]
+            font-semibold
+            uppercase
+            tracking-[0.24em]
+            text-[#B28A47]
+          "
+        >
+          À savoir
+        </p>
+
+        <h3
+          className="
+            mt-2
+            font-serif
+            text-[28px]
+            font-medium
+            leading-tight
+            text-[#2B1C17]
+          "
+        >
+          Informations utiles
         </h3>
-        <p className="text-gray-600">
-          Tout ce que vous devez savoir avant de réserver
+
+        <p
+          className="
+            mt-2
+            text-sm
+            leading-6
+            text-[#6F625C]
+          "
+        >
+          Les principales informations à connaître avant de confirmer
+          votre séjour à Dar LaMamy.
         </p>
       </div>
 
-      <div className="space-y-6 mb-8">
-        {policies.map((policy, index) => (
-          <div key={index} className="flex items-start space-x-4">
-            <div className="text-amber-700 mt-1 flex-shrink-0">
-              {policy.icon}
+      {/* =====================================================
+          POLICIES
+          ===================================================== */}
+
+      <div className="divide-y divide-[#B28A47]/15 border-y border-[#B28A47]/15">
+        {policies.map((policy) => {
+          const Icon = policy.icon;
+
+          return (
+            <div
+              key={policy.title}
+              className="
+                flex
+                items-start
+                gap-4
+                py-4
+              "
+            >
+              <div
+                className="
+                  mt-0.5
+                  flex
+                  h-9
+                  w-9
+                  shrink-0
+                  items-center
+                  justify-center
+                  rounded-full
+                  border
+                  border-[#B28A47]/20
+                  bg-[#F8F5EF]
+                "
+              >
+                <Icon
+                  className="h-4 w-4 text-[#0F5A46]"
+                  strokeWidth={1.6}
+                />
+              </div>
+
+              <div>
+                <h4
+                  className="
+                    text-[14px]
+                    font-semibold
+                    text-[#2B1C17]
+                  "
+                >
+                  {policy.title}
+                </h4>
+
+                <p
+                  className="
+                    mt-1
+                    text-[13px]
+                    leading-5
+                    text-[#6F625C]
+                  "
+                >
+                  {policy.description}
+                </p>
+              </div>
             </div>
-            <div>
-              <h4 className="font-bold text-gray-900">{policy.title}</h4>
-              <p className="text-gray-600 text-sm">{policy.description}</p>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      <div className="lux-panel rounded-2xl p-6 border border-amber-200/40">
-        <div className="flex items-center space-x-3 mb-4">
-          <HelpCircle size={24} className="text-amber-700" />
-          <h4 className="font-bold text-gray-900">Besoin d&apos;aide ?</h4>
-        </div>
-        <p className="text-gray-700 mb-4">
-          Notre équipe est disponible 24h/24 pour répondre à vos questions.
-        </p>
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <span className="font-semibold">Téléphone :</span>
-            <span className="text-amber-700">+212 5 24 38 94 12</span>
+      {/* =====================================================
+          HELP
+          ===================================================== */}
+
+      <div
+        className="
+          rounded-[18px]
+          border
+          border-[#B28A47]/15
+          bg-[#F8F5EF]/70
+          p-5
+        "
+      >
+        <div className="flex items-start gap-3">
+          <div
+            className="
+              flex
+              h-9
+              w-9
+              shrink-0
+              items-center
+              justify-center
+              rounded-full
+              border
+              border-[#B28A47]/20
+              bg-[#FFFDF8]
+            "
+          >
+            <HelpCircle
+              className="h-4 w-4 text-[#0F5A46]"
+              strokeWidth={1.6}
+            />
           </div>
-          <div className="flex items-center space-x-2">
-            <span className="font-semibold">Email :</span>
-            <span className="text-amber-700">reservations@riad-al-andalus.com</span>
+
+          <div>
+            <h4
+              className="
+                font-serif
+                text-[22px]
+                font-medium
+                leading-tight
+                text-[#2B1C17]
+              "
+            >
+              Besoin d&apos;aide ?
+            </h4>
+
+            <p
+              className="
+                mt-2
+                text-[13px]
+                leading-6
+                text-[#6F625C]
+              "
+            >
+              Notre équipe peut vous accompagner avant votre arrivée
+              et répondre à vos questions concernant votre réservation.
+            </p>
+
+            <Link
+              href="/contact"
+              className="
+                mt-4
+                inline-flex
+                items-center
+                gap-2
+                text-[13px]
+                font-semibold
+                text-[#0F5A46]
+                transition-colors
+                hover:text-[#063F33]
+                focus-visible:outline-none
+                focus-visible:ring-2
+                focus-visible:ring-[#B28A47]/60
+                focus-visible:ring-offset-2
+              "
+            >
+              Nous contacter
+              <span aria-hidden="true">→</span>
+            </Link>
           </div>
         </div>
       </div>
 
-      <div className="mt-8 text-center text-sm text-gray-500">
-        <p>
-          En réservant, vous acceptez nos 
-          <a href="/cgu" className="text-amber-700 hover:underline mx-1">
-            conditions générales
-          </a>
-          d&apos;utilisation.
-        </p>
-      </div>
+      {/* =====================================================
+          TERMS
+          ===================================================== */}
+
+      <p
+        className="
+          text-[11px]
+          leading-5
+          text-[#6F625C]/75
+        "
+      >
+        En confirmant votre réservation, vous acceptez nos{" "}
+        <Link
+          href="/cgu"
+          className="
+            font-medium
+            text-[#0F5A46]
+            underline-offset-4
+            transition-colors
+            hover:text-[#063F33]
+            hover:underline
+          "
+        >
+          conditions générales
+        </Link>
+        .
+      </p>
     </div>
   );
 }

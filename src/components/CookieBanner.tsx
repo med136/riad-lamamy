@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Cookie, Settings2, ShieldCheck, X } from "lucide-react";
+
 import { useLanguage } from "@/components/LanguageProvider";
 
 type ConsentState = {
@@ -12,6 +15,7 @@ type ConsentState = {
 const COOKIE_NAME = "site_cookie_consent";
 const CONSENT_EVENT = "cookie-consent-open";
 const CONSENT_CHANGED_EVENT = "cookie-consent-changed";
+
 const DEFAULT_CONSENT: ConsentState = {
   necessary: true,
   analytics: false,
@@ -20,163 +24,779 @@ const DEFAULT_CONSENT: ConsentState = {
 
 const getConsentCookie = () => {
   if (typeof document === "undefined") return null;
+
   const match = document.cookie
     .split(";")
-    .map((c) => c.trim())
-    .find((c) => c.startsWith(`${COOKIE_NAME}=`));
+    .map((cookie) => cookie.trim())
+    .find((cookie) => cookie.startsWith(`${COOKIE_NAME}=`));
+
   if (!match) return null;
+
   try {
-    const value = decodeURIComponent(match.split("=").slice(1).join("="));
+    const value = decodeURIComponent(
+      match.split("=").slice(1).join("="),
+    );
+
     return JSON.parse(value) as ConsentState;
   } catch {
     return null;
   }
 };
 
-const setConsentCookie = (consent: ConsentState) => {
-  if (typeof document === "undefined") return;
-  const value = encodeURIComponent(JSON.stringify(consent));
-  const maxAge = 60 * 60 * 24 * 180;
-  document.cookie = `${COOKIE_NAME}=${value}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+const setConsentCookie = (
+  consent: ConsentState,
+) => {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const value = encodeURIComponent(
+    JSON.stringify(consent),
+  );
+
+  const maxAge =
+    60 * 60 * 24 * 180;
+
+  document.cookie =
+    `${COOKIE_NAME}=${value}; ` +
+    `Path=/; ` +
+    `Max-Age=${maxAge}; ` +
+    `SameSite=Lax`;
 };
 
 export default function CookieBanner() {
   const { t } = useLanguage();
-  const [visible, setVisible] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [consent, setConsent] = useState<ConsentState>(DEFAULT_CONSENT);
+
+  const [visible, setVisible] =
+    useState(false);
+
+  const [
+    showSettings,
+    setShowSettings,
+  ] = useState(false);
+
+  const [consent, setConsent] =
+    useState<ConsentState>(
+      DEFAULT_CONSENT,
+    );
+
+  /* =========================================================
+     INITIAL STATE
+     ========================================================= */
 
   useEffect(() => {
-    const existing = getConsentCookie();
+    const existing =
+      getConsentCookie();
+
     if (!existing) {
       setVisible(true);
       return;
     }
+
     setConsent(existing);
   }, []);
 
+  /* =========================================================
+     OPEN FROM FOOTER / PRIVACY PAGE
+     ========================================================= */
+
   useEffect(() => {
     const handler = () => {
-      const existing = getConsentCookie();
-      if (existing) setConsent(existing);
+      const existing =
+        getConsentCookie();
+
+      if (existing) {
+        setConsent(existing);
+      }
+
       setVisible(true);
       setShowSettings(true);
     };
-    window.addEventListener(CONSENT_EVENT, handler);
-    return () => window.removeEventListener(CONSENT_EVENT, handler);
+
+    window.addEventListener(
+      CONSENT_EVENT,
+      handler,
+    );
+
+    return () =>
+      window.removeEventListener(
+        CONSENT_EVENT,
+        handler,
+      );
   }, []);
 
-  const acceptAll = () => {
-    const next = { necessary: true, analytics: true, marketing: true };
+  /* =========================================================
+     ACTIONS
+     ========================================================= */
+
+  const persistConsent = (
+    next: ConsentState,
+  ) => {
     setConsent(next);
     setConsentCookie(next);
-    window.dispatchEvent(new CustomEvent(CONSENT_CHANGED_EVENT));
+
+    window.dispatchEvent(
+      new CustomEvent(
+        CONSENT_CHANGED_EVENT,
+      ),
+    );
+
     setVisible(false);
+    setShowSettings(false);
+  };
+
+  const acceptAll = () => {
+    persistConsent({
+      necessary: true,
+      analytics: true,
+      marketing: true,
+    });
   };
 
   const refuseAll = () => {
-    const next = { necessary: true, analytics: false, marketing: false };
-    setConsent(next);
-    setConsentCookie(next);
-    window.dispatchEvent(new CustomEvent(CONSENT_CHANGED_EVENT));
-    setVisible(false);
+    persistConsent({
+      necessary: true,
+      analytics: false,
+      marketing: false,
+    });
   };
 
   const saveChoices = () => {
-    setConsentCookie(consent);
-    window.dispatchEvent(new CustomEvent(CONSENT_CHANGED_EVENT));
-    setVisible(false);
+    persistConsent({
+      ...consent,
+      necessary: true,
+    });
   };
 
-  if (!visible) return null;
+  if (!visible) {
+    return null;
+  }
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 px-4 pb-6">
-      <div className="mx-auto max-w-4xl lux-panel border border-amber-200/60 rounded-3xl p-6 shadow-2xl">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div className="max-w-2xl">
-            <div className="lux-kicker text-amber-700/80 mb-2">COOKIES</div>
-            <h3 className="text-xl font-serif font-bold text-gray-900 mb-2">
-              {t("cookies.title")}
-            </h3>
-            <p className="text-gray-600">
-              {t("cookies.description")}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <button
-              onClick={() => setShowSettings((prev) => !prev)}
-              className="px-4 py-2 rounded-full border border-amber-300 text-amber-700 hover:bg-amber-50"
-            >
-              {t("cookies.customize")}
-            </button>
-            <button
-              onClick={refuseAll}
-              className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50"
-            >
-              {t("cookies.refuse")}
-            </button>
-            <button
-              onClick={acceptAll}
-              className="px-4 py-2 rounded-full bg-amber-700 text-white hover:bg-amber-800"
-            >
-              {t("cookies.accept_all")}
-            </button>
-          </div>
-        </div>
+    <>
+      {/* =====================================================
+          MOBILE / PAGE OVERLAY
+          ===================================================== */}
 
-        {showSettings && (
-          <div className="mt-6 border-t border-amber-200/40 pt-4">
-            <div className="space-y-3 text-sm text-gray-700">
-              <label className="flex items-center justify-between">
-                <span>{t("cookies.essential")}</span>
-                <input type="checkbox" checked disabled className="accent-amber-700" />
-              </label>
-              <label className="flex items-center justify-between">
-                <span>{t("cookies.analytics")}</span>
-                <input
-                  type="checkbox"
-                  checked={consent.analytics}
-                  onChange={(e) =>
-                    setConsent((prev) => ({ ...prev, analytics: e.target.checked }))
-                  }
-                  className="accent-amber-700"
-                />
-              </label>
-              <label className="flex items-center justify-between">
-                <span>{t("cookies.marketing")}</span>
-                <input
-                  type="checkbox"
-                  checked={consent.marketing}
-                  onChange={(e) =>
-                    setConsent((prev) => ({ ...prev, marketing: e.target.checked }))
-                  }
-                  className="accent-amber-700"
-                />
-              </label>
-            </div>
-            <div className="mt-4 flex flex-wrap gap-3">
-              <button
-                onClick={saveChoices}
-                className="px-4 py-2 rounded-full bg-amber-700 text-white hover:bg-amber-800"
+      <div
+        className="
+          fixed
+          inset-0
+          z-[90]
+          bg-[#171411]/20
+          backdrop-blur-[2px]
+          md:bg-transparent
+          md:backdrop-blur-none
+        "
+        aria-hidden="true"
+      />
+
+      {/* =====================================================
+          COOKIE PANEL
+          ===================================================== */}
+
+      <div
+        className="
+          fixed
+          inset-x-0
+          bottom-0
+          z-[100]
+          px-3
+          pb-3
+          sm:px-4
+          sm:pb-4
+          lg:px-6
+          lg:pb-6
+        "
+      >
+        <section
+          role="dialog"
+          aria-modal="true"
+          aria-label={t(
+            "cookies.title",
+          )}
+          className="
+            relative
+            mx-auto
+            max-w-5xl
+            overflow-hidden
+            rounded-[22px]
+            border
+            border-[#B28A47]/20
+            bg-[#FFFDF8]
+            shadow-[0_24px_80px_-34px_rgba(35,20,12,0.38)]
+          "
+        >
+          {/* GOLD LINE */}
+
+          <div
+            className="
+              absolute
+              inset-x-0
+              top-0
+              h-px
+              bg-gradient-to-r
+              from-transparent
+              via-[#B28A47]/60
+              to-transparent
+            "
+            aria-hidden="true"
+          />
+
+          {/* =================================================
+              MAIN CONTENT
+              ================================================= */}
+
+          <div className="px-5 py-5 sm:px-6 sm:py-6 lg:px-7">
+            <div
+              className="
+                flex
+                flex-col
+                gap-5
+                lg:flex-row
+                lg:items-center
+                lg:justify-between
+                lg:gap-8
+              "
+            >
+              {/* TEXT */}
+
+              <div
+                className="
+                  flex
+                  max-w-2xl
+                  items-start
+                  gap-4
+                "
               >
-                {t("cookies.save")}
-              </button>
-              <a
-                href="/politique-confidentialite"
-                className="px-4 py-2 rounded-full border border-amber-300 text-amber-700 hover:bg-amber-50"
+                <div
+                  className="
+                    flex
+                    h-10
+                    w-10
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-full
+                    border
+                    border-[#B28A47]/20
+                    bg-[#F8F5EF]
+                  "
+                >
+                  <Cookie
+                    className="
+                      h-4.5
+                      w-4.5
+                      text-[#0F5A46]
+                    "
+                    strokeWidth={1.6}
+                  />
+                </div>
+
+                <div>
+                  <p
+                    className="
+                      text-[9px]
+                      font-semibold
+                      uppercase
+                      tracking-[0.25em]
+                      text-[#B28A47]
+                    "
+                  >
+                    Dar LaMamy
+                  </p>
+
+                  <h2
+                    className="
+                      mt-1
+                      font-serif
+                      text-[23px]
+                      font-medium
+                      leading-tight
+                      text-[#2B1C17]
+                      sm:text-[25px]
+                    "
+                  >
+                    {t(
+                      "cookies.title",
+                    )}
+                  </h2>
+
+                  <p
+                    className="
+                      mt-2
+                      max-w-xl
+                      text-[13px]
+                      leading-6
+                      text-[#6F625C]
+                    "
+                  >
+                    {t(
+                      "cookies.description",
+                    )}
+                  </p>
+
+                  <Link
+                    href="/politique-confidentialite"
+                    className="
+                      mt-2
+                      inline-block
+                      text-[11px]
+                      font-medium
+                      text-[#0F5A46]
+                      underline
+                      decoration-[#B28A47]/40
+                      underline-offset-4
+                      transition
+                      hover:decoration-[#B28A47]
+                    "
+                  >
+                    {t(
+                      "cookies.privacy_policy",
+                    )}
+                  </Link>
+                </div>
+              </div>
+
+              {/* ACTIONS */}
+
+              <div
+                className="
+                  flex
+                  shrink-0
+                  flex-wrap
+                  gap-2.5
+                  lg:justify-end
+                "
               >
-                {t("cookies.privacy_policy")}
-              </a>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowSettings(
+                      (prev) =>
+                        !prev,
+                    )
+                  }
+                  className="
+                    inline-flex
+                    h-10
+                    items-center
+                    justify-center
+                    gap-2
+                    rounded-full
+                    border
+                    border-[#B28A47]/25
+                    bg-[#FFFDF8]
+                    px-4
+                    text-[12px]
+                    font-semibold
+                    text-[#5D514C]
+                    transition-colors
+                    hover:border-[#B28A47]/45
+                    hover:bg-[#F8F5EF]
+                    hover:text-[#2B1C17]
+                  "
+                >
+                  <Settings2
+                    className="h-3.5 w-3.5"
+                    strokeWidth={1.6}
+                  />
+
+                  {t(
+                    "cookies.customize",
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={
+                    refuseAll
+                  }
+                  className="
+                    inline-flex
+                    h-10
+                    items-center
+                    justify-center
+                    rounded-full
+                    border
+                    border-[#0F5A46]/18
+                    px-4
+                    text-[12px]
+                    font-semibold
+                    text-[#0F5A46]
+                    transition-colors
+                    hover:bg-[#0F5A46]/5
+                  "
+                >
+                  {t(
+                    "cookies.refuse",
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={
+                    acceptAll
+                  }
+                  className="
+                    inline-flex
+                    h-10
+                    items-center
+                    justify-center
+                    rounded-full
+                    bg-[#0F5A46]
+                    px-5
+                    text-[12px]
+                    font-semibold
+                    text-[#FFFDF8]
+                    transition-colors
+                    hover:bg-[#083D31]
+                  "
+                >
+                  {t(
+                    "cookies.accept_all",
+                  )}
+                </button>
+              </div>
             </div>
+
+            {/* =================================================
+                SETTINGS
+                ================================================= */}
+
+            {showSettings && (
+              <div
+                className="
+                  mt-5
+                  border-t
+                  border-[#B28A47]/15
+                  pt-5
+                "
+              >
+                <div
+                  className="
+                    mb-4
+                    flex
+                    items-start
+                    gap-3
+                  "
+                >
+                  <ShieldCheck
+                    className="
+                      mt-0.5
+                      h-4
+                      w-4
+                      shrink-0
+                      text-[#0F5A46]
+                    "
+                    strokeWidth={1.6}
+                  />
+
+                  <div>
+                    <p
+                      className="
+                        text-[12px]
+                        font-semibold
+                        text-[#2B1C17]
+                      "
+                    >
+                      Vos préférences
+                    </p>
+
+                    <p
+                      className="
+                        mt-0.5
+                        text-[11px]
+                        leading-5
+                        text-[#6F625C]
+                      "
+                    >
+                      Les cookies essentiels
+                      sont nécessaires au
+                      fonctionnement du site.
+                      Les autres catégories
+                      restent facultatives.
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  className="
+                    grid
+                    gap-3
+                    md:grid-cols-3
+                  "
+                >
+                  {/* ESSENTIAL */}
+
+                  <CookieChoice
+                    title={t(
+                      "cookies.essential",
+                    )}
+                    description="Nécessaires au fonctionnement du site."
+                    checked
+                    disabled
+                    onChange={() => {}}
+                  />
+
+                  {/* ANALYTICS */}
+
+                  <CookieChoice
+                    title={t(
+                      "cookies.analytics",
+                    )}
+                    description="Nous aident à comprendre l’utilisation du site."
+                    checked={
+                      consent.analytics
+                    }
+                    onChange={(
+                      checked,
+                    ) =>
+                      setConsent(
+                        (prev) => ({
+                          ...prev,
+                          analytics:
+                            checked,
+                        }),
+                      )
+                    }
+                  />
+
+                  {/* MARKETING */}
+
+                  <CookieChoice
+                    title={t(
+                      "cookies.marketing",
+                    )}
+                    description="Utilisés uniquement si des fonctionnalités marketing sont activées."
+                    checked={
+                      consent.marketing
+                    }
+                    onChange={(
+                      checked,
+                    ) =>
+                      setConsent(
+                        (prev) => ({
+                          ...prev,
+                          marketing:
+                            checked,
+                        }),
+                      )
+                    }
+                  />
+                </div>
+
+                <div
+                  className="
+                    mt-5
+                    flex
+                    flex-wrap
+                    items-center
+                    justify-between
+                    gap-3
+                  "
+                >
+                  <Link
+                    href="/politique-confidentialite"
+                    className="
+                      text-[11px]
+                      font-medium
+                      text-[#6F625C]
+                      transition-colors
+                      hover:text-[#0F5A46]
+                    "
+                  >
+                    {t(
+                      "cookies.privacy_policy",
+                    )}
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={
+                      saveChoices
+                    }
+                    className="
+                      inline-flex
+                      h-10
+                      items-center
+                      justify-center
+                      rounded-full
+                      bg-[#0F5A46]
+                      px-5
+                      text-[12px]
+                      font-semibold
+                      text-[#FFFDF8]
+                      transition
+                      hover:bg-[#083D31]
+                    "
+                  >
+                    {t(
+                      "cookies.save",
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </section>
       </div>
-    </div>
+    </>
   );
 }
 
-export const openCookieBanner = () => {
-  if (typeof window === "undefined") return;
-  window.dispatchEvent(new CustomEvent(CONSENT_EVENT));
-};
+/* ===========================================================
+   COOKIE CHOICE
+   =========================================================== */
+
+function CookieChoice({
+  title,
+  description,
+  checked,
+  disabled = false,
+  onChange,
+}: {
+  title: string;
+  description: string;
+  checked: boolean;
+  disabled?: boolean;
+  onChange: (
+    checked: boolean,
+  ) => void;
+}) {
+  return (
+    <label
+      className={`
+        flex
+        cursor-pointer
+        items-start
+        justify-between
+        gap-4
+        rounded-[16px]
+        border
+        px-4
+        py-4
+        transition-colors
+
+        ${
+          checked
+            ? `
+              border-[#0F5A46]/18
+              bg-[#0F5A46]/[0.04]
+            `
+            : `
+              border-[#B28A47]/15
+              bg-[#F8F5EF]/55
+            `
+        }
+
+        ${
+          disabled
+            ? "cursor-default"
+            : "hover:border-[#B28A47]/35"
+        }
+      `}
+    >
+      <div>
+        <p
+          className="
+            text-[12px]
+            font-semibold
+            text-[#2B1C17]
+          "
+        >
+          {title}
+        </p>
+
+        <p
+          className="
+            mt-1
+            text-[11px]
+            leading-5
+            text-[#6F625C]
+          "
+        >
+          {description}
+        </p>
+      </div>
+
+      {/* SWITCH */}
+
+      <span
+        className="
+          relative
+          mt-0.5
+          inline-flex
+          shrink-0
+        "
+      >
+        <input
+          type="checkbox"
+          checked={checked}
+          disabled={disabled}
+          onChange={(event) =>
+            onChange(
+              event.target.checked,
+            )
+          }
+          className="peer sr-only"
+        />
+
+        <span
+          className="
+            h-6
+            w-11
+            rounded-full
+            bg-[#D9D2C8]
+            transition-colors
+
+            peer-checked:bg-[#0F5A46]
+
+            peer-focus-visible:ring-2
+            peer-focus-visible:ring-[#B28A47]/60
+            peer-focus-visible:ring-offset-2
+
+            peer-disabled:opacity-70
+          "
+        />
+
+        <span
+          className="
+            pointer-events-none
+            absolute
+            left-[3px]
+            top-[3px]
+            h-[18px]
+            w-[18px]
+            rounded-full
+            bg-white
+            shadow-sm
+            transition-transform
+
+            peer-checked:translate-x-5
+          "
+        />
+      </span>
+    </label>
+  );
+}
+
+/* ===========================================================
+   EXTERNAL OPEN FUNCTION
+   =========================================================== */
+
+export const openCookieBanner =
+  () => {
+    if (
+      typeof window ===
+      "undefined"
+    ) {
+      return;
+    }
+
+    window.dispatchEvent(
+      new CustomEvent(
+        CONSENT_EVENT,
+      ),
+    );
+  };

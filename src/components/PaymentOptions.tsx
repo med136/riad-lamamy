@@ -1,81 +1,312 @@
-import { 
-  CreditCard, Smartphone, Banknote, 
-  Shield, Lock, CheckCircle 
+import {
+  Banknote,
+  Check,
+  CreditCard,
+  LockKeyhole,
+  ShieldCheck,
+  Smartphone,
 } from "lucide-react";
 
 const paymentMethods = [
   {
-    icon: <CreditCard size={24} />,
-    name: "Carte Bancaire",
+    icon: CreditCard,
+    name: "Carte bancaire",
     description: "Visa, Mastercard, American Express",
     secure: true,
   },
   {
-    icon: <Smartphone size={24} />,
-    name: "Mobile Money",
+    icon: Smartphone,
+    name: "Paiement mobile",
     description: "PayPal, Apple Pay, Google Pay",
     secure: true,
   },
   {
-    icon: <Banknote size={24} />,
+    icon: Banknote,
     name: "Espèces",
-    description: "Euros, Dollars, Dirhams",
+    description: "Paiement sur place en Dirhams",
     secure: false,
   },
 ];
 
+const guarantees = [
+  "Connexion sécurisée",
+  "Protection de vos données",
+  "Aucun frais caché",
+  "Confirmation claire avant paiement",
+];
+
 export default function PaymentOptions() {
   return (
-    <div className="lux-panel rounded-2xl p-8 border border-amber-200/40 shadow-2xl">
-      <div className="flex items-center space-x-3 mb-8">
-        <div className="p-3 bg-green-100 rounded-xl">
-          <Lock size={24} className="text-emerald-600" />
+    <div className="space-y-7">
+      {/* =====================================================
+          HEADER
+          ===================================================== */}
+
+      <div className="flex items-start gap-4">
+        <div
+          className="
+            flex
+            h-10
+            w-10
+            shrink-0
+            items-center
+            justify-center
+            rounded-full
+            border
+            border-[#B28A47]/25
+            bg-[#F8F5EF]
+          "
+        >
+          <LockKeyhole
+            className="h-4 w-4 text-[#0F5A46]"
+            strokeWidth={1.6}
+          />
         </div>
+
         <div>
-          <h3 className="text-2xl font-serif font-bold">Options de Paiement</h3>
-          <p className="text-gray-600">Transactions 100% sécurisées</p>
-        </div>
-      </div>
-
-      <div className="space-y-6 mb-8">
-        {paymentMethods.map((method, index) => (
-          <div
-            key={index}
-            className="flex items-center justify-between p-4 border border-amber-200/40 rounded-xl hover:border-amber-400 transition-colors"
+          <p
+            className="
+              text-[10px]
+              font-semibold
+              uppercase
+              tracking-[0.22em]
+              text-[#B28A47]
+            "
           >
-            <div className="flex items-center space-x-4">
-              <div className={`p-3 rounded-lg ${
-                method.secure ? 'bg-green-50 text-emerald-600' : 'bg-gray-50 text-gray-600'
-              }`}>
-                {method.icon}
-              </div>
-              <div>
-                <h4 className="font-bold text-gray-900">{method.name}</h4>
-                <p className="text-gray-600 text-sm">{method.description}</p>
-              </div>
-            </div>
-            {method.secure && (
-              <div className="flex items-center space-x-1 text-emerald-600">
-                <Shield size={16} />
-                <span className="text-sm font-semibold">SÉCURISÉ</span>
-              </div>
-            )}
-          </div>
-        ))}
+            Paiement
+          </p>
+
+          <h3
+            className="
+              mt-1
+              font-serif
+              text-[28px]
+              font-medium
+              leading-tight
+              text-[#2B1C17]
+            "
+          >
+            Paiement simple et sécurisé
+          </h3>
+
+          <p
+            className="
+              mt-2
+              max-w-xl
+              text-sm
+              leading-6
+              text-[#6F625C]
+            "
+          >
+            Choisissez le mode de paiement qui vous convient.
+            Les informations sont présentées clairement avant
+            toute confirmation.
+          </p>
+        </div>
       </div>
 
-      <div className="lux-panel rounded-xl p-6 border border-amber-200/40">
-        <div className="flex items-center space-x-3 mb-4">
-          <CheckCircle size={20} className="text-emerald-600" />
-          <h4 className="font-bold text-gray-900">Garanties</h4>
-        </div>
-        <ul className="space-y-2 text-gray-600">
-          <li>• Cryptage SSL 256-bit</li>
-          <li>• Protection des données</li>
-          <li>• Pas de frais cachés</li>
-          <li>• Reçu fiscal fourni</li>
-        </ul>
+      {/* =====================================================
+          PAYMENT METHODS
+          ===================================================== */}
+
+      <div className="divide-y divide-[#B28A47]/15 border-y border-[#B28A47]/15">
+        {paymentMethods.map((method) => {
+          const Icon = method.icon;
+
+          return (
+            <div
+              key={method.name}
+              className="
+                flex
+                flex-col
+                gap-4
+                py-5
+                sm:flex-row
+                sm:items-center
+                sm:justify-between
+              "
+            >
+              <div className="flex items-start gap-4">
+                <div
+                  className="
+                    flex
+                    h-10
+                    w-10
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-full
+                    border
+                    border-[#B28A47]/20
+                    bg-[#FFFDF8]
+                  "
+                >
+                  <Icon
+                    className="h-4.5 w-4.5 text-[#0F5A46]"
+                    strokeWidth={1.6}
+                  />
+                </div>
+
+                <div>
+                  <h4
+                    className="
+                      text-[15px]
+                      font-semibold
+                      text-[#2B1C17]
+                    "
+                  >
+                    {method.name}
+                  </h4>
+
+                  <p
+                    className="
+                      mt-1
+                      text-[13px]
+                      leading-5
+                      text-[#6F625C]
+                    "
+                  >
+                    {method.description}
+                  </p>
+                </div>
+              </div>
+
+              {method.secure && (
+                <div
+                  className="
+                    inline-flex
+                    w-fit
+                    items-center
+                    gap-2
+                    rounded-full
+                    border
+                    border-[#0F5A46]/15
+                    bg-[#0F5A46]/5
+                    px-3
+                    py-1.5
+                    text-[10px]
+                    font-semibold
+                    uppercase
+                    tracking-[0.12em]
+                    text-[#0F5A46]
+                  "
+                >
+                  <ShieldCheck
+                    className="h-3.5 w-3.5"
+                    strokeWidth={1.7}
+                  />
+
+                  Sécurisé
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
+
+      {/* =====================================================
+          GUARANTEES
+          ===================================================== */}
+
+      <div
+        className="
+          rounded-[18px]
+          border
+          border-[#B28A47]/15
+          bg-[#F8F5EF]/65
+          p-5
+          sm:p-6
+        "
+      >
+        <div className="flex items-center gap-3">
+          <ShieldCheck
+            className="h-4.5 w-4.5 text-[#0F5A46]"
+            strokeWidth={1.6}
+          />
+
+          <h4
+            className="
+              font-serif
+              text-[22px]
+              font-medium
+              text-[#2B1C17]
+            "
+          >
+            Vos garanties
+          </h4>
+        </div>
+
+        <div
+          className="
+            mt-5
+            grid
+            grid-cols-1
+            gap-x-7
+            gap-y-3
+            sm:grid-cols-2
+          "
+        >
+          {guarantees.map((guarantee) => (
+            <div
+              key={guarantee}
+              className="
+                flex
+                items-start
+                gap-3
+                text-[13px]
+                leading-5
+                text-[#5D514C]
+              "
+            >
+              <div
+                className="
+                  mt-0.5
+                  flex
+                  h-5
+                  w-5
+                  shrink-0
+                  items-center
+                  justify-center
+                  rounded-full
+                  border
+                  border-[#B28A47]/25
+                  bg-[#FFFDF8]
+                "
+              >
+                <Check
+                  className="h-2.5 w-2.5 text-[#0F5A46]"
+                  strokeWidth={2}
+                />
+              </div>
+
+              <span>{guarantee}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* =====================================================
+          FOOTNOTE
+          ===================================================== */}
+
+      <p
+        className="
+          flex
+          items-center
+          gap-2
+          text-[12px]
+          leading-5
+          text-[#6F625C]/75
+        "
+      >
+        <LockKeyhole
+          className="h-3.5 w-3.5 shrink-0 text-[#B28A47]"
+          strokeWidth={1.6}
+        />
+
+        Les modalités exactes de paiement sont confirmées avant
+        la finalisation de votre réservation.
+      </p>
     </div>
   );
 }

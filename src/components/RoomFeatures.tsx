@@ -1,149 +1,101 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { 
-  Lock, Wind, Thermometer, Tv, Wifi, Coffee, 
-  Droplets, Shield, Bell, Clock, Heart, Sparkles
+import {
+  Coffee,
+  Droplets,
+  Heart,
+  Lock,
+  Sparkles,
+  ThermometerSun,
+  Wifi,
 } from "lucide-react";
 
 const features = [
   {
-    icon: <Wind size={24} />,
-    title: "Climatisation Réversible",
-    description: "Contrôle individuel de la température dans chaque chambre pour votre confort optimal.",
+    icon: ThermometerSun,
+    title: "Confort thermique",
+    description: "Une atmosphère agréable pensée pour votre confort tout au long du séjour.",
   },
   {
-    icon: <Wifi size={24} />,
-    title: "Fibre Optique",
-    description: "Connexion internet ultra-rapide dans tout le riad, idéale pour le télétravail.",
+    icon: Wifi,
+    title: "Connexion Wi-Fi",
+    description: "Une connexion disponible pour rester connecté simplement pendant votre séjour.",
   },
   {
-    icon: <Lock size={24} />,
-    title: "Sécurité Totale",
-    description: "Système d'alarme, coffre-fort et surveillance 24h/24 pour votre tranquillité d'esprit.",
+    icon: Lock,
+    title: "Tranquillité",
+    description: "Des espaces conçus pour préserver votre intimité et votre sérénité.",
   },
   {
-    icon: <Droplets size={24} />,
-    title: "Salle de Bain Premium",
-    description: "Produits d'accueil bio, serviettes épaisses et sèche-cheveux professionnel.",
+    icon: Droplets,
+    title: "Salle de bain",
+    description: "Des équipements fonctionnels et soignés dans un esprit sobre et confortable.",
   },
   {
-    icon: <Coffee size={24} />,
-    title: "Service en Chambre",
-    description: "Petit-déjeuner, déjeuner et dîner servis dans le confort de votre chambre.",
+    icon: Coffee,
+    title: "Hospitalité",
+    description: "Des attentions simples et chaleureuses pour accompagner votre expérience à Fès.",
   },
   {
-    icon: <Tv size={24} />,
-    title: "Divertissement",
-    description: "TV écran plat avec chaînes internationales et Netflix inclus.",
-  },
-];
-
-const services = [
-  {
-    icon: <Bell size={20} />,
-    text: "Réveil personnalisé avec thé à la menthe",
-  },
-  {
-    icon: <Clock size={20} />,
-    text: "Check-in/out flexible selon vos besoins",
-  },
-  {
-    icon: <Sparkles size={20} />,
-    text: "Service de repassage express",
-  },
-  {
-    icon: <Heart size={20} />,
-    text: "Attention particulière pour occasions spéciales",
+    icon: Heart,
+    title: "Séjour personnalisé",
+    description: "Notre équipe reste disponible pour vous conseiller avant et pendant votre séjour.",
   },
 ];
 
 export function RoomFeatures() {
   return (
-    <div className="py-16">
-      {/* Titre */}
-      <div className="text-center mb-12">
-        <h3 className="text-3xl md:text-4xl font-serif font-bold mb-4 text-gray-900">
-          Confort & Équipements
-        </h3>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Tout le confort moderne dans le respect des traditions marocaines
+    <section className="py-12 sm:py-14">
+      <div className="mx-auto max-w-3xl text-center">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#B28A47]">Confort</p>
+        <h2 className="mt-2 font-serif text-[32px] font-medium leading-tight text-[#2B1C17] sm:text-[38px]">
+          Le confort, avec simplicité
+        </h2>
+        <p className="mx-auto mt-3 max-w-2xl text-[14px] leading-6 text-[#6F625C] sm:text-[15px]">
+          Des équipements utiles, une atmosphère authentique et l’attention portée aux détails.
         </p>
       </div>
 
-      {/* Grille des features */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-        {features.map((feature, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.1 }}
-            whileHover={{ y: -5 }}
-            className="lux-panel p-8 rounded-2xl border border-amber-200/40 shadow-2xl hover:shadow-[0_25px_70px_-40px_rgba(120,87,71,0.7)] transition-all"
-          >
-            <div className="text-amber-600 mb-4">{feature.icon}</div>
-            <h4 className="text-xl font-bold text-gray-900 mb-3">
-              {feature.title}
-            </h4>
-            <p className="text-gray-600">
-              {feature.description}
-            </p>
-          </motion.div>
-        ))}
-      </div>
+      <div className="mt-9 grid gap-x-8 gap-y-0 sm:grid-cols-2 lg:grid-cols-3">
+        {features.map((feature, index) => {
+          const Icon = feature.icon;
 
-      {/* Services supplémentaires */}
-      <div className="bg-gradient-to-r from-amber-700 via-amber-600 to-amber-700 rounded-3xl p-8 md:p-12 text-white shadow-2xl">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-2xl mb-4">
-              <Sparkles size={28} />
-            </div>
-            <h4 className="text-2xl font-serif font-bold mb-2">
-              Services Additionnels
-            </h4>
-            <p className="text-amber-100">
-              Des petites attentions qui font la différence
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map((service, index) => (
-              <div key={index} className="flex items-center space-x-3">
-                <div className="bg-white/20 p-2 rounded-lg">
-                  {service.icon}
-                </div>
-                <span>{service.text}</span>
+          return (
+            <motion.div
+              key={feature.title}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.3, delay: index * 0.04 }}
+              className="flex gap-4 border-b border-[#B28A47]/15 py-6"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#B28A47]/20 bg-[#FFFDF8]">
+                <Icon size={17} className="text-[#0F5A46]" strokeWidth={1.6} />
               </div>
-            ))}
-          </div>
-
-          {/* Note */}
-          <div className="text-center mt-8 text-amber-100 text-sm">
-            <p>
-              Tous nos services sont inclus dans le prix de la chambre.
-              Pas de frais cachés.
-            </p>
-          </div>
-        </div>
+              <div>
+                <h3 className="text-[14px] font-semibold text-[#2B1C17]">{feature.title}</h3>
+                <p className="mt-1.5 text-[13px] leading-5 text-[#6F625C]">{feature.description}</p>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
-      {/* Garantie */}
-      <div className="text-center mt-12">
-        <div className="inline-flex items-center space-x-4 bg-amber-50/70 px-8 py-4 rounded-full">
-          <Shield size={24} className="text-amber-600" />
-          <div>
-            <div className="font-bold text-gray-900">
-              Garantie Satisfaction 100%
-            </div>
-            <div className="text-gray-600 text-sm">
-              Si vous n&apos;êtes pas satisfait, nous remboursons votre première nuit
-            </div>
+      <div className="mt-10 overflow-hidden rounded-[26px] bg-[#0F5A46] px-6 py-8 sm:px-8 lg:flex lg:items-center lg:justify-between lg:gap-10 lg:px-10 lg:py-9">
+        <div className="max-w-2xl">
+          <div className="flex items-center gap-3 text-[#D2AA5A]">
+            <Sparkles size={16} strokeWidth={1.6} />
+            <span className="text-[10px] font-semibold uppercase tracking-[0.24em]">L’expérience Dar LaMamy</span>
           </div>
+          <h3 className="mt-3 font-serif text-[28px] font-medium leading-tight text-[#FFFDF8] sm:text-[32px]">
+            Une maison de Fès, pensée pour vous accueillir
+          </h3>
+          <p className="mt-3 text-[13px] leading-6 text-[#FFFDF8]/75 sm:text-[14px]">
+            Chaque séjour peut être préparé avec notre équipe selon vos besoins et les possibilités disponibles.
+          </p>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

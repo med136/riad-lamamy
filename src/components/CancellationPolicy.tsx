@@ -1,62 +1,227 @@
-import { Calendar, AlertCircle, Clock, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import {
+  AlertCircle,
+  CalendarDays,
+  Clock3,
+  RefreshCw,
+} from "lucide-react";
+
+const cancellationItems = [
+  {
+    icon: Clock3,
+    title: "Annulation",
+    description:
+      "Les conditions d’annulation applicables à votre séjour sont précisées avant la confirmation de la réservation.",
+  },
+  {
+    icon: AlertCircle,
+    title: "Annulation tardive",
+    description:
+      "En cas d’annulation proche de la date d’arrivée, des frais peuvent s’appliquer selon les conditions de votre réservation.",
+  },
+  {
+    icon: RefreshCw,
+    title: "Modification",
+    description:
+      "Toute demande de modification est traitée selon les disponibilités et les conditions de votre séjour.",
+  },
+];
 
 export default function CancellationPolicy() {
   return (
-    <div className="lux-panel rounded-2xl p-8 border border-amber-200/40 shadow-2xl bg-gradient-to-br from-amber-50 via-white to-amber-100">
-      <div className="flex items-center space-x-3 mb-6">
-        <div className="p-3 bg-amber-100/80 rounded-xl">
-          <Calendar size={24} className="text-amber-700" />
+    <div className="space-y-6">
+      {/* =====================================================
+          HEADER
+          ===================================================== */}
+
+      <div className="flex items-start gap-4">
+        <div
+          className="
+            flex
+            h-10
+            w-10
+            shrink-0
+            items-center
+            justify-center
+            rounded-full
+            border
+            border-[#B28A47]/25
+            bg-[#F8F5EF]
+          "
+        >
+          <CalendarDays
+            className="h-4 w-4 text-[#0F5A46]"
+            strokeWidth={1.6}
+          />
         </div>
+
         <div>
-          <h3 className="text-xl font-serif font-bold">Politique d&apos;Annulation</h3>
-          <p className="text-gray-600">Flexible et transparente</p>
+          <p
+            className="
+              text-[10px]
+              font-semibold
+              uppercase
+              tracking-[0.22em]
+              text-[#B28A47]
+            "
+          >
+            Conditions
+          </p>
+
+          <h3
+            className="
+              mt-1
+              font-serif
+              text-[26px]
+              font-medium
+              leading-tight
+              text-[#2B1C17]
+            "
+          >
+            Annulation & modifications
+          </h3>
+
+          <p
+            className="
+              mt-2
+              text-sm
+              leading-6
+              text-[#6F625C]
+            "
+          >
+            Des conditions claires vous sont présentées avant la
+            confirmation de votre réservation.
+          </p>
         </div>
       </div>
 
-      <div className="space-y-6">
-        <div className="flex items-start space-x-4">
-          <Clock size={20} className="text-green-600 mt-1 flex-shrink-0" />
-          <div>
-            <h4 className="font-bold text-gray-900 mb-1">Annulation Gratuite</h4>
-            <p className="text-gray-600 text-sm">
-              Jusqu&apos;à 48 heures avant votre date d&apos;arrivée.
-              Remboursement intégral.
-            </p>
-          </div>
-        </div>
+      {/* =====================================================
+          POLICY ITEMS
+          ===================================================== */}
 
-        <div className="flex items-start space-x-4">
-          <AlertCircle size={20} className="text-amber-700 mt-1 flex-shrink-0" />
-          <div>
-            <h4 className="font-bold text-gray-900 mb-1">Annulation Tardive</h4>
-            <p className="text-gray-600 text-sm">
-              Moins de 48 heures avant l&apos;arrivée : 
-              première nuit facturée.
-            </p>
-          </div>
-        </div>
+      <div className="divide-y divide-[#B28A47]/15 border-y border-[#B28A47]/15">
+        {cancellationItems.map((item) => {
+          const Icon = item.icon;
 
-        <div className="flex items-start space-x-4">
-          <RefreshCw size={20} className="text-blue-600 mt-1 flex-shrink-0" />
-          <div>
-            <h4 className="font-bold text-gray-900 mb-1">Modification</h4>
-            <p className="text-gray-600 text-sm">
-              Modifications gratuites selon disponibilité.
-              Contactez-nous pour toute demande.
-            </p>
-          </div>
-        </div>
+          return (
+            <div
+              key={item.title}
+              className="
+                flex
+                items-start
+                gap-4
+                py-5
+              "
+            >
+              <div
+                className="
+                  mt-0.5
+                  flex
+                  h-9
+                  w-9
+                  shrink-0
+                  items-center
+                  justify-center
+                  rounded-full
+                  border
+                  border-[#B28A47]/20
+                  bg-[#FFFDF8]
+                "
+              >
+                <Icon
+                  className="h-4 w-4 text-[#0F5A46]"
+                  strokeWidth={1.6}
+                />
+              </div>
+
+              <div>
+                <h4
+                  className="
+                    text-[14px]
+                    font-semibold
+                    text-[#2B1C17]
+                  "
+                >
+                  {item.title}
+                </h4>
+
+                <p
+                  className="
+                    mt-1
+                    text-[13px]
+                    leading-5
+                    text-[#6F625C]
+                  "
+                >
+                  {item.description}
+                </p>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="mt-8 pt-6 border-t border-amber-200/60">
-        <p className="text-sm text-gray-500 text-center">
-          Pour les réservations de groupe (plus de 5 chambres), 
-          des conditions spécifiques s&apos;appliquent.
-          <a href="/contact" className="text-amber-700 hover:underline ml-1">
-            Contactez-nous
-          </a>.
+      {/* =====================================================
+          GROUP / SPECIAL CONDITIONS
+          ===================================================== */}
+
+      <div
+        className="
+          rounded-[18px]
+          border
+          border-[#B28A47]/15
+          bg-[#F8F5EF]/65
+          p-5
+        "
+      >
+        <p
+          className="
+            text-[13px]
+            leading-6
+            text-[#5D514C]
+          "
+        >
+          Certaines réservations, offres ou séjours particuliers peuvent
+          être soumis à des conditions spécifiques.
         </p>
+
+        <Link
+          href="/contact"
+          className="
+            mt-3
+            inline-flex
+            items-center
+            gap-2
+            text-[13px]
+            font-semibold
+            text-[#0F5A46]
+            transition-colors
+            hover:text-[#063F33]
+            focus-visible:outline-none
+            focus-visible:ring-2
+            focus-visible:ring-[#B28A47]/60
+            focus-visible:ring-offset-2
+          "
+        >
+          Nous contacter
+          <span aria-hidden="true">→</span>
+        </Link>
       </div>
+
+      {/* =====================================================
+          FOOTNOTE
+          ===================================================== */}
+
+      <p
+        className="
+          text-[11px]
+          leading-5
+          text-[#6F625C]/70
+        "
+      >
+        Les conditions définitives applicables à votre réservation sont
+        celles affichées au moment de la confirmation.
+      </p>
     </div>
   );
 }

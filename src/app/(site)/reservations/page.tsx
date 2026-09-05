@@ -1,44 +1,46 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Suspense } from "react";
+
 import BookingForm from "@/components/BookingForm";
 import ReservationInfo from "@/components/ReservationInfo";
 import PaymentOptions from "@/components/PaymentOptions";
 import CancellationPolicy from "@/components/CancellationPolicy";
-import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Reservations | Riad Dar Al Andalus",
+  title: "Réservations | Dar LaMamy",
   description:
-    "Reservez votre sejour au Riad Dar Al Andalus. Disponibilites en temps reel, confirmation rapide.",
+    "Réservez votre séjour à Dar LaMamy, au cœur de Fès. Consultez les disponibilités et préparez votre séjour en toute sérénité.",
   alternates: {
     canonical: "/reservations",
   },
   openGraph: {
-    title: "Reservations | Riad Dar Al Andalus",
-    description: "Reservez votre sejour au Riad Dar Al Andalus. Disponibilites en temps reel, confirmation rapide.",
-    url: "https://riad-al-andalus.com/reservations",
+    title: "Réservations | Dar LaMamy",
+    description:
+      "Réservez votre séjour à Dar LaMamy, au cœur de Fès. Consultez les disponibilités et préparez votre séjour en toute sérénité.",
+    url: "https://darlamamy.com/reservations",
     type: "website",
     images: [
       {
-        url: "/images/hero/riad-exterior.jpg",
+        url: "/images/reservations/hero-reservations.jpg",
         width: 1200,
         height: 630,
-        alt: "Riad Dar Al Andalus",
+        alt: "Dar LaMamy à Fès",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Reservations | Riad Dar Al Andalus",
-    description: "Reservez votre sejour au Riad Dar Al Andalus. Disponibilites en temps reel, confirmation rapide.",
-    images: ["/images/hero/riad-exterior.jpg"],
+    title: "Réservations | Dar LaMamy",
+    description:
+      "Réservez votre séjour à Dar LaMamy, au cœur de Fès. Consultez les disponibilités et préparez votre séjour en toute sérénité.",
+    images: ["/images/reservations/hero-reservations.jpg"],
   },
-
 };
 
 export default function ReservationsPage() {
   return (
-    <div>
+    <main className="bg-[#F8F5EF]">
       <Script
         id="structured-data-reservations"
         type="application/ld+json"
@@ -49,7 +51,7 @@ export default function ReservationsPage() {
             "@type": "ReserveAction",
             target: {
               "@type": "EntryPoint",
-              urlTemplate: "https://riad-al-andalus.com/reservations",
+              urlTemplate: "https://darlamamy.com/reservations",
               actionPlatform: [
                 "http://schema.org/DesktopWebPlatform",
                 "http://schema.org/MobileWebPlatform",
@@ -57,47 +59,436 @@ export default function ReservationsPage() {
             },
             result: {
               "@type": "LodgingReservation",
-              name: "Reservation au Riad Dar Al Andalus",
+              name: "Réservation à Dar LaMamy",
             },
           }),
         }}
       />
 
-      <div className="relative h-[55vh] bg-gradient-to-r from-emerald-900/80 to-emerald-700/80">
-        <div className="absolute inset-0 bg-[url('/images/reservations/hero-reservations.jpg')] bg-cover bg-center mix-blend-overlay"></div>
-        <div className="relative h-full flex items-center justify-center">
-          <div className="text-center text-white px-4">
-            <div className="lux-kicker mb-4 text-emerald-100/90">RESERVATION</div>
-            <h1 className="text-5xl md:text-7xl font-serif font-bold mb-6">
-              Reservez
-            </h1>
-            <p className="text-xl md:text-2xl max-w-3xl mx-auto">
-              Votre sejour inoubliable a Marrakech
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* ======================================================
+          HERO
+          ====================================================== */}
+{/* =========================================================
+    HERO RESERVATIONS — DAR LAMAMY
+    ========================================================= */}
+<section
+  className="
+    relative
+    isolate
+    overflow-hidden
+    border-b
+    border-[#B28A47]/20
+    bg-[#F8F5EF]
+  "
+>
+  <div
+    className="
+      relative
+      min-h-[300px]
+      sm:min-h-[320px]
+      lg:min-h-[350px]
+    "
+  >
+    {/* PHOTO DAR LAMAMY */}
+    <div
+      className="
+        absolute
+        inset-y-0
+        right-0
+        w-full
+        sm:w-[58%]
+        lg:w-[47%]
+        xl:w-[44%]
+      "
+    >
+      <div
+        className="
+          absolute
+          inset-0
+          bg-[url('/images/reservations/hero-darlamamy.jpeg')]
+          bg-cover
+          bg-center
+          lg:bg-[center_48%]
+        "
+      />
 
-      <div className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <Suspense fallback={<div>Chargement du formulaire...</div>}>
-                <BookingForm />
-              </Suspense>
-              <div className="mt-8">
-                <PaymentOptions />
-              </div>
+      <div className="absolute inset-0 bg-[#B28A47]/[0.025]" />
+
+      <div
+        className="
+          absolute
+          inset-0
+          bg-[linear-gradient(90deg,#F8F5EF_0%,rgba(248,245,239,0.95)_10%,rgba(248,245,239,0.66)_24%,rgba(248,245,239,0.18)_46%,rgba(248,245,239,0)_68%)]
+          sm:bg-[linear-gradient(90deg,#F8F5EF_0%,rgba(248,245,239,0.94)_12%,rgba(248,245,239,0.52)_31%,rgba(248,245,239,0.08)_58%,rgba(248,245,239,0)_74%)]
+        "
+      />
+    </div>
+
+    {/* CONTENU */}
+    <div
+      className="
+        site-container
+        relative
+        z-10
+        flex
+        min-h-[300px]
+        items-center
+        sm:min-h-[320px]
+        lg:min-h-[350px]
+      "
+    >
+      <div
+        className="
+          w-full
+          py-7
+          sm:py-8
+          lg:w-[64%]
+          lg:py-9
+          xl:w-[62%]
+        "
+      >
+        <div className="mx-auto max-w-[650px] text-center">
+          {/* KICKER */}
+          <p
+            className="
+              text-[9px]
+              font-semibold
+              uppercase
+              tracking-[0.30em]
+              text-[#0F5A46]
+              sm:text-[10px]
+            "
+          >
+            Réservation
+          </p>
+
+          {/* séparateur */}
+          <div
+            className="
+              mx-auto
+              mt-2.5
+              flex
+              w-[120px]
+              items-center
+            "
+            aria-hidden="true"
+          >
+            <span className="h-px flex-1 bg-[#B28A47]/55" />
+
+            <span
+              className="
+                mx-3
+                h-[6px]
+                w-[6px]
+                rotate-45
+                border
+                border-[#B28A47]
+                bg-[#F8F5EF]
+              "
+            />
+
+            <span className="h-px flex-1 bg-[#B28A47]/55" />
+          </div>
+
+          {/* TITRE */}
+          <h1
+            className="
+              mt-5
+              font-serif
+              text-[32px]
+              font-medium
+              leading-[1.03]
+              tracking-[-0.012em]
+              text-[#2B1C17]
+              sm:text-[36px]
+              lg:text-[40px]
+              xl:text-[44px]
+            "
+          >
+            Réservez votre séjour
+          </h1>
+
+          {/* décoration */}
+          <div
+            className="
+              mx-auto
+              mt-4
+              flex
+              w-[145px]
+              items-center
+              justify-center
+              gap-3
+            "
+            aria-hidden="true"
+          >
+            <span className="h-px flex-1 bg-[#B28A47]/40" />
+
+            <div className="relative h-3.5 w-3.5">
+              <span
+                className="
+                  absolute
+                  left-1/2
+                  top-1/2
+                  h-2
+                  w-2
+                  -translate-x-1/2
+                  -translate-y-1/2
+                  rotate-45
+                  border
+                  border-[#B28A47]
+                "
+              />
+
+              <span
+                className="
+                  absolute
+                  left-1/2
+                  top-1/2
+                  h-1
+                  w-1
+                  -translate-x-1/2
+                  -translate-y-1/2
+                  rotate-45
+                  bg-[#B28A47]
+                "
+              />
             </div>
-            <div>
-              <ReservationInfo />
-              <div className="mt-8">
-                <CancellationPolicy />
-              </div>
-            </div>
+
+            <span className="h-px flex-1 bg-[#B28A47]/40" />
+          </div>
+
+          {/* DESCRIPTION */}
+          <p
+            className="
+              mx-auto
+              mt-4
+              max-w-[500px]
+              text-[13px]
+              leading-6
+              text-[#5D514C]
+              sm:text-[14px]
+              lg:text-[15px]
+            "
+          >
+            Choisissez vos dates et préparez votre séjour
+            au cœur de Fès, à Dar LaMamy.
+          </p>
+
+          {/* TRUST */}
+          <div
+            className="
+              mt-4
+              hidden
+              items-center
+              justify-center
+              gap-4
+              text-[10px]
+              text-[#6F625C]
+              sm:flex
+            "
+          >
+            <span className="flex items-center gap-2">
+              <span className="h-1 w-1 rounded-full bg-[#B28A47]" />
+              Réservation directe
+            </span>
+
+            <span className="h-3 w-px bg-[#B28A47]/25" />
+
+            <span className="flex items-center gap-2">
+              <span className="h-1 w-1 rounded-full bg-[#B28A47]" />
+              Confirmation rapide
+            </span>
+
+            <span className="h-3 w-px bg-[#B28A47]/25" />
+
+            <span className="flex items-center gap-2">
+              <span className="h-1 w-1 rounded-full bg-[#B28A47]" />
+              Assistance personnalisée
+            </span>
           </div>
         </div>
       </div>
     </div>
+  </div>
+</section>
+
+      {/* ======================================================
+          BOOKING SECTION
+          ====================================================== */}
+      <section className="relative py-12 sm:py-14 lg:py-16">
+        <div className="site-container">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.75fr)_minmax(300px,0.75fr)] lg:gap-10">
+            {/* Main column */}
+            <div className="min-w-0">
+              <div
+                className="
+                  rounded-[28px]
+                  border
+                  border-[#B28A47]/15
+                  bg-[#FFFDF8]
+                  p-5
+                  shadow-[0_18px_55px_-34px_rgba(43,28,23,0.25)]
+                  sm:p-7
+                  lg:p-8
+                "
+              >
+                <div className="mb-7">
+                  <div
+                    className="
+                      text-[10px]
+                      font-semibold
+                      uppercase
+                      tracking-[0.30em]
+                      text-[#B28A47]
+                    "
+                  >
+                    Votre séjour
+                  </div>
+
+                  <h2
+                    className="
+                      mt-2
+                      font-serif
+                      text-[32px]
+                      font-medium
+                      leading-tight
+                      text-[#2B1C17]
+                      sm:text-[38px]
+                    "
+                  >
+                    Vérifier les disponibilités
+                  </h2>
+
+                  <p className="mt-3 max-w-2xl text-[15px] leading-6 text-[#6B5E57]">
+                    Sélectionnez vos dates et les détails de votre séjour
+                    pour découvrir les chambres disponibles.
+                  </p>
+                </div>
+
+                <Suspense
+                  fallback={
+                    <div
+                      className="
+                        flex
+                        min-h-[260px]
+                        items-center
+                        justify-center
+                        rounded-2xl
+                        border
+                        border-[#B28A47]/10
+                        bg-[#F8F5EF]
+                        text-sm
+                        text-[#6B5E57]
+                      "
+                    >
+                      Chargement du formulaire...
+                    </div>
+                  }
+                >
+                  <BookingForm />
+                </Suspense>
+              </div>
+
+              <div className="mt-6">
+                <div
+                  className="
+                    rounded-[24px]
+                    border
+                    border-[#B28A47]/15
+                    bg-[#FFFDF8]
+                    p-5
+                    shadow-[0_14px_40px_-30px_rgba(43,28,23,0.18)]
+                    sm:p-6
+                  "
+                >
+                  <PaymentOptions />
+                </div>
+              </div>
+            </div>
+
+            {/* Sidebar */}
+            <aside className="space-y-6">
+              <div
+                className="
+                  rounded-[24px]
+                  border
+                  border-[#B28A47]/15
+                  bg-[#FFFDF8]
+                  p-5
+                  shadow-[0_14px_40px_-30px_rgba(43,28,23,0.18)]
+                  sm:p-6
+                "
+              >
+                <ReservationInfo />
+              </div>
+
+              <div
+                className="
+                  rounded-[24px]
+                  border
+                  border-[#B28A47]/15
+                  bg-[#FFFDF8]
+                  p-5
+                  shadow-[0_14px_40px_-30px_rgba(43,28,23,0.18)]
+                  sm:p-6
+                "
+              >
+                <CancellationPolicy />
+              </div>
+
+              {/* Confidence block */}
+              <div
+                className="
+                  overflow-hidden
+                  rounded-[24px]
+                  border
+                  border-[#0F5A46]/15
+                  bg-[#0F5A46]
+                  p-6
+                  text-[#FFFDF8]
+                  shadow-[0_20px_45px_-30px_rgba(15,90,70,0.42)]
+                "
+              >
+                <div
+                  className="
+                    text-[10px]
+                    font-semibold
+                    uppercase
+                    tracking-[0.28em]
+                    text-[#D2AA5A]
+                  "
+                >
+                  Dar LaMamy
+                </div>
+
+                <h3
+                  className="
+                    mt-3
+                    font-serif
+                    text-[26px]
+                    font-medium
+                    leading-tight
+                  "
+                >
+                  Une réservation simple et sereine
+                </h3>
+
+                <p
+                  className="
+                    mt-3
+                    text-sm
+                    leading-6
+                    text-[#FFFDF8]/75
+                  "
+                >
+                  Notre équipe reste disponible pour vous accompagner
+                  avant votre arrivée et pendant votre séjour à Fès.
+                </p>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }

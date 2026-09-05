@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import {
   ChevronDown,
   Globe,
@@ -41,25 +42,59 @@ const languages: {
     code: "en",
     label: "EN",
   },
+
 ];
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["600"],
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  display: "swap",
+});
 
 export function Navigation() {
   const pathname = usePathname();
-  const { language, setLanguage, t } = useLanguage();
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [languageOpen, setLanguageOpen] = useState(false);
-  const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
+  const {
+    language,
+    setLanguage,
+    t,
+  } = useLanguage();
 
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [brandName, setBrandName] = useState<string>("Riad Lamamy");
-  const [brandTagline, setBrandTagline] = useState<string>("");
+  const [isOpen, setIsOpen] =
+    useState(false);
 
-  const [hasWideLogo, setHasWideLogo] = useState(false);
-  const [menuRooms, setMenuRooms] = useState<MenuRoom[]>([]);
+  const [scrolled, setScrolled] =
+    useState(false);
 
-  const languageRef = useRef<HTMLDivElement | null>(null);
+  const [
+    languageOpen,
+    setLanguageOpen,
+  ] = useState(false);
+
+  const [
+    activeSubmenu,
+    setActiveSubmenu,
+  ] = useState<string | null>(null);
+
+  const [brandName, setBrandName] =
+    useState<string>("Dar LaMamy");
+
+  const [
+    brandTagline,
+    setBrandTagline,
+  ] = useState<string>("FÈS · MAROC");
+
+  const [menuRooms, setMenuRooms] =
+    useState<MenuRoom[]>([]);
+
+  const languageRef =
+    useRef<HTMLDivElement | null>(null);
 
   /* =========================================================
      HEADER SCROLL STATE
@@ -72,12 +107,19 @@ export function Navigation() {
 
     handleScroll();
 
-    window.addEventListener("scroll", handleScroll, {
-      passive: true,
-    });
+    window.addEventListener(
+      "scroll",
+      handleScroll,
+      {
+        passive: true,
+      },
+    );
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener(
+        "scroll",
+        handleScroll,
+      );
     };
   }, []);
 
@@ -88,9 +130,12 @@ export function Navigation() {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const res = await fetch("/api/public/settings", {
-          cache: "no-store",
-        });
+        const res = await fetch(
+          "/api/public/settings",
+          {
+            cache: "no-store",
+          },
+        );
 
         if (!res.ok) {
           return;
@@ -107,10 +152,13 @@ export function Navigation() {
           null;
 
         if (
-          typeof nextBrandName === "string" &&
+          typeof nextBrandName ===
+            "string" &&
           nextBrandName.trim()
         ) {
-          setBrandName(nextBrandName.trim());
+          setBrandName(
+            nextBrandName.trim(),
+          );
         }
 
         const nextTagline =
@@ -121,29 +169,20 @@ export function Navigation() {
           null;
 
         if (
-          typeof nextTagline === "string" &&
+          typeof nextTagline ===
+            "string" &&
           nextTagline.trim()
         ) {
-          setBrandTagline(nextTagline.trim());
-        }
-
-        const url =
-          data.logo_preview_url ||
-          data.site_logo ||
-          data.logo ||
-          data.logoPreviewUrl ||
-          data.admin_logo_url ||
-          null;
-
-        if (url) {
-          setLogoUrl(url);
+          setBrandTagline(
+            nextTagline.trim(),
+          );
         }
       } catch {
         // Public settings are optional.
       }
     };
 
-    fetchSettings();
+    void fetchSettings();
   }, []);
 
   /* =========================================================
@@ -153,17 +192,21 @@ export function Navigation() {
   useEffect(() => {
     const fetchMenuRooms = async () => {
       try {
-        const response = await fetch("/api/rooms/menu", {
-          cache: "no-store",
-        });
+        const response = await fetch(
+          "/api/rooms/menu",
+          {
+            cache: "no-store",
+          },
+        );
 
         if (!response.ok) {
           return;
         }
 
-        const payload = (await response.json()) as {
-          rooms?: MenuRoom[];
-        };
+        const payload =
+          (await response.json()) as {
+            rooms?: MenuRoom[];
+          };
 
         setMenuRooms(
           Array.isArray(payload.rooms)
@@ -175,50 +218,53 @@ export function Navigation() {
       }
     };
 
-    fetchMenuRooms();
+    void fetchMenuRooms();
   }, []);
 
   /* =========================================================
      NAVIGATION ITEMS
      ========================================================= */
 
-  const navItems = useMemo<NavItem[]>(
-    () => [
-      {
-        href: "/",
-        labelKey: "nav.home",
-      },
-      {
-        href: "/chambres",
-        labelKey: "nav.rooms",
-        submenu: menuRooms.length
-          ? menuRooms.map((room) => ({
-              href: `/chambres?room=${encodeURIComponent(
-                room.id,
-              )}#nos-chambres`,
-              label: room.name,
-            }))
-          : undefined,
-      },
-      {
-        href: "/services",
-        labelKey: "nav.services",
-      },
-      {
-        href: "/galerie",
-        labelKey: "nav.gallery",
-      },
-      {
-        href: "/a-propos",
-        labelKey: "nav.about",
-      },
-      {
-        href: "/contact",
-        labelKey: "nav.contact",
-      },
-    ],
-    [menuRooms],
-  );
+  const navItems =
+    useMemo<NavItem[]>(
+      () => [
+        {
+          href: "/",
+          labelKey: "nav.home",
+        },
+        {
+          href: "/chambres",
+          labelKey: "nav.rooms",
+          submenu: menuRooms.length
+            ? menuRooms.map(
+                (room) => ({
+                  href: `/chambres?room=${encodeURIComponent(
+                    room.id,
+                  )}#nos-chambres`,
+                  label: room.name,
+                }),
+              )
+            : undefined,
+        },
+        {
+          href: "/services",
+          labelKey: "nav.services",
+        },
+        {
+          href: "/galerie",
+          labelKey: "nav.gallery",
+        },
+        {
+          href: "/a-propos",
+          labelKey: "nav.about",
+        },
+        {
+          href: "/contact",
+          labelKey: "nav.contact",
+        },
+      ],
+      [menuRooms],
+    );
 
   /* =========================================================
      MOBILE BODY LOCK
@@ -232,7 +278,8 @@ export function Navigation() {
     const previousOverflow =
       document.body.style.overflow;
 
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow =
+      "hidden";
 
     return () => {
       document.body.style.overflow =
@@ -249,8 +296,11 @@ export function Navigation() {
       return;
     }
 
-    const onMouseDown = (event: MouseEvent) => {
-      const target = event.target as Node | null;
+    const onMouseDown = (
+      event: MouseEvent,
+    ) => {
+      const target =
+        event.target as Node | null;
 
       if (!target) {
         return;
@@ -258,7 +308,9 @@ export function Navigation() {
 
       if (
         languageRef.current &&
-        !languageRef.current.contains(target)
+        !languageRef.current.contains(
+          target,
+        )
       ) {
         setLanguageOpen(false);
       }
@@ -282,8 +334,12 @@ export function Navigation() {
      ========================================================= */
 
   useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") {
+    const onKeyDown = (
+      event: KeyboardEvent,
+    ) => {
+      if (
+        event.key !== "Escape"
+      ) {
         return;
       }
 
@@ -292,7 +348,10 @@ export function Navigation() {
       setActiveSubmenu(null);
     };
 
-    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener(
+      "keydown",
+      onKeyDown,
+    );
 
     return () => {
       document.removeEventListener(
@@ -306,41 +365,120 @@ export function Navigation() {
      ACTIVE ROUTE
      ========================================================= */
 
-  const normalizeHref = (href: string) =>
+  const normalizeHref = (
+    href: string,
+  ) =>
     href.split("#")[0] || href;
 
-  const isActive = (href: string) => {
-    const normalized = normalizeHref(href);
+  const isActive = (
+    href: string,
+  ) => {
+    const normalized =
+      normalizeHref(href);
 
     if (normalized === "/") {
       return pathname === normalized;
     }
 
     return (
-      pathname?.startsWith(normalized || "") ||
-      false
+      pathname?.startsWith(
+        normalized || "",
+      ) || false
     );
   };
 
   /* =========================================================
-     LOGO
+     BRAND
      ========================================================= */
 
-  const logoSrc =
-    logoUrl || "/logo-transparent.png";
+  const BrandLogo = ({
+    mobile = false,
+    onClick,
+  }: {
+    mobile?: boolean;
+    onClick?: () => void;
+  }) => (
+    <Link
+      href="/"
+      aria-label={brandName}
+      onClick={onClick}
+      className="
+        group
+        inline-flex
+        items-center
+        rounded-xl
+        focus-visible:outline-none
+        focus-visible:ring-2
+        focus-visible:ring-[#B28A47]/60
+        focus-visible:ring-offset-2
+      "
+    >
+      <div
+        className={`
+          flex
+          items-center
+          ${mobile ? "gap-1" : "gap-1.5"}
+        `}
+      >
+        {/* Fixed logo mark — text remains dynamic */}
+        <div
+          className={`
+            relative
+            shrink-0
+            ${mobile ? "h-[54px] w-[44px]" : "h-[64px] w-[52px]"}
+          `}
+        >
+          <Image
+            src="/logo-mark.png"
+            alt=""
+            fill
+            priority
+            sizes={mobile ? "44px" : "52px"}
+            className="
+              object-contain
+              object-center
+            "
+          />
+        </div>
 
-  const isDefaultLogo =
-    logoSrc === "/logo.svg";
+        {/* Dynamic brand text from public settings */}
+        <div className="flex min-w-0 flex-col justify-center">
+          <span
+            className={`
+              ${cormorant.className}
+              whitespace-nowrap
+              text-[#2B1C17]
+              font-semibold
+              leading-[0.92]
+              tracking-[0.025em]
+              ${mobile ? "text-[22px]" : "text-[26px]"}
+            `}
+          >
+            {brandName}
+          </span>
 
-  const detectWideLogo = (
-    image: HTMLImageElement,
-  ) => {
-    setHasWideLogo(
-      !isDefaultLogo &&
-        image.naturalWidth >=
-          image.naturalHeight * 2,
-    );
-  };
+          {brandTagline ? (
+            <span
+              className={`
+                ${inter.className}
+                mt-[6px]
+                whitespace-nowrap
+                pl-[1px]
+                text-[8px]
+                font-semibold
+                uppercase
+                leading-none
+                tracking-[0.32em]
+                text-[#B28A47]
+              `}
+            >
+              {brandTagline}
+            </span>
+          ) : null}
+        </div>
+      </div>
+    </Link>
+  );
 
   return (
     <>
@@ -369,27 +507,31 @@ export function Navigation() {
             focus:text-gray-900
             focus:shadow-lg
             focus:ring-2
-            focus:ring-amber-400
+            focus:ring-[#B28A47]
           "
         >
-          {t("nav.skip_to_content")}
+          {t(
+            "nav.skip_to_content",
+          )}
         </a>
 
-         <nav
-    className={`
-      relative
-      bg-[#FFFDF8]
-      transition-shadow
-      duration-300
-      ease-out
-      ${
-        scrolled
-          ? "shadow-[0_8px_30px_-20px_rgba(35,20,12,0.32)]"
-          : "shadow-none"
-      }
-    `}
-    aria-label={t("nav.main_navigation")}
-  >
+        <nav
+          className={`
+            relative
+            bg-[#F8F5EF]
+            transition-shadow
+            duration-300
+            ease-out
+            ${
+              scrolled
+                ? "shadow-[0_8px_30px_-20px_rgba(35,20,12,0.32)]"
+                : "shadow-none"
+            }
+          `}
+          aria-label={t(
+            "nav.main_navigation",
+          )}
+        >
           {/* Top decorative line */}
 
           <div
@@ -401,12 +543,12 @@ export function Navigation() {
               h-px
               bg-gradient-to-r
               from-transparent
-              via-amber-400/40
+              via-[#B28A47]/35
               to-transparent
             "
           />
 
-          <div className="border-b border-amber-200/40">
+          <div className="border-b border-[#B28A47]/18">
             <div
               className={`
                 site-container
@@ -414,8 +556,8 @@ export function Navigation() {
                 duration-300
                 ${
                   scrolled
-                    ? "py-2"
-                    : "py-3"
+                    ? "py-1.5"
+                    : "py-2"
                 }
               `}
             >
@@ -425,106 +567,7 @@ export function Navigation() {
                     ================================================= */}
 
                 <div className="flex shrink-0 items-center">
-                  <Link
-                    href="/"
-                    aria-label={brandName}
-                    className="
-                      group
-                      inline-flex
-                      items-center
-                      gap-3
-                      rounded-2xl
-                      px-1
-                      py-1
-                      transition-colors
-                      hover:bg-white/40
-                      focus-visible:outline-none
-                      focus-visible:ring-2
-                      focus-visible:ring-amber-400/60
-                      focus-visible:ring-offset-2
-                    "
-                  >
-                    <div
-                      className={`
-                        relative
-                        overflow-hidden
-                        transition-[width,height]
-                        duration-300
-                        ${
-                          hasWideLogo
-                            ? "h-14 w-48"
-                            : "h-12 w-12"
-                        }
-                      `}
-                    >
-                      <Image
-                        src={logoSrc}
-                        alt=""
-                        fill
-                        sizes={
-                          hasWideLogo
-                            ? "192px"
-                            : "48px"
-                        }
-                        onLoad={(event) =>
-                          detectWideLogo(
-                            event.currentTarget,
-                          )
-                        }
-                        className={`
-                          object-contain
-                          object-left
-                          ${
-                            hasWideLogo
-                              ? ""
-                              : "p-1"
-                          }
-                          ${
-                            isDefaultLogo
-                              ? "brightness-0"
-                              : ""
-                          }
-                        `}
-                        priority
-                      />
-                    </div>
-
-                    {!hasWideLogo && (
-                      <div className="min-w-0 leading-tight">
-                        <p
-                          className="
-                            truncate
-                            font-serif
-                            text-sm
-                            font-bold
-                            tracking-tight
-                            text-gray-900
-                            sm:text-base
-                            md:text-lg
-                          "
-                        >
-                          {brandName}
-                        </p>
-
-                        {brandTagline ? (
-                          <p
-                            className="
-                              hidden
-                              truncate
-                              text-[11px]
-                              font-semibold
-                              uppercase
-                              tracking-[0.28em]
-                              text-amber-700/80
-                              md:block
-                            "
-                          >
-                            {brandTagline}
-                          </p>
-                        ) : null}
-                      </div>
-                    )}
-                  </Link>
+                  <BrandLogo />
                 </div>
 
                 {/* =================================================
@@ -532,245 +575,255 @@ export function Navigation() {
                     ================================================= */}
 
                 <div className="hidden flex-1 justify-center lg:flex">
-                  <ul className="flex items-center gap-1 px-2 py-1">
-                    {navItems.map((item) => {
-                      const active =
-                        isActive(item.href);
+                  <ul className={`${inter.className} flex items-center gap-1 px-2 py-1`}>
+                    {navItems.map(
+                      (item) => {
+                        const active =
+                          isActive(
+                            item.href,
+                          );
 
-                      const open =
-                        activeSubmenu ===
-                        item.href;
+                        const open =
+                          activeSubmenu ===
+                          item.href;
 
-                      return (
-                        <li
-                          key={item.href}
-                          className="relative"
-                          onMouseEnter={() => {
-                            if (
-                              item.submenu
-                            ) {
-                              setActiveSubmenu(
-                                item.href,
-                              );
+                        return (
+                          <li
+                            key={
+                              item.href
                             }
-                          }}
-                          onMouseLeave={() => {
-                            if (
-                              item.submenu
-                            ) {
+                            className="relative"
+                            onMouseEnter={() => {
+                              if (
+                                item.submenu
+                              ) {
+                                setActiveSubmenu(
+                                  item.href,
+                                );
+                              }
+                            }}
+                            onMouseLeave={() => {
+                              if (
+                                item.submenu
+                              ) {
+                                setActiveSubmenu(
+                                  null,
+                                );
+                              }
+                            }}
+                            onFocusCapture={() => {
+                              if (
+                                item.submenu
+                              ) {
+                                setActiveSubmenu(
+                                  item.href,
+                                );
+                              }
+                            }}
+                            onBlurCapture={(
+                              event,
+                            ) => {
+                              if (
+                                !item.submenu
+                              ) {
+                                return;
+                              }
+
+                              const next =
+                                event.relatedTarget as Node | null;
+
+                              if (
+                                next &&
+                                event.currentTarget.contains(
+                                  next,
+                                )
+                              ) {
+                                return;
+                              }
+
                               setActiveSubmenu(
                                 null,
                               );
-                            }
-                          }}
-                          onFocusCapture={() => {
-                            if (
-                              item.submenu
-                            ) {
-                              setActiveSubmenu(
-                                item.href,
-                              );
-                            }
-                          }}
-                          onBlurCapture={(
-                            event,
-                          ) => {
-                            if (
-                              !item.submenu
-                            ) {
-                              return;
-                            }
-
-                            const next =
-                              event.relatedTarget as Node | null;
-
-                            if (
-                              next &&
-                              event.currentTarget.contains(
-                                next,
-                              )
-                            ) {
-                              return;
-                            }
-
-                            setActiveSubmenu(
-                              null,
-                            );
-                          }}
-                        >
-                          <Link
-                            href={item.href}
-                            className={`
-                              group
-                              relative
-                              inline-flex
-                              items-center
-                              gap-1.5
-                              rounded-full
-                              px-3
-                              py-2
-                              text-sm
-                              font-medium
-                              transition-colors
-                              focus-visible:outline-none
-                              focus-visible:ring-2
-                              focus-visible:ring-amber-400/60
-                              focus-visible:ring-offset-2
-                              ${
-                                active
-                                  ? "text-amber-900"
-                                  : "text-gray-700 hover:text-amber-900"
-                              }
-                            `}
-                            aria-haspopup={
-                              item.submenu
-                                ? true
-                                : undefined
-                            }
-                            aria-expanded={
-                              item.submenu
-                                ? open
-                                : undefined
-                            }
+                            }}
                           >
-                            <span>
-                              {t(
-                                item.labelKey,
-                              )}
-                            </span>
-
-                            {item.submenu && (
-                              <ChevronDown
-                                size={14}
-                                strokeWidth={
-                                  1.8
+                            <Link
+                              href={
+                                item.href
+                              }
+                              className={`
+                                group
+                                relative
+                                inline-flex
+                                items-center
+                                gap-1.5
+                                rounded-full
+                                px-3
+                                py-2
+                                text-[15px]
+                                font-medium
+                                transition-colors
+                                focus-visible:outline-none
+                                focus-visible:ring-2
+                                focus-visible:ring-[#B28A47]/60
+                                focus-visible:ring-offset-2
+                                ${
+                                  active
+                                    ? "text-[#0F5A46]"
+                                    : "text-[#2B1C17] hover:text-[#0F5A46]"
                                 }
+                              `}
+                              aria-haspopup={
+                                item.submenu
+                                  ? true
+                                  : undefined
+                              }
+                              aria-expanded={
+                                item.submenu
+                                  ? open
+                                  : undefined
+                              }
+                            >
+                              <span>
+                                {t(
+                                  item.labelKey,
+                                )}
+                              </span>
+
+                              {item.submenu && (
+                                <ChevronDown
+                                  size={
+                                    14
+                                  }
+                                  strokeWidth={
+                                    1.8
+                                  }
+                                  className={`
+                                    transition-transform
+                                    duration-200
+                                    ${
+                                      open
+                                        ? "rotate-180"
+                                        : ""
+                                    }
+                                  `}
+                                  aria-hidden="true"
+                                />
+                              )}
+
+                              <span
                                 className={`
-                                  transition-transform
-                                  duration-200
+                                  pointer-events-none
+                                  absolute
+                                  inset-x-2
+                                  -bottom-0.5
+                                  h-px
+                                  rounded-full
+                                  bg-gradient-to-r
+                                  from-transparent
+                                  via-[#B28A47]/70
+                                  to-transparent
+                                  transition-opacity
                                   ${
-                                    open
-                                      ? "rotate-180"
-                                      : ""
+                                    active
+                                      ? "opacity-100"
+                                      : "opacity-0 group-hover:opacity-70"
                                   }
                                 `}
                                 aria-hidden="true"
                               />
-                            )}
+                            </Link>
 
-                            <span
-                              className={`
-                                pointer-events-none
-                                absolute
-                                inset-x-2
-                                -bottom-0.5
-                                h-px
-                                rounded-full
-                                bg-gradient-to-r
-                                from-transparent
-                                via-amber-700/70
-                                to-transparent
-                                transition-opacity
-                                ${
-                                  active
-                                    ? "opacity-100"
-                                    : "opacity-0 group-hover:opacity-70"
-                                }
-                              `}
-                              aria-hidden="true"
-                            />
-                          </Link>
+                            {/* Submenu */}
 
-                          {/* Submenu */}
-
-                          {item.submenu &&
-                            open && (
-                              <div
-                                className="
-                                  absolute
-                                  left-1/2
-                                  top-full
-                                  z-50
-                                  w-64
-                                  -translate-x-1/2
-                                  pt-3
-                                "
-                              >
+                            {item.submenu &&
+                              open && (
                                 <div
                                   className="
-                                    rounded-2xl
-                                    border
-                                    border-amber-100/70
-                                    bg-white/95
-                                    p-2
-                                    shadow-2xl
-                                    shadow-black/10
-                                    backdrop-blur
+                                    absolute
+                                    left-1/2
+                                    top-full
+                                    z-50
+                                    w-64
+                                    -translate-x-1/2
+                                    pt-3
                                   "
                                 >
-                                  <div className="px-3 pb-2 pt-1">
-                                    <p className="lux-kicker">
-                                      {t(
-                                        item.labelKey,
-                                      )}
-                                    </p>
-                                  </div>
+                                  <div
+                                    className="
+                                      rounded-2xl
+                                      border
+                                      border-[#B28A47]/15
+                                      bg-white/95
+                                      p-2
+                                      shadow-2xl
+                                      shadow-black/10
+                                      backdrop-blur
+                                    "
+                                  >
+                                    <div className="px-3 pb-2 pt-1">
+                                      <p className="lux-kicker">
+                                        {t(
+                                          item.labelKey,
+                                        )}
+                                      </p>
+                                    </div>
 
-                                  {item.submenu.map(
-                                    (
-                                      subItem,
-                                    ) => (
-                                      <Link
-                                        key={
-                                          subItem.href
-                                        }
-                                        href={
-                                          subItem.href
-                                        }
-                                        onClick={() =>
-                                          setActiveSubmenu(
-                                            null,
-                                          )
-                                        }
-                                        className="
-                                          flex
-                                          items-center
-                                          justify-between
-                                          rounded-xl
-                                          px-3
-                                          py-2
-                                          text-sm
-                                          text-gray-700
-                                          transition-colors
-                                          hover:bg-amber-50/70
-                                          hover:text-amber-900
-                                          focus-visible:outline-none
-                                          focus-visible:ring-2
-                                          focus-visible:ring-amber-400/60
-                                          focus-visible:ring-offset-2
-                                        "
-                                      >
-                                        <span>
-                                          {
-                                            subItem.label
+                                    {item.submenu.map(
+                                      (
+                                        subItem,
+                                      ) => (
+                                        <Link
+                                          key={
+                                            subItem.href
                                           }
-                                        </span>
-
-                                        <span
-                                          className="text-amber-700/60"
-                                          aria-hidden="true"
+                                          href={
+                                            subItem.href
+                                          }
+                                          onClick={() =>
+                                            setActiveSubmenu(
+                                              null,
+                                            )
+                                          }
+                                          className="
+                                            flex
+                                            items-center
+                                            justify-between
+                                            rounded-xl
+                                            px-3
+                                            py-2
+                                            text-sm
+                                            text-gray-700
+                                            transition-colors
+                                            hover:bg-[#FFF9EF]
+                                            hover:text-[#2B1C17]
+                                            focus-visible:outline-none
+                                            focus-visible:ring-2
+                                            focus-visible:ring-[#B28A47]/60
+                                            focus-visible:ring-offset-2
+                                          "
                                         >
-                                          ↗
-                                        </span>
-                                      </Link>
-                                    ),
-                                  )}
+                                          <span>
+                                            {
+                                              subItem.label
+                                            }
+                                          </span>
+
+                                          <span
+                                            className="text-[#B28A47]/70"
+                                            aria-hidden="true"
+                                          >
+                                            ↗
+                                          </span>
+                                        </Link>
+                                      ),
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-                        </li>
-                      );
-                    })}
+                              )}
+                          </li>
+                        );
+                      },
+                    )}
                   </ul>
                 </div>
 
@@ -782,38 +835,43 @@ export function Navigation() {
                   {/* Language */}
 
                   <div
-                    ref={languageRef}
+                    ref={
+                      languageRef
+                    }
                     className="relative hidden items-center md:flex"
                   >
                     <button
                       type="button"
                       onClick={() =>
                         setLanguageOpen(
-                          (value) => !value,
+                          (
+                            value,
+                          ) =>
+                            !value,
                         )
                       }
                       className="
                         inline-flex
-                        h-[46px]
+                        h-[45px]
                         items-center
                         gap-2
                         rounded-full
                         border
-                        border-amber-200/60
+                        border-[#B28A47]/30
                         bg-white/80
                         px-4
-                        text-sm
+                        text-[15px]
                         font-medium
-                        text-gray-800
+                        text-[#2B1C17]
                         shadow-sm
                         backdrop-blur
                         transition
                         duration-200
-                        hover:border-amber-300/60
+                        hover:border-[#B28A47]/50
                         hover:bg-white
                         focus-visible:outline-none
                         focus-visible:ring-2
-                        focus-visible:ring-amber-400/60
+                        focus-visible:ring-[#B28A47]/60
                         focus-visible:ring-offset-2
                       "
                       aria-haspopup="menu"
@@ -823,7 +881,9 @@ export function Navigation() {
                     >
                       <Globe
                         size={17}
-                        strokeWidth={1.8}
+                        strokeWidth={
+                          1.8
+                        }
                         aria-hidden="true"
                       />
 
@@ -833,7 +893,9 @@ export function Navigation() {
 
                       <ChevronDown
                         size={14}
-                        strokeWidth={1.8}
+                        strokeWidth={
+                          1.8
+                        }
                         className={`
                           transition-transform
                           duration-200
@@ -859,7 +921,7 @@ export function Navigation() {
                           overflow-hidden
                           rounded-2xl
                           border
-                          border-amber-100/70
+                          border-[#B28A47]/15
                           bg-white/95
                           p-1
                           shadow-2xl
@@ -869,7 +931,9 @@ export function Navigation() {
                         role="menu"
                       >
                         {languages.map(
-                          (lang) => (
+                          (
+                            lang,
+                          ) => (
                             <button
                               key={
                                 lang.code
@@ -889,24 +953,27 @@ export function Navigation() {
                                 font-medium
                                 text-gray-700
                                 transition-colors
-                                hover:bg-amber-50/70
-                                hover:text-amber-900
+                                hover:bg-[#FFF9EF]
+                                hover:text-[#2B1C17]
                                 focus-visible:outline-none
                                 focus-visible:ring-2
-                                focus-visible:ring-amber-400/60
+                                focus-visible:ring-[#B28A47]/60
                                 focus-visible:ring-offset-2
                               "
                               onClick={() => {
                                 setLanguage(
                                   lang.code,
                                 );
+
                                 setLanguageOpen(
                                   false,
                                 );
                               }}
                             >
                               <span>
-                                {lang.label}
+                                {
+                                  lang.label
+                                }
                               </span>
 
                               <span
@@ -915,7 +982,7 @@ export function Navigation() {
                                   ${
                                     lang.code ===
                                     language
-                                      ? "text-amber-700"
+                                      ? "text-[#B28A47]"
                                       : "text-gray-400"
                                   }
                                 `}
@@ -938,16 +1005,31 @@ export function Navigation() {
 
                   <Link
                     href="/reservations"
-                    className="btn-zellige-green hidden sm:inline-flex border border-[#C89D4A]"
+                    className={`
+                      ${inter.className}
+                      btn-zellige-green
+                      hidden
+                      !h-[45px]
+                      !px-6
+                      text-[15px]
+                      font-medium
+                      border
+                      border-[#C89D4A]
+                      sm:inline-flex
+                    `}
                   >
                     <Phone
                       size={18}
-                      strokeWidth={1.8}
+                      strokeWidth={
+                        1.8
+                      }
                       aria-hidden="true"
                     />
 
                     <span>
-                      {t("nav.book")}
+                      {t(
+                        "nav.book",
+                      )}
                     </span>
                   </Link>
 
@@ -961,7 +1043,7 @@ export function Navigation() {
                       justify-center
                       rounded-full
                       border
-                      border-amber-200/60
+                      border-[#B28A47]/30
                       bg-white/80
                       p-2
                       text-gray-800
@@ -971,13 +1053,16 @@ export function Navigation() {
                       hover:bg-white
                       focus-visible:outline-none
                       focus-visible:ring-2
-                      focus-visible:ring-amber-400/60
+                      focus-visible:ring-[#B28A47]/60
                       focus-visible:ring-offset-2
                       lg:hidden
                     "
                     onClick={() =>
                       setIsOpen(
-                        (value) => !value,
+                        (
+                          value,
+                        ) =>
+                          !value,
                       )
                     }
                     aria-label={
@@ -994,9 +1079,17 @@ export function Navigation() {
                     }
                   >
                     {isOpen ? (
-                      <X size={22} />
+                      <X
+                        size={
+                          22
+                        }
+                      />
                     ) : (
-                      <Menu size={22} />
+                      <Menu
+                        size={
+                          22
+                        }
+                      />
                     )}
                   </button>
                 </div>
@@ -1045,7 +1138,7 @@ export function Navigation() {
             <div
               className="
                 border-b
-                border-amber-100/70
+                border-[#B28A47]/15
                 bg-white/95
                 px-5
                 py-4
@@ -1053,98 +1146,14 @@ export function Navigation() {
               "
             >
               <div className="flex items-center justify-between">
-                <Link
-                  href="/"
-                  className="
-                    inline-flex
-                    items-center
-                    gap-3
-                    rounded-2xl
-                    px-1
-                    py-1
-                  "
+                <BrandLogo
+                  mobile
                   onClick={() =>
-                    setIsOpen(false)
+                    setIsOpen(
+                      false,
+                    )
                   }
-                >
-                  <div
-                    className={`
-                      relative
-                      overflow-hidden
-                      ${
-                        hasWideLogo
-                          ? "h-12 w-40"
-                          : "h-11 w-11"
-                      }
-                    `}
-                  >
-                    <Image
-                      src={logoSrc}
-                      alt=""
-                      fill
-                      sizes={
-                        hasWideLogo
-                          ? "160px"
-                          : "44px"
-                      }
-                      onLoad={(event) =>
-                        detectWideLogo(
-                          event.currentTarget,
-                        )
-                      }
-                      className={`
-                        object-contain
-                        object-left
-                        ${
-                          hasWideLogo
-                            ? ""
-                            : "p-1"
-                        }
-                        ${
-                          isDefaultLogo
-                            ? "brightness-0"
-                            : ""
-                        }
-                      `}
-                    />
-                  </div>
-
-                  {!hasWideLogo && (
-                    <div className="leading-tight">
-                      <p
-                        className="
-                          font-serif
-                          text-base
-                          font-bold
-                          tracking-tight
-                          text-gray-900
-                        "
-                      >
-                        {brandName}
-                      </p>
-
-                      {brandTagline ? (
-                        <p
-                          className="
-                            text-[11px]
-                            font-semibold
-                            uppercase
-                            tracking-[0.26em]
-                            text-amber-700/80
-                          "
-                        >
-                          {brandTagline}
-                        </p>
-                      ) : (
-                        <p className="text-sm text-gray-600">
-                          {t(
-                            "nav.navigation",
-                          )}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </Link>
+                />
 
                 <button
                   type="button"
@@ -1154,26 +1163,30 @@ export function Navigation() {
                     justify-center
                     rounded-full
                     border
-                    border-amber-200/60
+                    border-[#B28A47]/30
                     bg-white
                     p-2
                     text-gray-800
                     shadow-sm
                     transition
-                    hover:bg-amber-50
+                    hover:bg-[#FFF9EF]
                     focus-visible:outline-none
                     focus-visible:ring-2
-                    focus-visible:ring-amber-400/60
+                    focus-visible:ring-[#B28A47]/60
                     focus-visible:ring-offset-2
                   "
                   onClick={() =>
-                    setIsOpen(false)
+                    setIsOpen(
+                      false,
+                    )
                   }
                   aria-label={t(
                     "nav.close",
                   )}
                 >
-                  <X size={22} />
+                  <X
+                    size={22}
+                  />
                 </button>
               </div>
             </div>
@@ -1185,7 +1198,9 @@ export function Navigation() {
 
               <div className="space-y-1">
                 {navItems.map(
-                  (item) => (
+                  (
+                    item,
+                  ) => (
                     <div
                       key={
                         item.href
@@ -1215,8 +1230,8 @@ export function Navigation() {
                             isActive(
                               item.href,
                             )
-                              ? "bg-amber-50/70 text-amber-900"
-                              : "text-gray-800 hover:bg-amber-50/50"
+                              ? "bg-[#FFF9EF] text-[#2B1C17]"
+                              : "text-gray-800 hover:bg-[#FFF9EF]/70"
                           }
                         `}
                         onClick={() =>
@@ -1239,7 +1254,7 @@ export function Navigation() {
                             strokeWidth={
                               1.8
                             }
-                            className="text-amber-700/60"
+                            className="text-[#B28A47]/70"
                             aria-hidden="true"
                           />
                         )}
@@ -1253,7 +1268,7 @@ export function Navigation() {
                               mt-1
                               space-y-1
                               border-l
-                              border-amber-200/50
+                              border-[#B28A47]/25
                               pl-3
                             "
                           >
@@ -1276,8 +1291,8 @@ export function Navigation() {
                                     text-sm
                                     text-gray-700
                                     transition-colors
-                                    hover:bg-amber-50/70
-                                    hover:text-amber-900
+                                    hover:bg-[#FFF9EF]
+                                    hover:text-[#2B1C17]
                                   "
                                   onClick={() =>
                                     setIsOpen(
@@ -1318,14 +1333,16 @@ export function Navigation() {
                     )}
                   </p>
 
-                  <p className="text-xs font-medium text-amber-700">
+                  <p className="text-xs font-medium text-[#B28A47]">
                     {language.toUpperCase()}
                   </p>
                 </div>
 
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   {languages.map(
-                    (lang) => (
+                    (
+                      lang,
+                    ) => (
                       <button
                         key={
                           lang.code
@@ -1343,15 +1360,15 @@ export function Navigation() {
                             lang.code ===
                             language
                               ? `
-                                border-amber-300
-                                bg-amber-50/80
-                                text-amber-900
+                                border-[#B28A47]/50
+                                bg-[#FFF9EF]
+                                text-[#2B1C17]
                               `
                               : `
                                 border-gray-200
                                 text-gray-700
-                                hover:border-amber-200
-                                hover:bg-amber-50/50
+                                hover:border-[#B28A47]/30
+                                hover:bg-[#FFF9EF]/70
                               `
                           }
                         `}
@@ -1359,12 +1376,15 @@ export function Navigation() {
                           setLanguage(
                             lang.code,
                           );
+
                           setIsOpen(
                             false,
                           );
                         }}
                       >
-                        {lang.label}
+                        {
+                          lang.label
+                        }
                       </button>
                     ),
                   )}
@@ -1375,24 +1395,31 @@ export function Navigation() {
 
               <Link
                 href="/reservations"
-                className="
+                className={`
+                  ${inter.className}
                   btn-zellige-green
                   mt-5
                   w-full
                   text-center
-                "
+                `}
                 onClick={() =>
-                  setIsOpen(false)
+                  setIsOpen(
+                    false,
+                  )
                 }
               >
                 <Phone
                   size={18}
-                  strokeWidth={1.8}
+                  strokeWidth={
+                    1.8
+                  }
                   aria-hidden="true"
                 />
 
                 <span>
-                  {t("nav.book")}
+                  {t(
+                    "nav.book",
+                  )}
                 </span>
               </Link>
             </div>

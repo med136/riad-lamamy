@@ -1,251 +1,196 @@
-import {
-  Phone,
-  Mail,
-  MapPin,
-  Clock,
-  MessageSquare,
-  Globe,
-  CreditCard,
-  Shield,
-} from "lucide-react";
+"use client";
 
-const contactMethods = [
-  {
-    icon: <Phone size={24} />,
-    title: "Telephone",
-    details: ["+212 5 24 38 94 12", "+212 6 61 23 45 67 (WhatsApp)"],
-    color: "text-emerald-700",
-    bgColor: "bg-emerald-100",
-  },
-  {
-    icon: <Mail size={24} />,
-    title: "Email",
-    details: [
-      "reservations@riad-al-andalus.com",
-      "contact@riad-al-andalus.com",
-      "groups@riad-al-andalus.com",
-    ],
-    color: "text-sky-700",
-    bgColor: "bg-sky-100",
-  },
-  {
-    icon: <MapPin size={24} />,
-    title: "Adresse",
-    details: [
-      "Derb Sidi Bouloukat, no 123",
-      "Medina de Marrakech",
-      "40000 Marrakech, Maroc",
-    ],
-    color: "text-amber-700",
-    bgColor: "bg-amber-100",
-  },
-  {
-    icon: <Clock size={24} />,
-    title: "Horaires",
-    details: [
-      "Reception : 24h/24 et 7j/7",
-      "Check-in : a partir de 14h",
-      "Check-out : jusqu'a 12h",
-    ],
-    color: "text-rose-700",
-    bgColor: "bg-rose-100",
-  },
-];
+import { useEffect, useState } from "react";
+import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 
-const emergencyContacts = [
-  { label: "Police", number: "19" },
-  { label: "Pompiers", number: "15" },
-  { label: "Ambulance", number: "15" },
-  { label: "Taxi", number: "05 24 44 44 44" },
-];
+type PublicContact = {
+  email: string;
+  phone: string;
+  whatsapp?: string;
+  address: string[];
+};
+
+const DEFAULT_CONTACT: PublicContact = {
+  email: "contact@darlamamy.com",
+  phone: "",
+  whatsapp: undefined,
+  address: ["Médina de Fès", "Fès, Maroc"],
+};
 
 export default function ContactInfo() {
-  const toTel = (raw: string) => {
-    const digits = raw.replace(/\s|\(|\)|-/g, "");
-    return digits.startsWith("+") ? `tel:${digits}` : `tel:+${digits}`;
-  };
+  const [contact, setContact] = useState<PublicContact>(DEFAULT_CONTACT);
 
-  const toWhatsApp = (raw: string) => {
-    const cleaned = raw.replace(/\(.*?\)/g, "");
-    const digits = cleaned.replace(/[^0-9+]/g, "");
-    const withoutPlus = digits.replace(/^\+/, "");
-    return `https://wa.me/${withoutPlus}`;
-  };
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const load = async () => {
+      try {
+        const res = await fetch("/api/public/settings", {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        const email =
+          typeof data.contact_email === "string" && data.contact_email.trim()
+            ? data.contact_email.trim()
+            : DEFAULT_CONTACT.email;
+
+        const phone =
+          typeof data.contact_phone === "string" && data.contact_phone.trim()
+            ? data.contact_phone.trim()
+            : "";
+
+        const whatsapp =
+          typeof data.whatsapp_phone === "string" && data.whatsapp_phone.trim()
+            ? data.whatsapp_phone.trim()
+            : undefined;
+
+        const address: string[] = [];
+
+        for (const value of [data.address_line_1, data.address_line_2]) {
+          if (typeof value === "string" && value.trim()) address.push(value.trim());
+        }
+
+        const locality = [data.address_postal_code, data.address_city]
+          .filter((value: unknown) => typeof value === "string" && value.trim())
+          .map((value: unknown) => String(value).trim())
+          .join(" ");
+
+        if (locality) address.push(locality);
+
+        if (typeof data.address_country === "string" && data.address_country.trim()) {
+          address.push(data.address_country.trim());
+        }
+
+        setContact({
+          email,
+          phone,
+          whatsapp,
+          address: address.length ? address : DEFAULT_CONTACT.address,
+        });
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          console.error("Contact settings error:", error);
+        }
+      }
+    };
+
+    void load();
+    return () => controller.abort();
+  }, []);
+
+  const phoneHref = contact.phone.replace(/[^\d+]/g, "");
+  const whatsappHref = contact.whatsapp
+    ? `https://wa.me/${contact.whatsapp.replace(/\D/g, "")}`
+    : null;
 
   return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <div className="lux-kicker text-amber-700/80 mb-2">CONTACT</div>
-        <h3 className="text-2xl font-serif font-bold mb-2">
-          Comment nous contacter
-        </h3>
-        <p className="text-gray-600">
-          Plusieurs moyens pour echanger avec notre equipe
+    <section className="rounded-[22px] border border-[#B28A47]/15 bg-[#FFFDF8] p-6 sm:p-7">
+      <p className="text-[9px] font-semibold uppercase tracking-[0.25em] text-[#B28A47]">
+        Dar LaMamy
+      </p>
+      <h2 className="mt-2 font-serif text-[26px] font-medium text-[#2B1C17]">
+        Nous joindre
+      </h2>
+      <p className="mt-2 text-[13px] leading-6 text-[#6F625C]">
+        Choisissez le moyen qui vous convient pour échanger avec notre équipe.
+      </p>
+
+      <div className="mt-6 divide-y divide-[#B28A47]/12">
+        {contact.phone && (
+          <ContactRow
+            icon={Phone}
+            title="Téléphone"
+            href={`tel:${phoneHref}`}
+            value={contact.phone}
+          />
+        )}
+
+        {whatsappHref && contact.whatsapp && (
+          <ContactRow
+            icon={MessageCircle}
+            title="WhatsApp"
+            href={whatsappHref}
+            value={contact.whatsapp}
+            external
+          />
+        )}
+
+        <ContactRow
+          icon={Mail}
+          title="E-mail"
+          href={`mailto:${contact.email}`}
+          value={contact.email}
+        />
+
+        <div className="flex gap-3 py-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#B28A47]/20 bg-[#F8F5EF]">
+            <MapPin className="h-4 w-4 text-[#0F5A46]" strokeWidth={1.6} />
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#B28A47]">
+              Adresse
+            </p>
+            <div className="mt-1 text-[13px] leading-5 text-[#5D514C]">
+              {contact.address.map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-[16px] bg-[#0F5A46] px-4 py-4 text-[#FFFDF8]">
+        <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#D2AA5A]">
+          Une demande particulière ?
+        </p>
+        <p className="mt-1 text-[12px] leading-5 text-white/75">
+          Indiquez-la dans le formulaire : nous vous répondrons selon les informations
+          et disponibilités du moment.
         </p>
       </div>
+    </section>
+  );
+}
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="flex flex-col items-center">
-          <a
-            href={toTel("+212 5 24 38 94 12")}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-emerald-700 text-white hover:bg-emerald-800 transition shadow-lg"
-          >
-            <Phone size={18} /> Appeler
-          </a>
-          <div className="text-xs text-gray-600 mt-1">Disponible 24/7</div>
-        </div>
-        <div className="flex flex-col items-center">
-          <a
-            href={toWhatsApp("+212 6 61 23 45 67 (WhatsApp)")}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700 transition shadow-lg"
-          >
-            <MessageSquare size={18} /> WhatsApp
-          </a>
-          <div className="text-xs text-gray-600 mt-1">Reponse rapide</div>
-        </div>
-        <div className="flex flex-col items-center">
-          <a
-            href="mailto:contact@riad-al-andalus.com"
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-slate-900 text-white hover:bg-slate-950 transition shadow-lg"
-          >
-            <Mail size={18} /> Email
-          </a>
-          <div className="text-xs text-gray-600 mt-1">Reponse sous 24h</div>
-        </div>
+function ContactRow({
+  icon: Icon,
+  title,
+  href,
+  value,
+  external = false,
+}: {
+  icon: typeof Phone;
+  title: string;
+  href: string;
+  value: string;
+  external?: boolean;
+}) {
+  return (
+    <a
+      href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noopener noreferrer" : undefined}
+      className="group flex gap-3 py-4"
+    >
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#B28A47]/20 bg-[#F8F5EF] transition group-hover:border-[#B28A47]/35">
+        <Icon className="h-4 w-4 text-[#0F5A46]" strokeWidth={1.6} />
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
-        {contactMethods.map((method, index) => (
-          <div
-            key={index}
-            className="lux-panel p-6 rounded-2xl border border-amber-200/40 shadow-lg"
-          >
-            <div className="flex items-start space-x-4">
-              <div
-                className={`p-3 rounded-xl ${method.bgColor} ${method.color}`}
-              >
-                {method.icon}
-              </div>
-              <div className="flex-1">
-                <h4 className="font-bold text-gray-900 mb-2">{method.title}</h4>
-                <ul className="space-y-1">
-                  {method.details.map((detail, idx) => {
-                    const isPhone = method.title === "Telephone";
-                    const isEmail = method.title === "Email";
-                    if (isPhone) {
-                      const isWhatsApp = /WhatsApp/i.test(detail);
-                      return (
-                        <li key={idx}>
-                          {isWhatsApp ? (
-                            <a
-                              href={toWhatsApp(detail)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-emerald-700 hover:underline"
-                            >
-                              {detail}
-                            </a>
-                          ) : (
-                            <a
-                              href={toTel(detail)}
-                              className="text-emerald-700 hover:underline"
-                            >
-                              {detail}
-                            </a>
-                          )}
-                        </li>
-                      );
-                    }
-                    if (isEmail) {
-                      return (
-                        <li key={idx}>
-                          <a
-                            href={`mailto:${detail}`}
-                            className="text-sky-700 hover:underline"
-                          >
-                            {detail}
-                          </a>
-                        </li>
-                      );
-                    }
-                    return (
-                      <li key={idx} className="text-gray-600">
-                        {detail}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="lux-panel rounded-2xl p-6 border border-rose-200/50 bg-gradient-to-r from-rose-50 to-amber-50">
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="p-2 bg-rose-100 rounded-lg">
-            <MessageSquare size={20} className="text-rose-700" />
-          </div>
-          <div>
-            <h4 className="font-bold text-gray-900">Contacts d'urgence</h4>
-            <p className="text-sm text-gray-600">A retenir pendant votre sejour</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {emergencyContacts.map((contact, index) => (
-            <div
-              key={index}
-              className="bg-white/80 p-4 rounded-xl text-center shadow-sm"
-            >
-              <div className="text-lg font-bold text-gray-900">{contact.number}</div>
-              <div className="text-sm text-gray-600">{contact.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="lux-panel rounded-2xl p-6 border border-amber-200/40 space-y-4">
-        <div className="flex items-start space-x-3">
-          <Globe size={20} className="text-amber-700" />
-          <div>
-            <div className="font-medium">Langues parlees</div>
-            <div className="text-sm text-gray-600">
-              Francais, Anglais, Arabe, Espagnol
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-start space-x-3">
-          <CreditCard size={20} className="text-amber-700" />
-          <div>
-            <div className="font-medium">Moyens de paiement</div>
-            <div className="text-sm text-gray-600">
-              CB, Visa, Mastercard, especes (EUR / USD / MAD), virement
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-start space-x-3">
-          <Shield size={20} className="text-amber-700" />
-          <div>
-            <div className="font-medium">Garantie</div>
-            <div className="text-sm text-gray-600">
-              Reservation securisee SSL - Confidentialite garantie
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-amber-50 p-4 rounded-xl border border-amber-200">
-        <p className="text-sm text-amber-800">
-          <span className="font-bold">Conseil :</span> Pour les reservations
-          urgentes, privilegiez l'appel telephonique ou WhatsApp. Notre equipe
-          est joignable 24h/24 pour repondre a vos questions.
+      <div className="min-w-0">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#B28A47]">
+          {title}
+        </p>
+        <p className="mt-1 break-words text-[13px] text-[#5D514C] transition group-hover:text-[#0F5A46]">
+          {value}
         </p>
       </div>
-    </div>
+    </a>
   );
 }
