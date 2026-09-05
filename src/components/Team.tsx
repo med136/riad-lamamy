@@ -2,32 +2,32 @@
 
 import { motion } from "framer-motion";
 import { HeartHandshake, MessageCircleMore, Sparkles } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
+import type { MessageKey } from "@/lib/i18n";
 
 const pillars = [
   {
     icon: HeartHandshake,
-    kicker: "Accueil",
-    title: "Une présence attentive",
-    description:
-      "De votre arrivée à votre départ, l’équipe reste disponible pour vous orienter et faciliter votre séjour.",
+    kicker: "about.team.attentive.kicker" as MessageKey,
+    title: "about.team.attentive.title" as MessageKey,
+    description: "about.team.attentive.description" as MessageKey,
   },
   {
     icon: MessageCircleMore,
-    kicker: "Conseils",
-    title: "Fès à votre rythme",
-    description:
-      "Adresses, visites, déplacements ou demandes particulières : nous vous aidons à organiser ce qui compte pour vous.",
+    kicker: "about.team.advice.kicker" as MessageKey,
+    title: "about.team.advice.title" as MessageKey,
+    description: "about.team.advice.description" as MessageKey,
   },
   {
     icon: Sparkles,
-    kicker: "Sur mesure",
-    title: "Des attentions discrètes",
-    description:
-      "Une expérience personnalisée ne signifie pas en faire trop : juste trouver le bon détail au bon moment.",
+    kicker: "about.team.tailored.kicker" as MessageKey,
+    title: "about.team.tailored.title" as MessageKey,
+    description: "about.team.tailored.description" as MessageKey,
   },
 ];
 
 export default function Team() {
+  const { t } = useLanguage();
   return (
     <section className="border-y border-[#B28A47]/10 bg-[#F8F5EF] py-14 sm:py-16">
       <div className="site-container">
@@ -39,13 +39,13 @@ export default function Team() {
             transition={{ duration: 0.5 }}
           >
             <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#B28A47]">
-              L’esprit de la maison
+              {t("about.team.kicker")}
             </p>
             <h2 className="mt-3 max-w-md font-serif text-[32px] font-medium leading-[1.08] text-[#2B1C17] sm:text-[38px]">
-              Recevoir avec simplicité et attention
+              {t("about.team.title")}
             </h2>
             <p className="mt-4 max-w-md text-[14px] leading-6 text-[#6F625C] sm:text-[15px]">
-              Dar LaMamy privilégie une relation humaine et directe. L’idée n’est pas d’imposer un programme, mais de vous aider à profiter de Fès à votre manière.
+              {t("about.team.description")}
             </p>
 
             <div className="mt-6 flex items-center gap-3" aria-hidden="true">
@@ -72,13 +72,13 @@ export default function Team() {
                   </div>
                   <div>
                     <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#B28A47]">
-                      {item.kicker}
+                      {t(item.kicker)}
                     </p>
                     <h3 className="mt-1 font-serif text-[21px] font-medium text-[#2B1C17]">
-                      {item.title}
+                      {t(item.title)}
                     </h3>
                     <p className="mt-2 text-[13px] leading-5 text-[#6F625C]">
-                      {item.description}
+                      {t(item.description)}
                     </p>
                   </div>
                 </motion.article>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
 
 type PublicContact = {
   email: string;
@@ -18,6 +19,7 @@ const DEFAULT_CONTACT: PublicContact = {
 };
 
 export default function ContactInfo() {
+  const { t } = useLanguage();
   const [contact, setContact] = useState<PublicContact>(DEFAULT_CONTACT);
 
   useEffect(() => {
@@ -94,17 +96,17 @@ export default function ContactInfo() {
         Dar LaMamy
       </p>
       <h2 className="mt-2 font-serif text-[26px] font-medium text-[#2B1C17]">
-        Nous joindre
+        {t("contact.info.title")}
       </h2>
       <p className="mt-2 text-[13px] leading-6 text-[#6F625C]">
-        Choisissez le moyen qui vous convient pour échanger avec notre équipe.
+        {t("contact.info.description")}
       </p>
 
       <div className="mt-6 divide-y divide-[#B28A47]/12">
         {contact.phone && (
           <ContactRow
             icon={Phone}
-            title="Téléphone"
+            title={t("contact.info.phone")}
             href={`tel:${phoneHref}`}
             value={contact.phone}
           />
@@ -122,7 +124,7 @@ export default function ContactInfo() {
 
         <ContactRow
           icon={Mail}
-          title="E-mail"
+          title={t("contact.info.email")}
           href={`mailto:${contact.email}`}
           value={contact.email}
         />
@@ -133,7 +135,7 @@ export default function ContactInfo() {
           </div>
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#B28A47]">
-              Adresse
+              {t("contact.info.address")}
             </p>
             <div className="mt-1 text-[13px] leading-5 text-[#5D514C]">
               {contact.address.map((line) => (
@@ -148,11 +150,10 @@ export default function ContactInfo() {
 
       <div className="mt-5 rounded-[16px] bg-[#0F5A46] px-4 py-4 text-[#FFFDF8]">
         <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#D2AA5A]">
-          Une demande particulière ?
+          {t("contact.info.special_request")}
         </p>
         <p className="mt-1 text-[12px] leading-5 text-white/75">
-          Indiquez-la dans le formulaire : nous vous répondrons selon les informations
-          et disponibilités du moment.
+          {t("contact.info.special_request_description")}
         </p>
       </div>
     </section>

@@ -1,8 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function AboutHero() {
+  const { t } = useLanguage();
   return (
     <section className="relative overflow-hidden bg-[#F8F5EF]">
       <div className="relative min-h-[300px] sm:min-h-[320px] lg:min-h-[350px]">
@@ -32,7 +34,7 @@ export default function AboutHero() {
             className="w-full max-w-[610px] text-center sm:w-[58%] lg:w-[53%]"
           >
             <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#0F5A46]">
-              À propos
+              {t("about.kicker")}
             </p>
 
             <div className="mx-auto mt-3 flex w-[112px] items-center" aria-hidden="true">
@@ -42,21 +44,19 @@ export default function AboutHero() {
             </div>
 
             <h1 className="mt-5 font-serif text-[32px] font-medium leading-[1.05] tracking-[-0.02em] text-[#2B1C17] sm:text-[36px] lg:text-[40px] xl:text-[44px]">
-              Une maison de Fès,
-              <span className="text-[#0F5A46]"> pensée pour recevoir</span>
+              {t("about.hero.title")}
             </h1>
 
             <p className="mx-auto mt-4 max-w-xl text-[14px] leading-6 text-[#6F625C] sm:text-[15px]">
-              Dar LaMamy célèbre l'élégance fassie dans une atmosphère intime,
-              chaleureuse et contemporaine.
+              {t("about.hero.description")}
             </p>
 
             <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[10px] uppercase tracking-[0.16em] text-[#6F625C]/80">
-              <span>Fès · Maroc</span>
+              <span>{t("about.hero.location")}</span>
               <span className="h-1 w-1 rotate-45 bg-[#B28A47]/60" aria-hidden="true" />
-              <span>Maison d'hôtes</span>
+              <span>{t("about.hero.guesthouse")}</span>
               <span className="h-1 w-1 rotate-45 bg-[#B28A47]/60" aria-hidden="true" />
-              <span>Art de vivre marocain</span>
+              <span>{t("about.hero.lifestyle")}</span>
             </div>
           </motion.div>
         </div>

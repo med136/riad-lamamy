@@ -66,25 +66,17 @@ export default async function HomePage() {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Hotel",
-            name: "Riad Dar Al Andalus",
+            name: "Dar LaMamy",
             description:
-              "Maison d'hotes a Marrakech, experience premium et reservations directes.",
-            url: "https://riad-al-andalus.com",
-            telephone: "+212524389412",
+              "Maison d’hôtes de caractère au cœur de la médina de Fès.",
+            url: "https://darlamamy.com",
             priceRange: "$$",
             address: {
               "@type": "PostalAddress",
-              streetAddress: "123 Derb Sidi Bouloukat",
-              addressLocality: "Marrakech",
-              postalCode: "40000",
+              addressLocality: "Fès",
               addressCountry: "MA",
             },
-            geo: {
-              "@type": "GeoCoordinates",
-              latitude: 31.6315,
-              longitude: -7.9893,
-            },
-            image: ["https://riad-al-andalus.com/images/hero/riad-exterior.jpg"],
+            image: ["https://darlamamy.com/riad-login-courtyard.png"],
           }),
         }}
       />
@@ -96,15 +88,12 @@ export default async function HomePage() {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "LodgingBusiness",
-            name: "Riad Dar Al Andalus",
-            url: "https://riad-al-andalus.com",
-            image: "https://riad-al-andalus.com/images/hero/riad-exterior.jpg",
-            telephone: "+212524389412",
+            name: "Dar LaMamy",
+            url: "https://darlamamy.com",
+            image: "https://darlamamy.com/riad-login-courtyard.png",
             address: {
               "@type": "PostalAddress",
-              streetAddress: "123 Derb Sidi Bouloukat",
-              addressLocality: "Marrakech",
-              postalCode: "40000",
+              addressLocality: "Fès",
               addressCountry: "MA",
             },
             priceRange: "$$",

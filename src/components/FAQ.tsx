@@ -3,44 +3,43 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
+import type { MessageKey } from "@/lib/i18n";
 
 const faqs = [
   {
-    question: "Comment effectuer une demande de réservation ?",
-    answer:
-      "Vous pouvez utiliser notre page Réservations ou nous contacter directement. Toute demande reste soumise à disponibilité et confirmation.",
+    question: "contact.faq.booking.question" as MessageKey,
+    answer: "contact.faq.booking.answer" as MessageKey,
   },
   {
-    question: "Puis-je vous contacter pour organiser un transfert ?",
-    answer:
-      "Oui. Indiquez votre besoin dans le formulaire de contact et notre équipe vous confirmera les possibilités disponibles pour vos dates.",
+    question: "contact.faq.transfer.question" as MessageKey,
+    answer: "contact.faq.transfer.answer" as MessageKey,
   },
   {
-    question: "Pouvez-vous nous conseiller pour découvrir Fès ?",
-    answer:
-      "Oui. Nous pouvons vous orienter vers des visites, adresses et expériences adaptées à vos envies pendant votre séjour.",
+    question: "contact.faq.fes.question" as MessageKey,
+    answer: "contact.faq.fes.answer" as MessageKey,
   },
   {
-    question: "Puis-je faire une demande particulière avant mon arrivée ?",
-    answer:
-      "Bien sûr. Précisez votre demande dans votre message afin que nous puissions vous répondre selon les possibilités et disponibilités du moment.",
+    question: "contact.faq.request.question" as MessageKey,
+    answer: "contact.faq.request.answer" as MessageKey,
   },
 ];
 
 export default function FAQ() {
+  const { t } = useLanguage();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
     <section className="rounded-[24px] border border-[#B28A47]/15 bg-[#FFFDF8] px-6 py-7 sm:px-8 sm:py-9">
       <div className="mx-auto max-w-2xl text-center">
         <p className="text-[9px] font-semibold uppercase tracking-[0.26em] text-[#B28A47]">
-          Avant de nous écrire
+          {t("contact.faq.kicker")}
         </p>
         <h2 className="mt-2 font-serif text-[28px] font-medium text-[#2B1C17] sm:text-[32px]">
-          Questions fréquentes
+          {t("contact.faq.title")}
         </h2>
         <p className="mt-2 text-[13px] leading-6 text-[#6F625C]">
-          Quelques réponses utiles pour préparer votre séjour à Dar LaMamy.
+          {t("contact.faq.description")}
         </p>
       </div>
 
@@ -57,7 +56,7 @@ export default function FAQ() {
                 className="flex w-full items-center justify-between gap-4 py-5 text-left"
               >
                 <span className="font-serif text-[18px] font-medium text-[#2B1C17] sm:text-[19px]">
-                  {faq.question}
+                  {t(faq.question)}
                 </span>
 
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#B28A47]/20 text-[#0F5A46]">
@@ -73,7 +72,7 @@ export default function FAQ() {
               {open && (
                 <div className="pb-5 pr-12">
                   <p className="text-[13px] leading-6 text-[#6F625C]">
-                    {faq.answer}
+                    {t(faq.answer)}
                   </p>
                 </div>
               )}
@@ -83,12 +82,12 @@ export default function FAQ() {
       </div>
 
       <p className="mt-6 text-center text-[12px] text-[#6F625C]">
-        Vous n’avez pas trouvé votre réponse ?{" "}
+        {t("contact.faq.missing")} {" "}
         <Link
           href="/contact"
           className="font-semibold text-[#0F5A46] underline decoration-[#B28A47]/40 underline-offset-4"
         >
-          Écrivez-nous directement
+          {t("contact.faq.write")}
         </Link>
         .
       </p>

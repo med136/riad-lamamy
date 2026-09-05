@@ -11,6 +11,7 @@ import Link from "next/link";
 
 import { trackEvent } from "@/lib/analytics";
 import { HeroSlideMedia } from "@/components/HeroSlideMedia";
+import { useLanguage } from "@/components/LanguageProvider";
 import {
   toHeroMediaItem,
   type HeroMediaApiItem,
@@ -57,6 +58,7 @@ const FADE_S = 1.8;
 const SWIPE_THRESHOLD_PX = 52;
 
 export function Hero() {
+  const { t } = useLanguage();
   const [settings, setSettings] =
     useState<HeroSettings | null>(null);
 
@@ -333,15 +335,15 @@ export function Hero() {
 
   const subtitle =
     settings?.subtitle ||
-    "Un havre de paix au cœur de Fès";
+    t("home.hero.subtitle");
 
   const primaryLabel =
     settings?.cta_primary_text ||
-    "Découvrir le riad";
+    t("home.hero.primary_cta");
 
   const secondaryLabel =
     settings?.cta_secondary_text ||
-    "Voir les chambres";
+    t("home.hero.secondary_cta");
 
   const fallbackBackground =
     settings?.background_image ||
@@ -781,7 +783,7 @@ export function Hero() {
                   "
                 >
                   <nav
-                    aria-label="Hero slides"
+                    aria-label={t("home.hero.slides_label")}
                     className="flex items-center gap-2"
                   >
                     {heroSlides.map((_, i) => {
@@ -795,7 +797,7 @@ export function Hero() {
                           onClick={() =>
                             goTo(i)
                           }
-                          aria-label={`Aller à la slide ${
+                          aria-label={`${t("home.hero.go_to_slide")} ${
                             i + 1
                           }`}
                           aria-current={
@@ -827,7 +829,7 @@ export function Hero() {
                     <button
                       type="button"
                       onClick={goPrev}
-                      aria-label="Média précédent"
+                      aria-label={t("home.hero.previous_media")}
                       className="
                         inline-flex
                         h-10
@@ -860,7 +862,7 @@ export function Hero() {
                     <button
                       type="button"
                       onClick={goNext}
-                      aria-label="Image suivante"
+                      aria-label={t("home.hero.next_image")}
                       className="
                         inline-flex
                         h-10

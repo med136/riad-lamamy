@@ -5,8 +5,8 @@ import { defaultLanguage, isSupportedLanguage, LANGUAGE_COOKIE } from "@/lib/i18
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Riad Dar Al Andalus - Marrakech",
-  description: "Un riad d'exception au coeur de la medina de Marrakech.",
+  title: "Dar LaMamy | Riad à Fès",
+  description: "Une maison d’hôtes de caractère au cœur de la médina de Fès.",
 };
 
 export default async function RootLayout({

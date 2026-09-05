@@ -13,6 +13,8 @@ import {
   User,
   Users,
 } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
+import type { MessageKey } from "@/lib/i18n";
 
 type FormState = {
   firstName: string;
@@ -30,11 +32,11 @@ type FormState = {
 };
 
 const subjects = [
-  { value: "general", label: "Question générale" },
-  { value: "reservation", label: "Réservation" },
-  { value: "service", label: "Service" },
-  { value: "group", label: "Groupe / événement" },
-  { value: "other", label: "Autre" },
+  { value: "general", label: "contact.form.subject.general" as MessageKey },
+  { value: "reservation", label: "contact.form.subject.reservation" as MessageKey },
+  { value: "service", label: "contact.form.subject.service" as MessageKey },
+  { value: "group", label: "contact.form.subject.group" as MessageKey },
+  { value: "other", label: "contact.form.subject.other" as MessageKey },
 ];
 
 const fieldClass =
@@ -44,6 +46,7 @@ const labelClass =
   "mb-2 flex items-center gap-2 text-[12px] font-semibold text-[#5D514C]";
 
 export default function ContactForm() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState<FormState>({
     firstName: "",
     lastName: "",
@@ -95,13 +98,13 @@ export default function ContactForm() {
 
         const friendlyMessage = (() => {
           if (code === "rate_limit")
-            return "Trop de demandes ont été envoyées. Merci de réessayer plus tard.";
-          if (code === "invalid_name") return "Merci de vérifier votre nom.";
-          if (code === "invalid_email") return "Merci de vérifier votre adresse e-mail.";
-          if (code === "invalid_message") return "Votre message est trop court.";
+            return t("contact.form.error.rate_limit");
+          if (code === "invalid_name") return t("contact.form.error.name");
+          if (code === "invalid_email") return t("contact.form.error.email");
+          if (code === "invalid_message") return t("contact.form.error.message");
           if (code === "invalid_consent")
-            return "Merci d’accepter la politique de confidentialité.";
-          return "Une erreur est survenue lors de l’envoi. Merci de réessayer.";
+            return t("contact.form.error.consent");
+          return t("contact.form.error.generic");
         })();
 
         setErrorMessage(friendlyMessage);
@@ -112,7 +115,7 @@ export default function ContactForm() {
       setIsSubmitting(false);
       setIsSubmitted(true);
     } catch {
-      setErrorMessage("Une erreur est survenue lors de l’envoi. Merci de réessayer.");
+      setErrorMessage(t("contact.form.error.generic"));
       setIsSubmitting(false);
     }
   };
@@ -154,13 +157,13 @@ export default function ContactForm() {
     <section className="overflow-hidden rounded-[24px] border border-[#B28A47]/15 bg-[#FFFDF8]">
       <header className="border-b border-[#B28A47]/15 px-6 py-6 sm:px-8">
         <p className="text-[9px] font-semibold uppercase tracking-[0.26em] text-[#B28A47]">
-          Votre demande
+          {t("contact.form.kicker")}
         </p>
         <h2 className="mt-2 font-serif text-[28px] font-medium leading-tight text-[#2B1C17] sm:text-[32px]">
-          Envoyez-nous un message
+          {t("contact.form.title")}
         </h2>
         <p className="mt-2 max-w-2xl text-[13px] leading-6 text-[#6F625C] sm:text-[14px]">
-          Donnez-nous quelques informations et nous reviendrons vers vous dès que possible.
+          {t("contact.form.description")}
         </p>
       </header>
 
@@ -178,17 +181,17 @@ export default function ContactForm() {
                 <CheckCircle2 className="h-6 w-6 text-[#0F5A46]" strokeWidth={1.6} />
               </div>
               <h3 className="mt-5 font-serif text-[27px] font-medium text-[#2B1C17]">
-                Votre message a bien été envoyé
+                {t("contact.form.success_title")}
               </h3>
               <p className="mx-auto mt-2 max-w-md text-[14px] leading-6 text-[#6F625C]">
-                Merci. L’équipe Dar LaMamy vous répondra dans les meilleurs délais.
+                {t("contact.form.success_description")}
               </p>
               <button
                 type="button"
                 onClick={resetForm}
                 className="mt-6 inline-flex h-11 items-center justify-center rounded-full border border-[#0F5A46]/20 px-5 text-[12px] font-semibold text-[#0F5A46] transition hover:bg-[#0F5A46] hover:text-[#FFFDF8]"
               >
-                Envoyer un autre message
+                {t("contact.form.send_another")}
               </button>
             </motion.div>
           ) : (
@@ -228,7 +231,7 @@ export default function ContactForm() {
               {/* SUBJECT */}
               <fieldset>
                 <legend className="mb-3 text-[12px] font-semibold text-[#5D514C]">
-                  Quel est le sujet de votre message ?
+                  {t("contact.form.subject_legend")}
                 </legend>
                 <div className="flex flex-wrap gap-2">
                   {subjects.map((subject) => {
@@ -250,7 +253,7 @@ export default function ContactForm() {
                           onChange={handleChange}
                           className="sr-only"
                         />
-                        {subject.label}
+                        {t(subject.label)}
                       </label>
                     );
                   })}
@@ -262,7 +265,7 @@ export default function ContactForm() {
                 <div>
                   <label htmlFor="firstName" className={labelClass}>
                     <User className="h-3.5 w-3.5 text-[#B28A47]" strokeWidth={1.6} />
-                    Prénom
+                    {t("contact.form.first_name")}
                   </label>
                   <input
                     id="firstName"
@@ -274,14 +277,14 @@ export default function ContactForm() {
                     minLength={2}
                     autoComplete="given-name"
                     className={fieldClass}
-                    placeholder="Votre prénom"
+                    placeholder={t("contact.form.first_name_placeholder")}
                   />
                 </div>
 
                 <div>
                   <label htmlFor="lastName" className={labelClass}>
                     <User className="h-3.5 w-3.5 text-[#B28A47]" strokeWidth={1.6} />
-                    Nom
+                    {t("contact.form.last_name")}
                   </label>
                   <input
                     id="lastName"
@@ -293,7 +296,7 @@ export default function ContactForm() {
                     minLength={2}
                     autoComplete="family-name"
                     className={fieldClass}
-                    placeholder="Votre nom"
+                    placeholder={t("contact.form.last_name_placeholder")}
                   />
                 </div>
               </div>
@@ -303,7 +306,7 @@ export default function ContactForm() {
                 <div>
                   <label htmlFor="email" className={labelClass}>
                     <Mail className="h-3.5 w-3.5 text-[#B28A47]" strokeWidth={1.6} />
-                    E-mail
+                    {t("contact.form.email")}
                   </label>
                   <input
                     id="email"
@@ -314,14 +317,14 @@ export default function ContactForm() {
                     required
                     autoComplete="email"
                     className={fieldClass}
-                    placeholder="vous@exemple.com"
+                    placeholder={t("contact.form.email_placeholder")}
                   />
                 </div>
 
                 <div>
                   <label htmlFor="phone" className={labelClass}>
                     <Phone className="h-3.5 w-3.5 text-[#B28A47]" strokeWidth={1.6} />
-                    Téléphone
+                    {t("contact.form.phone")}
                   </label>
                   <input
                     id="phone"
@@ -348,10 +351,10 @@ export default function ContactForm() {
                     <div className="rounded-[18px] border border-[#B28A47]/15 bg-[#F8F5EF]/65 p-5">
                       <div className="mb-4">
                         <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#B28A47]">
-                          Séjour
+                           {t("contact.form.stay")}
                         </p>
                         <h3 className="mt-1 font-serif text-[22px] font-medium text-[#2B1C17]">
-                          Informations indicatives
+                           {t("contact.form.stay_details")}
                         </h3>
                       </div>
 
@@ -359,7 +362,7 @@ export default function ContactForm() {
                         <div>
                           <label htmlFor="checkIn" className={labelClass}>
                             <Calendar className="h-3.5 w-3.5 text-[#B28A47]" strokeWidth={1.6} />
-                            Arrivée
+                            {t("contact.form.arrival")}
                           </label>
                           <input
                             id="checkIn"
@@ -374,7 +377,7 @@ export default function ContactForm() {
                         <div>
                           <label htmlFor="checkOut" className={labelClass}>
                             <Calendar className="h-3.5 w-3.5 text-[#B28A47]" strokeWidth={1.6} />
-                            Départ
+                            {t("contact.form.departure")}
                           </label>
                           <input
                             id="checkOut"
@@ -389,7 +392,7 @@ export default function ContactForm() {
                         <div>
                           <label htmlFor="guests" className={labelClass}>
                             <Users className="h-3.5 w-3.5 text-[#B28A47]" strokeWidth={1.6} />
-                            Voyageurs
+                            {t("contact.form.guests")}
                           </label>
                           <select
                             id="guests"
@@ -400,7 +403,7 @@ export default function ContactForm() {
                           >
                             {[1, 2, 3, 4, 5, 6].map((num) => (
                               <option key={num} value={num}>
-                                {num} {num === 1 ? "personne" : "personnes"}
+                                {num} {t(num === 1 ? "contact.form.guest_singular" : "contact.form.guest_plural")}
                               </option>
                             ))}
                           </select>
@@ -415,7 +418,7 @@ export default function ContactForm() {
               <div>
                 <label htmlFor="message" className={labelClass}>
                   <MessageSquare className="h-3.5 w-3.5 text-[#B28A47]" strokeWidth={1.6} />
-                  Votre message
+                  {t("contact.form.message")}
                 </label>
                 <textarea
                   id="message"
@@ -426,7 +429,7 @@ export default function ContactForm() {
                   minLength={10}
                   rows={6}
                   className="min-h-[150px] w-full resize-y rounded-[14px] border border-[#B28A47]/20 bg-[#FFFDF8] px-4 py-3 text-[14px] leading-6 text-[#2B1C17] outline-none transition placeholder:text-[#6F625C]/45 focus:border-[#0F5A46]/45 focus:ring-2 focus:ring-[#0F5A46]/10"
-                  placeholder="Décrivez-nous votre demande..."
+                  placeholder={t("contact.form.message_placeholder")}
                 />
               </div>
 
@@ -441,10 +444,10 @@ export default function ContactForm() {
                 />
                 <span>
                   <span className="block text-[13px] font-medium text-[#2B1C17]">
-                    Recevoir les nouvelles de Dar LaMamy
+                    {t("contact.form.newsletter")}
                   </span>
                   <span className="mt-0.5 block text-[12px] leading-5 text-[#6F625C]">
-                    Cette option est facultative et reste décochée par défaut.
+                    {t("contact.form.newsletter_hint")}
                   </span>
                 </span>
               </label>
@@ -460,13 +463,12 @@ export default function ContactForm() {
                   className="mt-1 h-4 w-4 accent-[#0F5A46]"
                 />
                 <span className="text-[12px] leading-5 text-[#6F625C]">
-                  J’accepte que mes données soient utilisées pour répondre à ma demande,
-                  conformément à la{" "}
+                  {t("contact.form.consent_before")} {" "}
                   <Link
                     href="/politique-confidentialite"
                     className="font-medium text-[#0F5A46] underline decoration-[#B28A47]/40 underline-offset-4"
                   >
-                    politique de confidentialité
+                    {t("contact.form.privacy")}
                   </Link>
                   .
                 </span>
@@ -482,12 +484,12 @@ export default function ContactForm() {
                   {isSubmitting ? (
                     <>
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" />
-                      Envoi en cours...
+                      {t("contact.form.sending")}
                     </>
                   ) : (
                     <>
                       <Send className="h-4 w-4" strokeWidth={1.6} />
-                      Envoyer le message
+                      {t("contact.form.submit")}
                     </>
                   )}
                 </button>

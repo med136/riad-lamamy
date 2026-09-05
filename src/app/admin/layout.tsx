@@ -5,8 +5,8 @@ import AdminHeader from '@/components/admin/Header'
 import { Toaster } from 'react-hot-toast'
 
 export const metadata: Metadata = {
-  title: 'Admin - Riad Dar Al Andalus',
-  description: 'Panneau d\'administration du Riad Dar Al Andalus',
+  title: 'Administration | Dar LaMamy',
+  description: 'Panneau d\'administration de Dar LaMamy',
 }
 
 export default function AdminLayout({

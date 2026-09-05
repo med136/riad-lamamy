@@ -10,16 +10,16 @@ import { defaultLanguage, isSupportedLanguage, LANGUAGE_COOKIE } from "@/lib/i18
 import "@/app/globals.css";
 
 export const metadata: Metadata = {
-  title: "Riad Dar Al Andalus - Marrakech",
+  title: "Dar LaMamy | Riad à Fès",
   description:
-    "Un riad d'exception au coeur de la medina de Marrakech. Hebergement luxueux, service personnalise et experience marocaine authentique.",
-  metadataBase: new URL("https://riad-al-andalus.com"),
+    "Une maison d’hôtes de caractère au cœur de la médina de Fès, entre hospitalité marocaine et séjour raffiné.",
+  metadataBase: new URL("https://darlamamy.com"),
   alternates: {
     canonical: "/",
   },
   keywords: [
     "riad",
-    "marrakech",
+    "fès",
     "hebergement",
     "luxe",
     "medina",
@@ -30,22 +30,22 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "fr_FR",
-    url: "https://riad-al-andalus.com",
-    title: "Riad Dar Al Andalus - Marrakech",
-    description: "Un havre de paix au coeur de la medina de Marrakech",
+    url: "https://darlamamy.com",
+    title: "Dar LaMamy | Riad à Fès",
+    description: "Une maison fassie raffinée au cœur de la médina de Fès.",
     images: [
       {
         url: "/images/hero/riad-exterior.jpg",
         width: 1200,
         height: 630,
-        alt: "Riad Dar Al Andalus",
+        alt: "Dar LaMamy à Fès",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Riad Dar Al Andalus - Marrakech",
-    description: "Un havre de paix au coeur de la medina de Marrakech",
+    title: "Dar LaMamy | Riad à Fès",
+    description: "A refined guesthouse in the heart of Fès Medina.",
     images: ["/images/hero/riad-exterior.jpg"],
   },
 };

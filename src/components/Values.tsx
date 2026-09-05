@@ -3,41 +3,40 @@
 import { motion } from "framer-motion";
 import { Heart, Home, Sparkles, UsersRound } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
+import type { MessageKey } from "@/lib/i18n";
 
 type Value = {
   icon: LucideIcon;
-  title: string;
-  description: string;
+  title: MessageKey;
+  description: MessageKey;
 };
 
 const values: Value[] = [
   {
     icon: Home,
-    title: "Authenticité",
-    description:
-      "Une maison qui met en valeur les matières, les détails et l’atmosphère propres à l’art de vivre de Fès.",
+    title: "about.values.authenticity.title",
+    description: "about.values.authenticity.description",
   },
   {
     icon: Heart,
-    title: "Accueil",
-    description:
-      "Une hospitalité simple et attentive, avec le souci de rendre chaque séjour naturel et agréable.",
+    title: "about.values.welcome.title",
+    description: "about.values.welcome.description",
   },
   {
     icon: Sparkles,
-    title: "Soin du détail",
-    description:
-      "Des espaces, des attentions et des services pensés avec discrétion, sans surcharger l’expérience.",
+    title: "about.values.detail.title",
+    description: "about.values.detail.description",
   },
   {
     icon: UsersRound,
-    title: "Proximité",
-    description:
-      "Une maison à taille humaine, où l’échange et la disponibilité font partie de l’expérience Dar LaMamy.",
+    title: "about.values.closeness.title",
+    description: "about.values.closeness.description",
   },
 ];
 
 export default function Values() {
+  const { t } = useLanguage();
   return (
     <section className="bg-[#FFFDF8] py-14 sm:py-16">
       <div className="site-container">
@@ -49,13 +48,13 @@ export default function Values() {
           className="mx-auto mb-9 max-w-2xl text-center"
         >
           <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#B28A47]">
-            Notre manière de recevoir
+            {t("about.values.kicker")}
           </p>
           <h2 className="mt-3 font-serif text-[32px] font-medium leading-tight text-[#2B1C17] sm:text-[38px]">
-            Ce qui guide Dar LaMamy
+            {t("about.values.title")}
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-[14px] leading-6 text-[#6F625C] sm:text-[15px]">
-            Quelques principes simples qui donnent le ton de la maison et de votre séjour.
+            {t("about.values.description")}
           </p>
         </motion.div>
 
@@ -75,11 +74,11 @@ export default function Values() {
                   <Icon className="h-4.5 w-4.5 text-[#0F5A46]" strokeWidth={1.6} />
                 </div>
                 <h3 className="mt-5 font-serif text-[22px] font-medium text-[#2B1C17]">
-                  {value.title}
+                  {t(value.title)}
                 </h3>
                 <div className="mt-3 h-px w-8 bg-[#B28A47]/35 transition-all duration-300 group-hover:w-12" />
                 <p className="mt-3 text-[13px] leading-5 text-[#6F625C]">
-                  {value.description}
+                  {t(value.description)}
                 </p>
               </motion.article>
             );
