@@ -15,6 +15,9 @@ type AdminService = {
 }
 
 type EditDraft = {
+  name?: string
+  category?: string
+  display_order?: number
   price?: number
   duration_minutes?: number | null
   is_active?: boolean
@@ -28,6 +31,7 @@ type CreateDraft = {
   duration_minutes?: number | null
   is_active?: boolean
   description?: string
+  display_order: number
 }
 
 const CURRENCY = 'DH'
@@ -49,6 +53,7 @@ export default function ServicesPage() {
     duration_minutes: null,
     is_active: true,
     description: '',
+    display_order: 0,
   })
   const [createLoading, setCreateLoading] = useState(false)
 
@@ -103,6 +108,7 @@ export default function ServicesPage() {
       duration_minutes: null,
       is_active: true,
       description: '',
+      display_order: 0,
     })
   }
 
@@ -123,6 +129,9 @@ export default function ServicesPage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          name: editDraft.name ?? service.name,
+          category: editDraft.category ?? service.category,
+          display_order: editDraft.display_order ?? service.display_order,
           price: editDraft.price ?? service.price,
           duration_minutes: editDraft.duration_minutes ?? service.duration_minutes,
           is_active: editDraft.is_active ?? service.is_active,
@@ -171,6 +180,7 @@ export default function ServicesPage() {
           duration_minutes: createDraft.duration_minutes ?? null,
           description: createDraft.description ?? '',
           is_active: createDraft.is_active ?? true,
+          display_order: createDraft.display_order,
         }),
       })
       const json = await res.json()
@@ -269,6 +279,20 @@ export default function ServicesPage() {
                       ...d,
                       duration_minutes: e.target.value === '' ? null : Number(e.target.value),
                     }))
+                  }
+                />
+              </label>
+
+              <label className="space-y-2 text-xs text-gray-600">
+                <span className="text-xs font-semibold text-gray-700">Ordre d’affichage</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm"
+                  value={createDraft.display_order}
+                  onChange={(e) =>
+                    setCreateDraft((d) => ({ ...d, display_order: Number(e.target.value) }))
                   }
                 />
               </label>
@@ -408,6 +432,45 @@ export default function ServicesPage() {
 
                 {isEditing ? (
                   <div className="mt-4 space-y-3">
+                    <label className="block space-y-1 text-xs font-semibold text-gray-700">
+                      <span>Nom</span>
+                      <input
+                        type="text"
+                        className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-normal text-gray-900 shadow-sm"
+                        value={editDraft.name ?? service.name}
+                        onChange={(e) => setEditDraft((d) => ({ ...d, name: e.target.value }))}
+                      />
+                    </label>
+
+                    <label className="block space-y-1 text-xs font-semibold text-gray-700">
+                      <span>Catégorie</span>
+                      <select
+                        className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-normal text-gray-900 shadow-sm"
+                        value={editDraft.category ?? service.category}
+                        onChange={(e) => setEditDraft((d) => ({ ...d, category: e.target.value }))}
+                      >
+                        <option value="restauration">Restauration</option>
+                        <option value="spa">Spa</option>
+                        <option value="transport">Transport</option>
+                        <option value="activite">Activité</option>
+                        <option value="sur_mesure">Sur mesure</option>
+                      </select>
+                    </label>
+
+                    <label className="block space-y-1 text-xs font-semibold text-gray-700">
+                      <span>Ordre d’affichage</span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-normal text-gray-900 shadow-sm"
+                        value={editDraft.display_order ?? service.display_order}
+                        onChange={(e) =>
+                          setEditDraft((d) => ({ ...d, display_order: Number(e.target.value) }))
+                        }
+                      />
+                    </label>
+
                     <label className="flex items-center gap-2 text-gray-600">
                       <DollarSign size={18} />
                       <input

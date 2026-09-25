@@ -1,5 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { createAdminClient } from '@/lib/supabase/adminClient'
+import { getAdminAccessDecision } from '@/lib/admin-auth'
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -34,17 +36,33 @@ export async function middleware(request: NextRequest) {
   // Récupérer l'utilisateur
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Routes protégées
-  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin') &&
-                      !request.nextUrl.pathname.startsWith('/admin/login')
+  const pathname = request.nextUrl.pathname
+  const concernsAdmin = pathname === '/admin' || pathname.startsWith('/admin/') ||
+    pathname === '/api/admin' || pathname.startsWith('/api/admin/')
 
-  // Si pas connecté et essaye d'accéder à une route admin
-  if (!user && isAdminRoute) {
-    return NextResponse.redirect(new URL('/admin/login', request.url))
+  let hasAdminProfile = false
+  if (user && concernsAdmin) {
+    const admin = createAdminClient()
+    const { data } = await admin
+      .from('admin_profiles')
+      .select('id')
+      .eq('id', user.id)
+      .maybeSingle()
+    hasAdminProfile = !!data
   }
 
-  // Si connecté et sur la page login
-  if (user && request.nextUrl.pathname === '/admin/login') {
+  const decision = getAdminAccessDecision(pathname, !!user, hasAdminProfile)
+
+  if (decision === 'unauthorized') {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+  }
+  if (decision === 'forbidden') {
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
+  }
+  if (decision === 'redirect-login') {
+    return NextResponse.redirect(new URL('/admin/login', request.url))
+  }
+  if (decision === 'redirect-dashboard') {
     return NextResponse.redirect(new URL('/admin/dashboard', request.url))
   }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/adminClient'
+import { buildServiceUpdate } from '@/lib/service-update'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -8,14 +9,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const id = resolvedParams.id
     const body = await req.json()
 
-    // Allow updating a safe subset of fields
-    const updates: Record<string, any> = {}
-    if (typeof body.price === 'number') updates.base_price = body.price
-    if (typeof body.duration_minutes === 'number' || body.duration_minutes === null) {
-      updates.duration_minutes = body.duration_minutes
-    }
-    if (typeof body.is_active === 'boolean') updates.is_active = body.is_active
-    if (typeof body.description === 'string') updates.description = body.description
+    const updates = buildServiceUpdate(body)
 
     const { data, error } = await supabase
       .from('services')
@@ -43,7 +37,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ service })
   } catch (err: any) {
     console.error('Error updating service:', err)
-    return NextResponse.json({ error: err?.message || 'Unknown error' }, { status: 500 })
+    const isValidationError = err instanceof Error && !('code' in err)
+    return NextResponse.json(
+      { error: err?.message || 'Unknown error' },
+      { status: isValidationError ? 400 : 500 },
+    )
   }
 }
 
