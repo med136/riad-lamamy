@@ -24,6 +24,13 @@ type SectionState = {
   settings: Record<string, unknown>;
 };
 
+type SectionApiItem = {
+  section_key: string;
+  position: number | null;
+  is_visible: boolean | null;
+  settings: Record<string, unknown> | null;
+};
+
 export default function ContentPageEditor() {
   const params = useParams<{ pageKey: string }>();
   const pageKey = params.pageKey;
@@ -48,9 +55,9 @@ export default function ContentPageEditor() {
         if (!translationsRes.ok) throw new Error(translationsJson?.error || "Translations indisponibles");
         if (!sectionsRes.ok) throw new Error(sectionsJson?.error || "Sections indisponibles");
         setTranslations(Array.isArray(translationsJson.items) ? translationsJson.items : []);
-        const dbItems = Array.isArray(sectionsJson.items) ? sectionsJson.items : [];
+        const dbItems: SectionApiItem[] = Array.isArray(sectionsJson.items) ? sectionsJson.items : [];
         setSections(page.sections.map((definition, index) => {
-          const existing = dbItems.find((item: any) => item.section_key === definition.key);
+          const existing = dbItems.find((item) => item.section_key === definition.key);
           return {
             sectionKey: definition.key,
             label: definition.label,
