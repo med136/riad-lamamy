@@ -95,7 +95,7 @@ export function legacyExperienceSteps(
 ): ExperienceStep[] {
   return LEGACY_EXPERIENCE_MOMENTS.map(({ id, icon }) => ({
     id,
-    icon: getExperienceIconOption(read(`home.experience.${id}_icon`, "fr"), icon).code,
+    icon: getExperienceIconOption(read(`home.experience.${id}_icon`, "fr"), icon).code as ExperienceIconCode,
     fr: {
       time: read(`home.experience.${id}_time`, "fr"),
       title: read(`home.experience.${id}_title`, "fr"),
