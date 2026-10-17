@@ -12,6 +12,8 @@ export const getLocaleForLanguage = (language: Language) =>
   language === "en" ? "en-US" : "fr-FR";
 
 export const frMessages = {
+  "about.seo.title": "À propos | Dar LaMamy — Riad à Fès",
+  "about.seo.description": "Découvrez l'esprit de Dar LaMamy, une maison d'hôtes au cœur de Fès où l'architecture, l'accueil et l'art de vivre marocain se rencontrent.",
   "services.intro.kicker": "À votre disposition",
   "services.intro.title": "Des services pensés autour de votre séjour",
   "services.intro.description": "Quelques attentions utiles, à organiser selon vos besoins et les disponibilités.",
@@ -319,6 +321,8 @@ export const frMessages = {
 type Messages = typeof frMessages;
 
 export const enMessages: Messages = {
+  "about.seo.title": "About us | Dar LaMamy — Riad in Fès",
+  "about.seo.description": "Discover the spirit of Dar LaMamy, a guesthouse in the heart of Fès where architecture, warm hospitality and Moroccan living meet.",
   "services.intro.kicker": "At your service",
   "services.intro.title": "Services designed around your stay",
   "services.intro.description": "Thoughtful details to arrange according to your needs and availability.",
