@@ -44,6 +44,8 @@ Plan: `docs/superpowers/plans/2026-10-17-channel-manager.md`
 | 2026-10-17 | Channel core `supabase db reset` | PASS — channel tables, foreign keys, indexes, triggers, RLS, and seed rebuild |
 | 2026-10-17 | Live channel RLS test | PASS — anon secret-table read rejected; service role creates disabled channel and cleans it |
 | 2026-10-17 | Channel DTO tests | PASS — 2/2, ciphertext and token hashes absent from serialized DTOs |
+| 2026-10-17 | Channel security unit suite | PASS — AES-256-GCM roundtrip/tamper/wrong-key and SSRF public/private/mixed-DNS cases; 12/12 focused tests total |
+| 2026-10-17 | Focused security ESLint + TypeScript | PASS |
 
 ## Migration status
 
