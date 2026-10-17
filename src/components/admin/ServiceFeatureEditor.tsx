@@ -7,7 +7,7 @@ import {
   MAX_FEATURES, type Feature, type CmsLang,
 } from "@/lib/services-content";
 
-export function IconPicker({value,onChange}: {value:ExperienceIconCode;onChange:(icon:ExperienceIconCode)=>void}) {
+export function IconPicker({value,onChange}: {value:string;onChange:(icon:ExperienceIconCode)=>void}) {
   return <select value={value} onChange={e=>onChange(e.target.value as ExperienceIconCode)}
     className="h-10 w-full rounded-xl border border-[#B28A47]/25 bg-white px-3 text-sm text-[#2B1C17]">
     {EXPERIENCE_ICON_CATEGORIES.map(category=><optgroup key={category.id} label={category.label}>
