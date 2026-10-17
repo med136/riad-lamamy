@@ -1,47 +1,68 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  Coffee,
-  Compass,
-  Moon,
-  Sunrise,
-} from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
+import {
+  getExperienceIconOption,
+  type ExperienceIconCode,
+} from "@/lib/experience-icons";
+import type { MessageKey } from "@/lib/i18n";
 
-const experiences = [
+const experienceDefinitions: Array<{
+  id: string;
+  timeKey: MessageKey;
+  titleKey: MessageKey;
+  descriptionKey: MessageKey;
+  iconKey: MessageKey;
+  fallbackIcon: ExperienceIconCode;
+}> = [
   {
-    time: "MATIN",
-    icon: Sunrise,
-    title: "Réveil fassi",
-    description:
-      "Commencez la journée autour d’un petit-déjeuner marocain, dans le calme de la maison et l’atmosphère unique de la médina.",
+    id: "morning",
+    timeKey: "home.experience.morning_time",
+    titleKey: "home.experience.morning_title",
+    descriptionKey: "home.experience.morning_description",
+    iconKey: "home.experience.morning_icon",
+    fallbackIcon: "sunrise",
   },
   {
-    time: "APRÈS-MIDI",
-    icon: Compass,
-    title: "Au cœur de la médina",
-    description:
-      "Partez à la découverte des ruelles de Fès, de ses artisans, de son patrimoine et de ses adresses emblématiques.",
+    id: "afternoon",
+    timeKey: "home.experience.afternoon_time",
+    titleKey: "home.experience.afternoon_title",
+    descriptionKey: "home.experience.afternoon_description",
+    iconKey: "home.experience.afternoon_icon",
+    fallbackIcon: "compass",
   },
   {
-    time: "SOIRÉE",
-    icon: Coffee,
-    title: "Un moment de détente",
-    description:
-      "Retrouvez la sérénité de Dar LaMamy autour d’un thé à la menthe après une journée de découverte.",
+    id: "evening",
+    timeKey: "home.experience.evening_time",
+    titleKey: "home.experience.evening_title",
+    descriptionKey: "home.experience.evening_description",
+    iconKey: "home.experience.evening_icon",
+    fallbackIcon: "coffee",
   },
   {
-    time: "NUIT",
-    icon: Moon,
-    title: "Le calme retrouvé",
-    description:
-      "Profitez d’une nuit paisible dans l’atmosphère intime de la médina, loin de l’agitation de la journée.",
+    id: "night",
+    timeKey: "home.experience.night_time",
+    titleKey: "home.experience.night_title",
+    descriptionKey: "home.experience.night_description",
+    iconKey: "home.experience.night_icon",
+    fallbackIcon: "moon",
   },
 ];
 
 export function Experience() {
   const { t } = useLanguage();
+  const experiences = experienceDefinitions.map((definition) => ({
+    id: definition.id,
+    time: t(definition.timeKey),
+    title: t(definition.titleKey),
+    description: t(definition.descriptionKey),
+    icon: getExperienceIconOption(
+      t(definition.iconKey),
+      definition.fallbackIcon,
+    ).icon,
+  }));
+
   return (
     <section
       className="
@@ -241,7 +262,7 @@ export function Experience() {
 
                 return (
                   <motion.article
-                    key={experience.time}
+                    key={experience.id}
                     initial={{
                       opacity: 0,
                       y: 18,
