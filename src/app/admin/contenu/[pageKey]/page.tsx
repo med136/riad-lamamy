@@ -6,6 +6,14 @@ import { useParams } from "next/navigation";
 import { ArrowLeft, ExternalLink, GripVertical, ImageIcon, Languages, Loader2, Save, UploadCloud } from "lucide-react";
 import toast from "react-hot-toast";
 import { AboutStatsEditor } from "@/components/admin/AboutStatsEditor";
+import { AboutCardsEditor } from "@/components/admin/AboutCardsEditor";
+import {
+  ABOUT_CARDS_SETTINGS_KEY,
+  legacyAboutCards,
+  parseAboutCards,
+  validateAboutCards,
+  type AboutSection,
+} from "@/lib/about-cards";
 import { ABOUT_STAT_KEYS } from "@/lib/about-stats";
 import { ExperienceIconGuide } from "@/components/admin/ExperienceIconGuide";
 import { ExperienceStepsEditor } from "@/components/admin/ExperienceStepsEditor";
@@ -105,7 +113,9 @@ export default function ContentPageEditor() {
       keyMatchesPrefixes(item.key, activeDefinition.translationPrefixes) &&
       !(pageKey === "home" && activeDefinition.key === "experience" &&
         /^home\\.experience\\.(morning|afternoon|evening|night)_(time|title|description|icon)$/.test(item.key)) &&
-      !(pageKey === "home" && activeDefinition.key === "about" && ABOUT_STAT_KEYS.has(item.key)),
+      !(pageKey === "home" && activeDefinition.key === "about" && ABOUT_STAT_KEYS.has(item.key)) &&
+      !(pageKey === "about" && ["values", "team"].includes(activeDefinition.key) &&
+        /^about\\.(values\\.(authenticity|welcome|detail|closeness)\\.(title|description)|team\\.(attentive|advice|tailored)\\.(kicker|title|description))$/.test(item.key)),
     );
   }, [translations, activeDefinition]);
 
@@ -125,6 +135,18 @@ export default function ContentPageEditor() {
       ?.settings?.[ROOM_COMFORT_FEATURES_SETTING_KEY];
     return parseRoomComfortFeatures(raw) ?? DEFAULT_ROOM_COMFORT_FEATURES;
   }, [sections]);
+
+  const aboutCards = useMemo(() => {
+    const read = (key: string, lang: "fr" | "en") => {
+      const translated = translations.find((item) => item.key === key);
+      return translated?.[lang] ?? baseMessages[lang][key as MessageKey] ?? "";
+    };
+    const sectionCards = (section: AboutSection) => {
+      const raw = sections.find((item) => item.sectionKey === section)?.settings?.[ABOUT_CARDS_SETTINGS_KEY];
+      return parseAboutCards(raw) ?? legacyAboutCards(section, read);
+    };
+    return { values: sectionCards("values"), team: sectionCards("team") };
+  }, [sections, translations]);
 
   const activeSectionState = sections.find((section) => section.sectionKey === activeDefinition?.key) ?? null;
   const activeHeroImage = typeof activeSectionState?.settings?.heroImage === "string"
@@ -194,6 +216,18 @@ export default function ContentPageEditor() {
         const error = validateRoomComfortFeatures(comfortRaw);
         if (error) {
           toast.error(error);
+          return;
+        }
+      }
+    }
+    if (pageKey === "about") {
+      for (const section of sections) {
+        if (section.sectionKey !== "values" && section.sectionKey !== "team") continue;
+        const raw = section.settings[ABOUT_CARDS_SETTINGS_KEY];
+        if (raw === undefined) continue;
+        const issue = validateAboutCards(raw);
+        if (issue) {
+          toast.error(`${section.label} : ${issue}`);
           return;
         }
       }
@@ -369,6 +403,25 @@ export default function ContentPageEditor() {
                     language={language}
                     onChange={updateTranslation}
                   />
+                ) : null}
+
+                {pageKey === "about" && (activeDefinition.key === "values" || activeDefinition.key === "team") ? (
+                  <AboutCardsEditor
+                    section={activeDefinition.key}
+                    language={language}
+                    items={aboutCards[activeDefinition.key]}
+                    onChange={(items) => updateSectionSetting(activeDefinition.key, ABOUT_CARDS_SETTINGS_KEY, items)}
+                  />
+                ) : null}
+
+                {pageKey === "about" && activeDefinition.key === "experience" ? (
+                  <p className="mt-5 text-xs leading-5 text-[#6F625C]">
+                    La frise utilise les mêmes étapes que sur l’accueil. Ici vous pouvez la masquer
+                    seulement sur À propos. Pour modifier les étapes, utilisez{" "}
+                    <Link className="font-semibold text-[#0F5A46] underline" href="/admin/contenu/home">
+                      Accueil → Expérience / Fès
+                    </Link>.
+                  </p>
                 ) : null}
 
                 {pageKey === "services" ? (
