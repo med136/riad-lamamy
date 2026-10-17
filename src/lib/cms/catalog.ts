@@ -51,6 +51,7 @@ export const CMS_PAGES: CmsPageDefinition[] = [
     },
     sections: [
       { key: "hero", label: "Hero", description: "Image, titre, sous-titre et accroches du Hero de la page.", translationPrefixes: ["rooms.hero."] },
+      { key: "comfort", label: "Confort", description: "Titre, équipements, icônes et encadré de confort sur la page Chambres.", translationPrefixes: ["rooms.comfort."] },
     ],
   },
   {
