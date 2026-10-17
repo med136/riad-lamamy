@@ -3,6 +3,7 @@ import { BookingWidget } from "@/components/BookingWidget";
 import { RoomPreview } from "@/components/RoomPreview";
 import { Services } from "@/components/Services";
 import { AboutPreview } from "@/components/AboutPreview";
+import { HomeSoulSection } from "@/components/HomeSoulSection";
 import { Testimonials, type TestimonialItem } from "@/components/Testimonials";
 import { GalleryPreview } from "@/components/GalleryPreview";
 import { Experience } from "@/components/Experience";
@@ -104,6 +105,7 @@ export default async function HomePage() {
       <ContentSection pageKey="home" sectionKey="hero"><Hero /></ContentSection>
       <ContentSection pageKey="home" sectionKey="booking"><BookingWidget /></ContentSection>
       <ContentSection pageKey="home" sectionKey="about"><AboutPreview /></ContentSection>
+      <ContentSection pageKey="home" sectionKey="soul"><HomeSoulSection /></ContentSection>
       <ContentSection pageKey="home" sectionKey="rooms"><RoomPreview /></ContentSection>
       <ContentSection pageKey="home" sectionKey="services"><Services /></ContentSection>
       <ContentSection pageKey="home" sectionKey="experience"><Experience /></ContentSection>
