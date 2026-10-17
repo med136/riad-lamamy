@@ -12,6 +12,14 @@ export const getLocaleForLanguage = (language: Language) =>
   language === "en" ? "en-US" : "fr-FR";
 
 export const frMessages = {
+  "home.soul.kicker": "BIENVENUE CHEZ NOUS",
+  "home.soul.title_before": "L’âme de",
+  "home.soul.title_accent": "Dar LaMamy",
+  "home.soul.paragraph_1": "Au cœur de Fès, Dar LaMamy vous invite à vivre une expérience où le charme d’une maison marocaine rencontre la douceur d’un accueil chaleureux.",
+  "home.soul.paragraph_2": "Ici, chaque espace invite à prendre son temps, à savourer les instants simples et à découvrir l’art de vivre fassi dans une atmosphère paisible et authentique.",
+  "home.soul.paragraph_3": "Plus qu’un lieu de séjour, Dar LaMamy est une invitation à se sentir chez soi, tout en profitant de la magie de Fès.",
+  "home.soul.cta": "Découvrir nos chambres",
+  "home.soul.video_label": "Découvrez l’atmosphère de Dar LaMamy en vidéo",
   "about.seo.title": "À propos | Dar LaMamy — Riad à Fès",
   "about.seo.description": "Découvrez l'esprit de Dar LaMamy, une maison d'hôtes au cœur de Fès où l'architecture, l'accueil et l'art de vivre marocain se rencontrent.",
   "services.intro.kicker": "À votre disposition",
@@ -321,6 +329,14 @@ export const frMessages = {
 type Messages = typeof frMessages;
 
 export const enMessages: Messages = {
+  "home.soul.kicker": "WELCOME TO OUR HOME",
+  "home.soul.title_before": "The spirit of",
+  "home.soul.title_accent": "Dar LaMamy",
+  "home.soul.paragraph_1": "In the heart of Fès, Dar LaMamy invites you to experience the charm of a Moroccan home and the warmth of thoughtful hospitality.",
+  "home.soul.paragraph_2": "Here, every space encourages you to slow down, savour the simple moments and discover the Fassi way of life in a peaceful, authentic setting.",
+  "home.soul.paragraph_3": "More than a place to stay, Dar LaMamy is an invitation to feel at home while enjoying the magic of Fès.",
+  "home.soul.cta": "Discover our rooms",
+  "home.soul.video_label": "Discover the atmosphere of Dar LaMamy on video",
   "about.seo.title": "About us | Dar LaMamy — Riad in Fès",
   "about.seo.description": "Discover the spirit of Dar LaMamy, a guesthouse in the heart of Fès where architecture, warm hospitality and Moroccan living meet.",
   "services.intro.kicker": "At your service",
