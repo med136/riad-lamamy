@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { CMS_PAGES } from "@/lib/cms/catalog";
 import { requireAdmin } from "@/lib/cms/requireAdmin";
 import {
+  ROOM_COMFORT_FEATURES_SETTING_KEY,
+  validateRoomComfortFeatures,
+} from "@/lib/room-comfort";
+import {
   EXPERIENCE_STEPS_SETTING_KEY,
   validateExperienceSteps,
 } from "@/lib/experience-steps";
@@ -39,6 +43,14 @@ export async function PUT(request: Request) {
       const experience = body.sections.find((section) => section.sectionKey === "experience");
       if (experience?.settings && Object.prototype.hasOwnProperty.call(experience.settings, EXPERIENCE_STEPS_SETTING_KEY)) {
         const error = validateExperienceSteps(experience.settings[EXPERIENCE_STEPS_SETTING_KEY]);
+        if (error) return NextResponse.json({ error }, { status: 400 });
+      }
+    }
+
+    if (body.pageKey === "rooms") {
+      const comfort = body.sections.find((section) => section.sectionKey === "comfort");
+      if (comfort?.settings && Object.prototype.hasOwnProperty.call(comfort.settings, ROOM_COMFORT_FEATURES_SETTING_KEY)) {
+        const error = validateRoomComfortFeatures(comfort.settings[ROOM_COMFORT_FEATURES_SETTING_KEY]);
         if (error) return NextResponse.json({ error }, { status: 400 });
       }
     }

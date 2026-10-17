@@ -1,59 +1,65 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { Sparkles } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
+import { getExperienceIconOption } from "@/lib/experience-icons";
 import {
-  Coffee,
-  Droplets,
-  Heart,
-  Lock,
-  Sparkles,
-  ThermometerSun,
-  Wifi,
-} from "lucide-react";
-
-const features = [
-  {
-    icon: ThermometerSun,
-    title: "Confort thermique",
-    description: "Une atmosphère agréable pensée pour votre confort tout au long du séjour.",
-  },
-  {
-    icon: Wifi,
-    title: "Connexion Wi-Fi",
-    description: "Une connexion disponible pour rester connecté simplement pendant votre séjour.",
-  },
-  {
-    icon: Lock,
-    title: "Tranquillité",
-    description: "Des espaces conçus pour préserver votre intimité et votre sérénité.",
-  },
-  {
-    icon: Droplets,
-    title: "Salle de bain",
-    description: "Des équipements fonctionnels et soignés dans un esprit sobre et confortable.",
-  },
-  {
-    icon: Coffee,
-    title: "Hospitalité",
-    description: "Des attentions simples et chaleureuses pour accompagner votre expérience à Fès.",
-  },
-  {
-    icon: Heart,
-    title: "Séjour personnalisé",
-    description: "Notre équipe reste disponible pour vous conseiller avant et pendant votre séjour.",
-  },
-];
+  DEFAULT_ROOM_COMFORT_FEATURES,
+  ROOM_COMFORT_FEATURES_SETTING_KEY,
+  parseRoomComfortFeatures,
+  validateRoomComfortFeatures,
+  type ComfortFeature,
+} from "@/lib/room-comfort";
 
 export function RoomFeatures() {
+  const { language, t } = useLanguage();
+  const [savedFeatures, setSavedFeatures] = useState<ComfortFeature[] | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const loadFeatures = async () => {
+      try {
+        const response = await fetch("/api/public/content/sections?page=rooms", {
+          signal: controller.signal,
+          cache: "no-store",
+        });
+        if (!response.ok) return;
+        const body = await response.json();
+        const section = Array.isArray(body?.items)
+          ? body.items.find((item: { section_key?: string }) => item.section_key === "comfort")
+          : null;
+        const raw = section?.settings?.[ROOM_COMFORT_FEATURES_SETTING_KEY];
+        if (raw === undefined || validateRoomComfortFeatures(raw)) return;
+        const parsed = parseRoomComfortFeatures(raw);
+        if (!controller.signal.aborted && parsed) setSavedFeatures(parsed);
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          console.error("Chargement du contenu Confort impossible", error);
+        }
+      }
+    };
+    void loadFeatures();
+    return () => controller.abort();
+  }, []);
+
+  const features = (savedFeatures ?? DEFAULT_ROOM_COMFORT_FEATURES).map((feature) => ({
+    id: feature.id,
+    icon: getExperienceIconOption(feature.icon).icon,
+    title: feature[language].title,
+    description: feature[language].description,
+  }));
+
   return (
     <section className="py-12 sm:py-14">
       <div className="mx-auto max-w-3xl text-center">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#B28A47]">Confort</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#B28A47]">{t("rooms.comfort.kicker")}</p>
         <h2 className="mt-2 font-serif text-[32px] font-medium leading-tight text-[#2B1C17] sm:text-[38px]">
-          Le confort, avec simplicité
+          {t("rooms.comfort.title")}
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-[14px] leading-6 text-[#6F625C] sm:text-[15px]">
-          Des équipements utiles, une atmosphère authentique et l’attention portée aux détails.
+          {t("rooms.comfort.description")}
         </p>
       </div>
 
@@ -63,7 +69,7 @@ export function RoomFeatures() {
 
           return (
             <motion.div
-              key={feature.title}
+              key={feature.id}
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.25 }}
@@ -86,13 +92,13 @@ export function RoomFeatures() {
         <div className="max-w-2xl">
           <div className="flex items-center gap-3 text-[#D2AA5A]">
             <Sparkles size={16} strokeWidth={1.6} />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.24em]">L’expérience Dar LaMamy</span>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.24em]">{t("rooms.comfort.banner.kicker")}</span>
           </div>
           <h3 className="mt-3 font-serif text-[28px] font-medium leading-tight text-[#FFFDF8] sm:text-[32px]">
-            Une maison de Fès, pensée pour vous accueillir
+            {t("rooms.comfort.banner.title")}
           </h3>
           <p className="mt-3 text-[13px] leading-6 text-[#FFFDF8]/75 sm:text-[14px]">
-            Chaque séjour peut être préparé avec notre équipe selon vos besoins et les possibilités disponibles.
+            {t("rooms.comfort.banner.description")}
           </p>
         </div>
       </div>

@@ -86,7 +86,7 @@ export default function ChambresPage() {
         <div className="site-container">
           <RoomList />
           <RoomDetails />
-          <RoomFeatures />
+          <ContentSection pageKey="rooms" sectionKey="comfort"><RoomFeatures /></ContentSection>
         </div>
       </section>
 
