@@ -39,3 +39,11 @@ export const ABOUT_STAT_DEFINITIONS = [
 export const ABOUT_STAT_KEYS = new Set<string>(
   ABOUT_STAT_DEFINITIONS.flatMap(({ valueKey, labelKey }) => [valueKey, labelKey]),
 );
+
+export function getAboutStats(t: (key: MessageKey) => string) {
+  return ABOUT_STAT_DEFINITIONS.map(({ id, valueKey, labelKey }) => ({
+    id,
+    value: t(valueKey),
+    label: t(labelKey),
+  }));
+}
