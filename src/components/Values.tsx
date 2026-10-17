@@ -1,42 +1,28 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Heart, Home, Sparkles, UsersRound } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { getExperienceIconOption } from "@/lib/experience-icons";
+import { useAboutCards } from "@/components/about/useAboutCards";
+import { LEGACY_ABOUT_CARDS } from "@/lib/about-cards";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { MessageKey } from "@/lib/i18n";
 
-type Value = {
-  icon: LucideIcon;
-  title: MessageKey;
-  description: MessageKey;
-};
-
-const values: Value[] = [
-  {
-    icon: Home,
-    title: "about.values.authenticity.title",
-    description: "about.values.authenticity.description",
-  },
-  {
-    icon: Heart,
-    title: "about.values.welcome.title",
-    description: "about.values.welcome.description",
-  },
-  {
-    icon: Sparkles,
-    title: "about.values.detail.title",
-    description: "about.values.detail.description",
-  },
-  {
-    icon: UsersRound,
-    title: "about.values.closeness.title",
-    description: "about.values.closeness.description",
-  },
-];
-
 export default function Values() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const savedCards = useAboutCards("values");
+  const cards = savedCards
+    ? savedCards.map((card) => ({
+        id: card.id,
+        icon: getExperienceIconOption(card.icon).icon,
+        title: card[language].title,
+        description: card[language].description,
+      }))
+    : LEGACY_ABOUT_CARDS.values.map(({ id, icon }) => ({
+        id,
+        icon: getExperienceIconOption(icon).icon,
+        title: t(`about.values.${id}.title` as MessageKey),
+        description: t(`about.values.${id}.description` as MessageKey),
+      }));
   return (
     <section className="bg-[#FFFDF8] py-14 sm:py-16">
       <div className="site-container">
@@ -59,11 +45,11 @@ export default function Values() {
         </motion.div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {values.map((value, index) => {
+          {cards.map((value, index) => {
             const Icon = value.icon;
             return (
               <motion.article
-                key={value.title}
+                key={value.id}
                 initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -74,11 +60,11 @@ export default function Values() {
                   <Icon className="h-4.5 w-4.5 text-[#0F5A46]" strokeWidth={1.6} />
                 </div>
                 <h3 className="mt-5 font-serif text-[22px] font-medium text-[#2B1C17]">
-                  {t(value.title)}
+                  {value.title}
                 </h3>
                 <div className="mt-3 h-px w-8 bg-[#B28A47]/35 transition-all duration-300 group-hover:w-12" />
                 <p className="mt-3 text-[13px] leading-5 text-[#6F625C]">
-                  {t(value.description)}
+                  {value.description}
                 </p>
               </motion.article>
             );

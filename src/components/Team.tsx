@@ -1,33 +1,30 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { HeartHandshake, MessageCircleMore, Sparkles } from "lucide-react";
+import { getExperienceIconOption } from "@/lib/experience-icons";
+import { useAboutCards } from "@/components/about/useAboutCards";
+import { LEGACY_ABOUT_CARDS } from "@/lib/about-cards";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { MessageKey } from "@/lib/i18n";
 
-const pillars = [
-  {
-    icon: HeartHandshake,
-    kicker: "about.team.attentive.kicker" as MessageKey,
-    title: "about.team.attentive.title" as MessageKey,
-    description: "about.team.attentive.description" as MessageKey,
-  },
-  {
-    icon: MessageCircleMore,
-    kicker: "about.team.advice.kicker" as MessageKey,
-    title: "about.team.advice.title" as MessageKey,
-    description: "about.team.advice.description" as MessageKey,
-  },
-  {
-    icon: Sparkles,
-    kicker: "about.team.tailored.kicker" as MessageKey,
-    title: "about.team.tailored.title" as MessageKey,
-    description: "about.team.tailored.description" as MessageKey,
-  },
-];
-
 export default function Team() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const savedCards = useAboutCards("team");
+  const cards = savedCards
+    ? savedCards.map((card) => ({
+        id: card.id,
+        icon: getExperienceIconOption(card.icon).icon,
+        kicker: card[language].kicker,
+        title: card[language].title,
+        description: card[language].description,
+      }))
+    : LEGACY_ABOUT_CARDS.team.map(({ id, icon }) => ({
+        id,
+        icon: getExperienceIconOption(icon).icon,
+        kicker: t(`about.team.${id}.kicker` as MessageKey),
+        title: t(`about.team.${id}.title` as MessageKey),
+        description: t(`about.team.${id}.description` as MessageKey),
+      }));
   return (
     <section className="border-y border-[#B28A47]/10 bg-[#F8F5EF] py-14 sm:py-16">
       <div className="site-container">
@@ -56,11 +53,11 @@ export default function Team() {
           </motion.div>
 
           <div className="space-y-3">
-            {pillars.map((item, index) => {
+            {cards.map((item, index) => {
               const Icon = item.icon;
               return (
                 <motion.article
-                  key={item.title}
+                  key={item.id}
                   initial={{ opacity: 0, x: 12 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, amount: 0.2 }}
@@ -72,13 +69,13 @@ export default function Team() {
                   </div>
                   <div>
                     <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#B28A47]">
-                      {t(item.kicker)}
+                      {item.kicker}
                     </p>
                     <h3 className="mt-1 font-serif text-[21px] font-medium text-[#2B1C17]">
-                      {t(item.title)}
+                      {item.title}
                     </h3>
                     <p className="mt-2 text-[13px] leading-5 text-[#6F625C]">
-                      {t(item.description)}
+                      {item.description}
                     </p>
                   </div>
                 </motion.article>
