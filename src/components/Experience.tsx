@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/components/LanguageProvider";
 import {
@@ -7,6 +8,12 @@ import {
   type ExperienceIconCode,
 } from "@/lib/experience-icons";
 import type { MessageKey } from "@/lib/i18n";
+import {
+  EXPERIENCE_STEPS_SETTING_KEY,
+  parseExperienceSteps,
+  validateExperienceSteps,
+  type ExperienceStep,
+} from "@/lib/experience-steps";
 
 const experienceDefinitions: Array<{
   id: string;
@@ -51,8 +58,37 @@ const experienceDefinitions: Array<{
 ];
 
 export function Experience() {
-  const { t } = useLanguage();
-  const experiences = experienceDefinitions.map((definition) => ({
+  const { language, t } = useLanguage();
+  const [savedSteps, setSavedSteps] = useState<ExperienceStep[] | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const loadSteps = async () => {
+      try {
+        const response = await fetch("/api/public/content/sections?page=home", {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        if (!response.ok) return;
+        const body = await response.json();
+        const experience = Array.isArray(body?.items)
+          ? body.items.find((item: { section_key?: string }) => item.section_key === "experience")
+          : null;
+        const raw = experience?.settings?.[EXPERIENCE_STEPS_SETTING_KEY];
+        if (raw === undefined || validateExperienceSteps(raw)) return;
+        const parsed = parseExperienceSteps(raw);
+        if (!controller.signal.aborted && parsed) setSavedSteps(parsed);
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          console.error("Chargement des étapes de l’expérience impossible", error);
+        }
+      }
+    };
+    void loadSteps();
+    return () => controller.abort();
+  }, []);
+
+  const legacyExperiences = experienceDefinitions.map((definition) => ({
     id: definition.id,
     time: t(definition.timeKey),
     title: t(definition.titleKey),
@@ -62,6 +98,15 @@ export function Experience() {
       definition.fallbackIcon,
     ).icon,
   }));
+  const experiences = savedSteps === null
+    ? legacyExperiences
+    : savedSteps.map((step) => ({
+        id: step.id,
+        time: step[language].time,
+        title: step[language].title,
+        description: step[language].description,
+        icon: getExperienceIconOption(step.icon).icon,
+      }));
 
   return (
     <section
