@@ -30,7 +30,15 @@ export default async function HomePage() {
     if (res.ok) {
       const { data } = await res.json()
       if (Array.isArray(data)) {
-        items = data.map((t: any, idx: number) => {
+        items = data.map((t: {
+          id?: number | string;
+          guest_name?: string;
+          guest_country?: string;
+          created_at?: string;
+          rating?: number;
+          content?: string;
+          featured?: boolean;
+        }, idx: number) => {
           const name: string = t.guest_name || fallbackName
           const country: string = t.guest_country || ''
           const created: string = t.created_at || new Date().toISOString()
