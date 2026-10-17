@@ -99,12 +99,14 @@ export default function ServicesPage() {
 
       <section className="bg-[#FFFDF8] py-12 sm:py-14 lg:py-16">
         <div className="site-container">
-          <ServiceList />
+          <ContentSection pageKey="services" sectionKey="intro"><ServiceList mode="intro" /></ContentSection>
+          <ContentSection pageKey="services" sectionKey="catalog"><ServiceList mode="catalog" /></ContentSection>
+          <ContentSection pageKey="services" sectionKey="cta"><ServiceList mode="cta" /></ContentSection>
           <div className="mt-14 grid grid-cols-1 gap-8 lg:grid-cols-2">
-            <SpaSection />
-            <RestaurantSection />
+            <ContentSection pageKey="services" sectionKey="spa"><SpaSection /></ContentSection>
+            <ContentSection pageKey="services" sectionKey="restaurant"><RestaurantSection /></ContentSection>
           </div>
-          <Activities />
+          <ContentSection pageKey="services" sectionKey="activities"><Activities /></ContentSection>
         </div>
       </section>
     </main>
