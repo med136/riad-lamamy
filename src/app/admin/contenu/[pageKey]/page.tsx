@@ -24,7 +24,7 @@ import { ServiceFeatureEditor } from "@/components/admin/ServiceFeatureEditor";
 import { ServicesCatalogEditor } from "@/components/admin/ServicesCatalogEditor";
 import { ServiceSectionControls } from "@/components/admin/ServiceSectionControls";
 import {
-  DEFAULT_FEATURES, CATALOG_SETTINGS_KEY, ITEM_SETTINGS_KEY,
+  DEFAULT_FEATURES, ITEM_SETTINGS_KEY,
   parseFeatureItems, validateServicesSectionSettings,
   type Feature,
 } from "@/lib/services-content";
@@ -119,7 +119,7 @@ export default function ContentPageEditor() {
       !(pageKey === "about" && ["values", "team"].includes(activeDefinition.key) &&
         /^about\\.(values\\.(authenticity|welcome|detail|closeness)\\.(title|description)|team\\.(attentive|advice|tailored)\\.(kicker|title|description))$/.test(item.key)),
     );
-  }, [translations, activeDefinition]);
+  }, [translations, activeDefinition, pageKey]);
 
   const experienceSteps = useMemo(() => {
     const raw = sections.find((section) => section.sectionKey === "experience")
