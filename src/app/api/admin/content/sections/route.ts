@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { CMS_PAGES } from "@/lib/cms/catalog";
 import { requireAdmin } from "@/lib/cms/requireAdmin";
 import { validateServicesSectionSettings } from "@/lib/services-content";
+import { ABOUT_CARDS_SETTINGS_KEY, validateAboutCards } from "@/lib/about-cards";
 import {
   ROOM_COMFORT_FEATURES_SETTING_KEY,
   validateRoomComfortFeatures,
@@ -60,6 +61,15 @@ export async function PUT(request: Request) {
       for (const section of body.sections) {
         const issue=validateServicesSectionSettings(section.sectionKey,section.settings??{});
         if(issue) return NextResponse.json({error: `${section.sectionKey}: ${issue}`},{status:400});
+      }
+    }
+
+    if (body.pageKey === "about") {
+      for (const section of body.sections) {
+        if (section.sectionKey !== "values" && section.sectionKey !== "team") continue;
+        if (!section.settings || !Object.prototype.hasOwnProperty.call(section.settings, ABOUT_CARDS_SETTINGS_KEY)) continue;
+        const error = validateAboutCards(section.settings[ABOUT_CARDS_SETTINGS_KEY]);
+        if (error) return NextResponse.json({ error: `${section.sectionKey}: ${error}` }, { status: 400 });
       }
     }
 
