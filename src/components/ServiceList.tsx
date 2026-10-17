@@ -133,7 +133,7 @@ export function ServiceList({ mode = "all" }: { mode?: "intro"|"catalog"|"cta"|"
                   const saved=displayConfig?.services.find(x=>x.id===item.id);
                   const local=saved?.[language];
                   const Icon=getExperienceIconOption(saved?.icon||item.icon||configured.icon).icon;
-                  const price=typeof item.price==="number"&&item.price>0? `${item.price.toLocaleString("fr-FR")} ${t("services.catalog.currency")}` : null;
+                  const price=typeof item.price==="number"&&item.price>0? `${item.price.toLocaleString("fr-FR")} DH` : null;
                   return <motion.article key={item.id} initial={{opacity:0,y:10}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.3,delay:index*0.04}}
                     className="rounded-[20px] border border-[#B28A47]/15 bg-[#FFFDF8] p-5 transition-all duration-200 hover:-translate-y-px hover:border-[#B28A47]/30">
                     <div className="flex items-start justify-between gap-4">
