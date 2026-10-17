@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { CMS_PAGES } from "@/lib/cms/catalog";
 import { requireAdmin } from "@/lib/cms/requireAdmin";
 import { validateServicesSectionSettings } from "@/lib/services-content";
+import { validateSoulSettings } from "@/lib/home-soul";
 import { ABOUT_CARDS_SETTINGS_KEY, validateAboutCards } from "@/lib/about-cards";
 import {
   ROOM_COMFORT_FEATURES_SETTING_KEY,
@@ -40,6 +41,14 @@ export async function PUT(request: Request) {
     };
 
     if (!body.pageKey || !Array.isArray(body.sections)) return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+
+    if (body.pageKey === "home") {
+      const soul = body.sections.find((section) => section.sectionKey === "soul");
+      if (soul?.settings) {
+        const error = validateSoulSettings(soul.settings);
+        if (error) return NextResponse.json({ error: `soul: ${error}` }, { status: 400 });
+      }
+    }
 
     if (body.pageKey === "home") {
       const experience = body.sections.find((section) => section.sectionKey === "experience");

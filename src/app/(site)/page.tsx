@@ -3,6 +3,7 @@ import { BookingWidget } from "@/components/BookingWidget";
 import { RoomPreview } from "@/components/RoomPreview";
 import { Services } from "@/components/Services";
 import { AboutPreview } from "@/components/AboutPreview";
+import { HomeSoulSection } from "@/components/HomeSoulSection";
 import { Testimonials, type TestimonialItem } from "@/components/Testimonials";
 import { GalleryPreview } from "@/components/GalleryPreview";
 import { Experience } from "@/components/Experience";
@@ -29,7 +30,15 @@ export default async function HomePage() {
     if (res.ok) {
       const { data } = await res.json()
       if (Array.isArray(data)) {
-        items = data.map((t: any, idx: number) => {
+        items = data.map((t: {
+          id?: number | string;
+          guest_name?: string;
+          guest_country?: string;
+          created_at?: string;
+          rating?: number;
+          content?: string;
+          featured?: boolean;
+        }, idx: number) => {
           const name: string = t.guest_name || fallbackName
           const country: string = t.guest_country || ''
           const created: string = t.created_at || new Date().toISOString()
@@ -104,6 +113,7 @@ export default async function HomePage() {
       <ContentSection pageKey="home" sectionKey="hero"><Hero /></ContentSection>
       <ContentSection pageKey="home" sectionKey="booking"><BookingWidget /></ContentSection>
       <ContentSection pageKey="home" sectionKey="about"><AboutPreview /></ContentSection>
+      <ContentSection pageKey="home" sectionKey="soul"><HomeSoulSection /></ContentSection>
       <ContentSection pageKey="home" sectionKey="rooms"><RoomPreview /></ContentSection>
       <ContentSection pageKey="home" sectionKey="services"><Services /></ContentSection>
       <ContentSection pageKey="home" sectionKey="experience"><Experience /></ContentSection>
