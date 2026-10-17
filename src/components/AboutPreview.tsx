@@ -287,7 +287,7 @@ export function AboutPreview() {
                 "
               >
                 <span>
-{t("home.about.cta")}
+                  {t("home.about.cta")}
                 </span>
 
                 <span
