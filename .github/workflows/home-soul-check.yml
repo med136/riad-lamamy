@@ -1,0 +1,35 @@
+name: Home Soul video quality
+on:
+  push:
+    branches:
+      - feat/home-soul-video-section-20261017
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "src/components/HomeSoulSection.tsx"
+      - "src/components/admin/HomeSoulMediaEditor.tsx"
+      - "src/lib/home-soul*"
+      - "src/lib/i18n.ts"
+      - "src/lib/cms/catalog.ts"
+      - "src/app/(site)/page.tsx"
+      - "src/app/admin/contenu/**"
+      - "src/app/api/admin/content/soul-video/**"
+      - "src/app/api/admin/content/sections/**"
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - name: TypeScript
+        run: npx tsc --noEmit
+      - name: Soul CMS tests
+        run: node --test --experimental-strip-types src/lib/home-soul.test.ts
+      - name: ESLint
+        run: npx eslint src/lib/home-soul.ts src/lib/home-soul.test.ts src/components/HomeSoulSection.tsx src/components/admin/HomeSoulMediaEditor.tsx 'src/app/(site)/page.tsx' 'src/app/admin/contenu/[pageKey]/page.tsx' 'src/app/api/admin/content/soul-video/route.ts' 'src/app/api/admin/content/sections/route.ts'
