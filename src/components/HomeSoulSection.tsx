@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
-import { getSoulSettings, type SoulSettings } from "@/lib/home-soul";
+import { getSoulSettings } from "@/lib/home-soul";
 
 export function HomeSoulSection() {
   const { t, language } = useLanguage();
@@ -28,7 +28,7 @@ export function HomeSoulSection() {
         const section = Array.isArray(body?.items)
           ? body.items.find((entry: { section_key?: string }) => entry.section_key === "soul")
           : null;
-        if (!controller.signal.aborted) setSettings(getSoulSettings(section?.settings as SoulSettings | undefined));
+        if (!controller.signal.aborted) setSettings(getSoulSettings(section?.settings as Record<string, unknown> | undefined));
       } catch (error) {
         if (!controller.signal.aborted) console.error("Chargement de L’âme de Dar LaMamy impossible", error);
       }
