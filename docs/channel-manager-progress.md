@@ -11,7 +11,7 @@ Plan: `docs/superpowers/plans/2026-10-17-channel-manager.md`
 | --- | --- | --- |
 | Baseline and schema audit | Complete | Live read-only audit completed; 2 unit tests and TypeScript passed |
 | Phase 0 direct reservations | Verified (DB/domain) | Fresh local rebuild, 11/11 DB tests, 5/5 focused unit tests, targeted lint, TypeScript, and production build pass; isolated HTTP smoke pending |
-| Phase 1 iCalendar channels | Not started | — |
+| Phase 1 iCalendar channels | In progress | Core channel/mapping/run/conflict schema, RLS, and redacted DTOs verified locally |
 | Phase 2 automation and operations | Not started | — |
 | Final security and end-to-end verification | Not started | — |
 
@@ -41,6 +41,9 @@ Plan: `docs/superpowers/plans/2026-10-17-channel-manager.md`
 | 2026-10-17 | `npm run build` | PASS — 64 routes/pages generated |
 | 2026-10-17 | Repository-wide `npm run lint` | BASELINE DEFECT — 129 existing errors across unrelated legacy files; modified reservation files pass targeted lint |
 | 2026-10-17 | Isolated HTTP smoke on port 3001 | BLOCKED SAFELY — existing build embedded remote public URL while runtime key was local; requests failed with invalid key and created no reservation |
+| 2026-10-17 | Channel core `supabase db reset` | PASS — channel tables, foreign keys, indexes, triggers, RLS, and seed rebuild |
+| 2026-10-17 | Live channel RLS test | PASS — anon secret-table read rejected; service role creates disabled channel and cleans it |
+| 2026-10-17 | Channel DTO tests | PASS — 2/2, ciphertext and token hashes absent from serialized DTOs |
 
 ## Migration status
 
