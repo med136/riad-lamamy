@@ -66,6 +66,12 @@ export const CMS_PAGES: CmsPageDefinition[] = [
     },
     sections: [
       { key: "hero", label: "Hero", description: "Image, titre, sous-titre et accroches du Hero de la page.", translationPrefixes: ["services.hero."] },
+      { key: "intro", label: "Présentation", description: "Titre, accroche et texte introductif de la page Services.", translationPrefixes: ["services.intro."] },
+      { key: "catalog", label: "Catalogue des services", description: "Catégories, icônes et traduction des services ; prix et données métier dans Module Services.", translationPrefixes: ["services.catalog."] },
+      { key: "cta", label: "Bannière de contact", description: "Textes, bouton et lien de la bannière verte.", translationPrefixes: ["services.cta."] },
+      { key: "spa", label: "Bien-être", description: "Textes et prestations de la section Bien-être.", translationPrefixes: ["services.spa."] },
+      { key: "restaurant", label: "La table", description: "Textes et spécialités de la section La table.", translationPrefixes: ["services.restaurant."] },
+      { key: "activities", label: "Expériences", description: "Textes, durées et activités pour découvrir Fès.", translationPrefixes: ["services.activities."] },
     ],
   },
   {
