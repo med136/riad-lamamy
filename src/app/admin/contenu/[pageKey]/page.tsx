@@ -10,6 +10,14 @@ import { ABOUT_STAT_KEYS } from "@/lib/about-stats";
 import { ExperienceIconGuide } from "@/components/admin/ExperienceIconGuide";
 import { ExperienceStepsEditor } from "@/components/admin/ExperienceStepsEditor";
 import { RoomComfortEditor } from "@/components/admin/RoomComfortEditor";
+import { ServiceFeatureEditor } from "@/components/admin/ServiceFeatureEditor";
+import { ServicesCatalogEditor } from "@/components/admin/ServicesCatalogEditor";
+import { ServiceSectionControls } from "@/components/admin/ServiceSectionControls";
+import {
+  DEFAULT_FEATURES, CATALOG_SETTINGS_KEY, ITEM_SETTINGS_KEY,
+  parseFeatureItems, validateServicesSectionSettings,
+  type Feature,
+} from "@/lib/services-content";
 import {
   DEFAULT_ROOM_COMFORT_FEATURES,
   ROOM_COMFORT_FEATURES_SETTING_KEY,
@@ -190,6 +198,12 @@ export default function ContentPageEditor() {
         }
       }
     }
+    if (pageKey === "services") {
+      for (const section of sections) {
+        const issue=validateServicesSectionSettings(section.sectionKey,section.settings);
+        if(issue){toast.error(`${section.label}: ${issue}`);return;}
+      }
+    }
     setSaving(true);
     try {
       const translationRows = translations
@@ -355,6 +369,31 @@ export default function ContentPageEditor() {
                     language={language}
                     onChange={updateTranslation}
                   />
+                ) : null}
+
+                {pageKey === "services" ? (
+                  <>
+                    {["spa","restaurant","activities"].includes(activeDefinition.key) ? (
+                      <ServiceFeatureEditor
+                        items={parseFeatureItems(activeSectionState?.settings?.[ITEM_SETTINGS_KEY]) ?? DEFAULT_FEATURES[activeDefinition.key as "spa"|"restaurant"|"activities"]}
+                        language={language}
+                        withMeta={activeDefinition.key === "activities"}
+                        onChange={(items:Feature[])=>updateSectionSetting(activeDefinition.key,ITEM_SETTINGS_KEY,items)}
+                      />
+                    ) : null}
+                    {activeDefinition.key === "catalog" ? (
+                      <ServicesCatalogEditor
+                        settings={activeSectionState?.settings ?? {}}
+                        language={language}
+                        onSetting={(key,value)=>updateSectionSetting(activeDefinition.key,key,value)}
+                      />
+                    ) : null}
+                    <ServiceSectionControls
+                      sectionKey={activeDefinition.key}
+                      settings={activeSectionState?.settings ?? {}}
+                      onSetting={(key,value)=>updateSectionSetting(activeDefinition.key,key,value)}
+                    />
+                  </>
                 ) : null}
 
                 {pageKey === "rooms" && activeDefinition.key === "comfort" ? (
