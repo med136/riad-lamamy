@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { CMS_PAGES } from "@/lib/cms/catalog";
 import { requireAdmin } from "@/lib/cms/requireAdmin";
+import {
+  EXPERIENCE_STEPS_SETTING_KEY,
+  validateExperienceSteps,
+} from "@/lib/experience-steps";
 
 export async function GET(request: Request) {
   try {
@@ -30,6 +34,14 @@ export async function PUT(request: Request) {
     };
 
     if (!body.pageKey || !Array.isArray(body.sections)) return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+
+    if (body.pageKey === "home") {
+      const experience = body.sections.find((section) => section.sectionKey === "experience");
+      if (experience?.settings && Object.prototype.hasOwnProperty.call(experience.settings, EXPERIENCE_STEPS_SETTING_KEY)) {
+        const error = validateExperienceSteps(experience.settings[EXPERIENCE_STEPS_SETTING_KEY]);
+        if (error) return NextResponse.json({ error }, { status: 400 });
+      }
+    }
 
     const rows = body.sections.map((section) => ({
       page_key: body.pageKey,
