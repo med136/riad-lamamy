@@ -13,7 +13,7 @@ const originalCodes = [
 ];
 
 test("propose un large catalogue organisé sans codes dupliqués", () => {
-  const codes = EXPERIENCE_ICON_OPTIONS.map(({ code }) => code);
+  const codes: string[] = EXPERIENCE_ICON_OPTIONS.map(({ code }) => code);
   const categories = new Set(EXPERIENCE_ICON_CATEGORIES.map(({ id }) => id));
 
   assert.ok(codes.length >= 70);
