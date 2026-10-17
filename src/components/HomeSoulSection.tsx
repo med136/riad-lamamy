@@ -6,6 +6,12 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { getSoulSettings } from "@/lib/home-soul";
+import {
+  HOME_SOUL_CTA_CLASS,
+  HOME_SOUL_MEDIA_CLASS,
+  HOME_SOUL_TEXT_CLASS,
+  getSoulParagraphClass,
+} from "@/lib/home-soul-layout";
 
 export function HomeSoulSection() {
   const { t, language } = useLanguage();
@@ -89,7 +95,7 @@ export function HomeSoulSection() {
             className="relative mx-auto w-full max-w-[640px] lg:max-w-none"
           >
             <div aria-hidden="true" className="pointer-events-none absolute -bottom-3 -left-3 -right-3 top-3 hidden rounded-[30px] border border-[#B28A47]/30 sm:block" />
-            <div className="relative aspect-[4/5] max-h-[680px] overflow-hidden rounded-[26px] border border-[#B28A47]/25 bg-[#10251f] shadow-[0_30px_80px_-42px_rgba(35,20,12,0.36)] sm:aspect-[5/6]">
+            <div className={HOME_SOUL_MEDIA_CLASS}>
               <div
                 className="absolute inset-0 bg-cover bg-center"
                 style={{ backgroundImage: `url("${settings.posterUrl.replace(/["\\]/g, "\\$&")}")` }}
@@ -156,18 +162,18 @@ export function HomeSoulSection() {
               <span className="h-1.5 w-1.5 rotate-45 border border-[#B28A47]" />
               <span className="h-px flex-1 bg-[#B28A47]/45" />
             </div>
-            <div className="mt-7 space-y-5 text-[15px] font-light leading-[1.85] text-[#6F625C] sm:text-base">
-              {(["home.soul.paragraph_1", "home.soul.paragraph_2", "home.soul.paragraph_3"] as const).map((key) =>
-                t(key).trim() ? <p key={key}>{t(key)}</p> : null,
+            <div className={HOME_SOUL_TEXT_CLASS}>
+              {(["home.soul.paragraph_1", "home.soul.paragraph_2", "home.soul.paragraph_3"] as const).map((key, index) =>
+                t(key).trim() ? <p key={key} className={getSoulParagraphClass(index)}>{t(key)}</p> : null,
               )}
             </div>
             {settings.showCta && t("home.soul.cta").trim() ? (
               <Link
                 href={settings.ctaHref}
-                className="mt-8 inline-flex items-center gap-3 text-sm font-semibold text-[#0F5A46] transition hover:text-[#0B4436] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B28A47]/60"
+                className={HOME_SOUL_CTA_CLASS}
               >
                 {t("home.soul.cta")}
-                <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#B28A47]/40">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/35">
                   <ArrowUpRight size={17} strokeWidth={1.7} aria-hidden="true" />
                 </span>
               </Link>

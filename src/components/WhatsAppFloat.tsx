@@ -8,6 +8,10 @@ import {
 import {
   MessageCircle,
 } from "lucide-react";
+import {
+  WHATSAPP_BUTTON_SIZE_CLASS,
+  WHATSAPP_POSITION_CLASS,
+} from "@/lib/home-soul-layout";
 
 import {
   trackEvent,
@@ -147,16 +151,7 @@ export function WhatsAppFloat() {
      ========================================================= */
 
   return (
-    <div
-      className="
-        fixed
-        bottom-5
-        right-5
-        z-40
-        sm:bottom-6
-        sm:right-6
-      "
-    >
+    <div className={WHATSAPP_POSITION_CLASS}>
       <div className="relative">
         {/* ===================================================
             TOOLTIP
@@ -265,12 +260,11 @@ export function WhatsAppFloat() {
           aria-label={t(
             "whatsapp.tooltip",
           )}
-          className="
+          className={`
             group
             relative
             flex
-            h-[54px]
-            w-[54px]
+            ${WHATSAPP_BUTTON_SIZE_CLASS}
             items-center
             justify-center
 
@@ -298,9 +292,7 @@ export function WhatsAppFloat() {
             focus-visible:ring-offset-2
             focus-visible:ring-offset-[#F8F5EF]
 
-            sm:h-[58px]
-            sm:w-[58px]
-          "
+          `}
         >
           {/* subtle gold ring */}
 
