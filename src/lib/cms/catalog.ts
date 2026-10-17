@@ -32,6 +32,7 @@ export const CMS_PAGES: CmsPageDefinition[] = [
       { key: "hero", label: "Hero", description: "Titre, sous-titre, boutons et médias principaux.", translationPrefixes: ["home.hero."] },
       { key: "booking", label: "Réservation rapide", description: "Textes du module de réservation rapide affiché sur l’accueil.", translationPrefixes: ["booking_", "booking."] },
       { key: "about", label: "Présentation", description: "Introduction à Dar LaMamy.", translationPrefixes: ["home.about."] },
+      { key: "soul", label: "L’âme de Dar LaMamy", description: "Présentation immersive : vidéo, textes bilingues et bouton.", translationPrefixes: ["home.soul."] },
       { key: "rooms", label: "Chambres mises en avant", description: "Textes éditoriaux de présentation des chambres sur l’accueil.", translationPrefixes: ["home.rooms."] },
       { key: "services", label: "Services", description: "Textes éditoriaux de présentation des services sur l’accueil.", translationPrefixes: ["home.services."] },
       { key: "experience", label: "Expérience / Fès", description: "Contenu éditorial autour de l’expérience à Fès.", translationPrefixes: ["home.experience."] },
