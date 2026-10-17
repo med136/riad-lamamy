@@ -9,6 +9,13 @@ import { AboutStatsEditor } from "@/components/admin/AboutStatsEditor";
 import { ABOUT_STAT_KEYS } from "@/lib/about-stats";
 import { ExperienceIconGuide } from "@/components/admin/ExperienceIconGuide";
 import { ExperienceStepsEditor } from "@/components/admin/ExperienceStepsEditor";
+import { RoomComfortEditor } from "@/components/admin/RoomComfortEditor";
+import {
+  DEFAULT_ROOM_COMFORT_FEATURES,
+  ROOM_COMFORT_FEATURES_SETTING_KEY,
+  parseRoomComfortFeatures,
+  validateRoomComfortFeatures,
+} from "@/lib/room-comfort";
 import {
   EXPERIENCE_STEPS_SETTING_KEY,
   legacyExperienceSteps,
@@ -105,6 +112,12 @@ export default function ContentPageEditor() {
     });
   }, [sections, translations]);
 
+  const roomComfortFeatures = useMemo(() => {
+    const raw = sections.find((section) => section.sectionKey === "comfort")
+      ?.settings?.[ROOM_COMFORT_FEATURES_SETTING_KEY];
+    return parseRoomComfortFeatures(raw) ?? DEFAULT_ROOM_COMFORT_FEATURES;
+  }, [sections]);
+
   const activeSectionState = sections.find((section) => section.sectionKey === activeDefinition?.key) ?? null;
   const activeHeroImage = typeof activeSectionState?.settings?.heroImage === "string"
     ? String(activeSectionState.settings.heroImage)
@@ -164,6 +177,17 @@ export default function ContentPageEditor() {
       if (error) {
         toast.error(error);
         return;
+      }
+    }
+    if (pageKey === "rooms") {
+      const comfortRaw = sections.find((section) => section.sectionKey === "comfort")
+        ?.settings?.[ROOM_COMFORT_FEATURES_SETTING_KEY];
+      if (comfortRaw !== undefined) {
+        const error = validateRoomComfortFeatures(comfortRaw);
+        if (error) {
+          toast.error(error);
+          return;
+        }
       }
     }
     setSaving(true);
@@ -330,6 +354,16 @@ export default function ContentPageEditor() {
                     translations={translations}
                     language={language}
                     onChange={updateTranslation}
+                  />
+                ) : null}
+
+                {pageKey === "rooms" && activeDefinition.key === "comfort" ? (
+                  <RoomComfortEditor
+                    features={roomComfortFeatures}
+                    language={language}
+                    onChange={(features) => updateSectionSetting(
+                      "comfort", ROOM_COMFORT_FEATURES_SETTING_KEY, features,
+                    )}
                   />
                 ) : null}
 
