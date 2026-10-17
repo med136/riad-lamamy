@@ -1,0 +1,38 @@
+name: Services CMS quality
+on:
+  push:
+    branches:
+      - feat/services-page-full-cms-20261017
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "src/components/ServiceList.tsx"
+      - "src/components/SpaSection.tsx"
+      - "src/components/RestaurantSection.tsx"
+      - "src/components/Activities.tsx"
+      - "src/components/services/**"
+      - "src/components/admin/Service*"
+      - "src/lib/services-content*"
+      - "src/lib/i18n.ts"
+      - "src/lib/cms/catalog.ts"
+      - "src/app/(site)/services/**"
+      - "src/app/admin/contenu/**"
+      - "src/app/api/admin/content/sections/**"
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - name: TypeScript type-check
+        run: npx tsc --noEmit
+      - name: Services CMS tests
+        run: node --test --experimental-strip-types src/lib/services-content.test.ts
+      - name: Targeted ESLint
+        run: npx eslint src/lib/services-content.ts src/lib/services-content.test.ts src/components/ServiceList.tsx src/components/services src/components/admin/ServiceFeatureEditor.tsx src/components/admin/ServicesCatalogEditor.tsx src/components/admin/ServiceSectionControls.tsx
