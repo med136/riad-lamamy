@@ -10,7 +10,7 @@ Plan: `docs/superpowers/plans/2026-10-17-channel-manager.md`
 | Milestone | Status | Evidence |
 | --- | --- | --- |
 | Baseline and schema audit | Complete | Live read-only audit completed; 2 unit tests and TypeScript passed |
-| Phase 0 direct reservations | Complete | Fresh local rebuild, 11/11 contract + live API tests, database lint, and TypeScript pass |
+| Phase 0 direct reservations | Verified (DB/domain) | Fresh local rebuild, 11/11 DB tests, 5/5 focused unit tests, targeted lint, TypeScript, and production build pass; isolated HTTP smoke pending |
 | Phase 1 iCalendar channels | Not started | — |
 | Phase 2 automation and operations | Not started | — |
 | Final security and end-to-end verification | Not started | — |
@@ -36,6 +36,11 @@ Plan: `docs/superpowers/plans/2026-10-17-channel-manager.md`
 | 2026-10-17 | Phase 0 live concurrency test | PASS — exactly one of two overlapping writes succeeds; same-day turnover succeeds; 11/11 total |
 | 2026-10-17 | `supabase db lint` | PASS — no schema errors |
 | 2026-10-17 | `npx tsc --noEmit` | PASS after Phase 0 migration work |
+| 2026-10-17 | `npm run test:channel` | PASS — 5/5 schema-audit and reservation-domain tests |
+| 2026-10-17 | Focused ESLint for reservation domain/routes/form | PASS |
+| 2026-10-17 | `npm run build` | PASS — 64 routes/pages generated |
+| 2026-10-17 | Repository-wide `npm run lint` | BASELINE DEFECT — 129 existing errors across unrelated legacy files; modified reservation files pass targeted lint |
+| 2026-10-17 | Isolated HTTP smoke on port 3001 | BLOCKED SAFELY — existing build embedded remote public URL while runtime key was local; requests failed with invalid key and created no reservation |
 
 ## Migration status
 

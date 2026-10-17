@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test:channel": "node --test --experimental-strip-types src/lib/channel-manager/**/*.test.ts",
+    "test:channel": "node --test --experimental-strip-types src/lib/channel-manager/**/*.test.ts src/lib/reservations/**/*.test.ts",
     "test:channel:integration": "node --test --experimental-strip-types tests/integration/channel-manager/**/*.test.ts",
     "audit:channel-schema": "node --experimental-strip-types scripts/audit-channel-manager-schema.mjs",
     "test:hero-media": "node --test --experimental-strip-types src/lib/hero-media.test.ts",
