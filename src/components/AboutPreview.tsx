@@ -5,15 +5,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
-import { ABOUT_STAT_DEFINITIONS } from "@/lib/about-stats";
+import { getAboutStats } from "@/lib/about-stats";
 
 export function AboutPreview() {
   const { t } = useLanguage();
-  const stats = ABOUT_STAT_DEFINITIONS.map(({ id, valueKey, labelKey }) => ({
-    id,
-    value: t(valueKey),
-    label: t(labelKey),
-  }));
+  const stats = getAboutStats(t);
 
   return (
     <section
