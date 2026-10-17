@@ -52,7 +52,7 @@ export function validateSoulSettings(settings: Record<string, unknown>): string 
   return null;
 }
 
-export function getSoulSettings(settings: Record<string, unknown> | null | undefined): Required<SoulSettings> {
+export function getSoulSettings(settings: Record<string, unknown> | null | undefined = undefined): Required<SoulSettings> {
   const data = settings ?? {};
   return {
     videoUrl: typeof data.videoUrl === "string" && isAllowedSoulMedia(data.videoUrl, "video") && data.videoUrl
