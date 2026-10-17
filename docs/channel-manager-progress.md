@@ -46,6 +46,7 @@ Plan: `docs/superpowers/plans/2026-10-17-channel-manager.md`
 | 2026-10-17 | Channel DTO tests | PASS — 2/2, ciphertext and token hashes absent from serialized DTOs |
 | 2026-10-17 | Channel security unit suite | PASS — AES-256-GCM roundtrip/tamper/wrong-key and SSRF public/private/mixed-DNS cases; 12/12 focused tests total |
 | 2026-10-17 | Focused security ESLint + TypeScript | PASS |
+| 2026-10-17 | iCalendar parser/exporter tests | PASS — folded Unicode, dates/timestamps, cancellation, recurrence rejection, opaque privacy-safe export; focused suite 16/16 |
 
 ## Migration status
 
