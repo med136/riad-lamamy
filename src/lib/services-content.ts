@@ -75,12 +75,12 @@ export function parseCatalogSettings(value: unknown): CatalogSettings|null {
   const services: ServicePresentation[] = [];
   for(const raw of value.categories) {
     if(!isObj(raw)||!validText(raw.category,120)||!(raw.category as string).trim()||!validIcon(raw.icon)||!isObj(raw.fr)||!isObj(raw.en))return null;
-    for(const lang of ["fr","en"] as const) if(!validText(raw[lang].title,200)||!validText(raw[lang].subtitle,500)) return null;
+    for(const lang of ["fr","en"] as const) { const copy=raw[lang]; if(!isObj(copy)||!validText(copy.title,200)||!validText(copy.subtitle,500)) return null; }
     categories.push({category:raw.category as string,icon:raw.icon,fr:raw.fr as CategoryPresentation["fr"],en:raw.en as CategoryPresentation["en"]});
   }
   for(const raw of value.services) {
     if(!isObj(raw)||typeof raw.id!=="string"||!/^[-a-zA-Z0-9_]{1,90}$/.test(raw.id)||!validIcon(raw.icon)||!isObj(raw.fr)||!isObj(raw.en))return null;
-    for(const lang of ["fr","en"] as const) if(!validText(raw[lang].title,200)||!validText(raw[lang].description,2000))return null;
+    for(const lang of ["fr","en"] as const) { const copy=raw[lang]; if(!isObj(copy)||!validText(copy.title,200)||!validText(copy.description,2000))return null; }
     services.push({id:raw.id,icon:raw.icon,fr:raw.fr as ServicePresentation["fr"],en:raw.en as ServicePresentation["en"]});
   }
   if(!validUnique(categories.map(x=>x.category))||!validUnique(services.map(x=>x.id)))return null;
@@ -99,4 +99,21 @@ export function validateServicesSectionSettings(sectionKey:string,settings:Recor
   if(Object.prototype.hasOwnProperty.call(settings,"linkHref")&&!validHref(settings.linkHref))return "Lien invalide : utilisez un chemin interne tel que /contact.";
   if(Object.prototype.hasOwnProperty.call(settings,"headerIcon")&&!validIcon(settings.headerIcon))return "Icône de section invalide.";
   return null;
+}
+
+/** DB categories are canonical; these only customise public presentation. */
+export function defaultCategoryPresentation(category:string):CategoryPresentation {
+  const normalized=category.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  const fromFallback=DEFAULT_CATEGORIES.find(x=>x.category===category);
+  if(fromFallback)return fromFallback;
+  const food=normalized.includes("resta")||normalized.includes("table")||normalized.includes("repas");
+  const transport=normalized.includes("trans")||normalized.includes("deplac")||normalized.includes("aeroport");
+  const travel=normalized.includes("activ")||normalized.includes("excurs")||normalized.includes("visite")||normalized.includes("fes");
+  const custom=normalized.includes("mesure")||normalized.includes("personnalis");
+  return {
+    category,
+    icon:food?"utensils":transport?"car-front":travel?"map":custom?"camera":"sparkles",
+    fr:{title:category,subtitle:food?"Saveurs & moments à partager":transport?"Arriver et se déplacer en toute sérénité":travel?"Explorer Fès autrement":custom?"Des attentions pensées pour vous":"Pensé autour de votre séjour"},
+    en:{title:category,subtitle:food?"Flavours and moments to share":transport?"Travel with peace of mind":travel?"Explore Fès differently":custom?"Thoughtful personal touches":"Designed around your stay"},
+  };
 }
