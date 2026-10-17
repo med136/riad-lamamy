@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { CMS_PAGES } from "@/lib/cms/catalog";
 import { requireAdmin } from "@/lib/cms/requireAdmin";
+import { validateServicesSectionSettings } from "@/lib/services-content";
 import {
   ROOM_COMFORT_FEATURES_SETTING_KEY,
   validateRoomComfortFeatures,
@@ -52,6 +53,13 @@ export async function PUT(request: Request) {
       if (comfort?.settings && Object.prototype.hasOwnProperty.call(comfort.settings, ROOM_COMFORT_FEATURES_SETTING_KEY)) {
         const error = validateRoomComfortFeatures(comfort.settings[ROOM_COMFORT_FEATURES_SETTING_KEY]);
         if (error) return NextResponse.json({ error }, { status: 400 });
+      }
+    }
+
+    if (body.pageKey === "services") {
+      for (const section of body.sections) {
+        const issue=validateServicesSectionSettings(section.sectionKey,section.settings??{});
+        if(issue) return NextResponse.json({error: `${section.sectionKey}: ${issue}`},{status:400});
       }
     }
 
