@@ -46,8 +46,7 @@ export function HomeSoulSection() {
     const preferReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     video.muted = true;
     if (preferReducedMotion) {
-      video.pause();
-      setPlaying(false);
+      video.pause(); // onPause synchronises the controls without setting state in this effect
       return;
     }
     void video.play().then(
