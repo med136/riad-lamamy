@@ -1,0 +1,37 @@
+name: About CMS quality
+on:
+  push:
+    branches:
+      - feat/about-full-cms-20261017
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "src/components/Values.tsx"
+      - "src/components/Team.tsx"
+      - "src/components/AboutHero.tsx"
+      - "src/components/about/**"
+      - "src/components/admin/AboutCardsEditor.tsx"
+      - "src/lib/about-cards*"
+      - "src/lib/i18n.ts"
+      - "src/lib/cms/catalog.ts"
+      - "src/app/(site)/a-propos/**"
+      - "src/app/admin/contenu/**"
+      - "src/app/api/admin/content/sections/**"
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - name: TypeScript
+        run: npx tsc --noEmit
+      - name: About CMS contracts
+        run: node --test --experimental-strip-types src/lib/about-cards.test.ts
+      - name: ESLint focused files
+        run: npx eslint src/lib/about-cards.ts src/lib/about-cards.test.ts src/components/Values.tsx src/components/Team.tsx src/components/about src/components/admin/AboutCardsEditor.tsx 'src/app/(site)/a-propos/page.tsx' 'src/app/admin/contenu/[pageKey]/page.tsx' 'src/app/api/admin/content/sections/route.ts'
