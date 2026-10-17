@@ -109,8 +109,9 @@ export const CMS_PAGES: CmsPageDefinition[] = [
     route: "/a-propos",
     sections: [
       { key: "hero", label: "Hero", description: "Introduction de la page À propos.", translationPrefixes: ["about.hero.", "about.kicker"] },
-      { key: "values", label: "Valeurs", description: "Valeurs et promesse d’accueil.", translationPrefixes: ["about.values."] },
-      { key: "team", label: "Esprit de la maison", description: "Accueil, conseils et attentions.", translationPrefixes: ["about.team."] },
+      { key: "values", label: "Valeurs", description: "Textes, cartes, icônes et ordre des valeurs.", translationPrefixes: ["about.values."] },
+      { key: "team", label: "Esprit de la maison", description: "Textes, cartes, icônes et ordre des attentions.", translationPrefixes: ["about.team."] },
+      { key: "experience", label: "L’expérience Dar LaMamy", description: "Afficher ou masquer la frise sur À propos, sans modifier la page Accueil.", translationPrefixes: [] },
     ],
   },
   {
