@@ -4,28 +4,23 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { ExperienceIconGuide } from "./ExperienceIconGuide.ts";
+import { EXPERIENCE_ICON_OPTIONS } from "../../lib/experience-icons.ts";
 
-test("affiche une grille avec chaque code d’icône accepté", () => {
+test("affiche toutes les icônes autorisées et leurs catégories", () => {
   const html = renderToStaticMarkup(createElement(ExperienceIconGuide));
-  const expectedCodes = [
-    "sunrise",
-    "compass",
-    "coffee",
-    "moon",
-    "star",
-    "heart",
-    "map-pin",
-    "sparkles",
-  ];
 
   assert.match(html, /Guide des icônes/);
-  assert.match(html, /Copiez exactement un de ces codes/);
+  assert.match(html, /Rechercher une icône/);
+  assert.match(html, /Moments &amp; ambiance/);
+  assert.match(html, /Découvrir Fès/);
+  assert.match(html, /type="search"/);
+  assert.match(html, /aria-live="polite"/);
+  assert.match(html, /Copier le code/);
 
-  for (const code of expectedCodes) {
+  for (const { code } of EXPERIENCE_ICON_OPTIONS) {
     assert.equal(
       (html.match(new RegExp(`<code[^>]*>${code}</code>`, "g")) ?? []).length,
       1,
     );
   }
 });
-
