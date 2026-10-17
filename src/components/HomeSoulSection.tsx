@@ -28,7 +28,11 @@ export function HomeSoulSection() {
         const section = Array.isArray(body?.items)
           ? body.items.find((entry: { section_key?: string }) => entry.section_key === "soul")
           : null;
-        if (!controller.signal.aborted) setSettings(getSoulSettings(section?.settings as Record<string, unknown> | undefined));
+        if (!controller.signal.aborted) {
+          setVideoFailed(false);
+          setMuted(true);
+          setSettings(getSoulSettings(section?.settings as Record<string, unknown> | undefined));
+        }
       } catch (error) {
         if (!controller.signal.aborted) console.error("Chargement de L’âme de Dar LaMamy impossible", error);
       }
@@ -41,8 +45,6 @@ export function HomeSoulSection() {
     if (!video) return;
     const preferReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     video.muted = true;
-    setMuted(true);
-    setVideoFailed(false);
     if (preferReducedMotion) {
       video.pause();
       setPlaying(false);
