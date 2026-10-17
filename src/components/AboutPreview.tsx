@@ -5,28 +5,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
-
-const stats = [
-  {
-    value: "15 ans",
-    label: "d’expérience",
-  },
-  {
-    value: "12",
-    label: "chambres uniques",
-  },
-  {
-    value: "5 000+",
-    label: "voyageurs accueillis",
-  },
-  {
-    value: "98 %",
-    label: "de satisfaction",
-  },
-];
+import { getAboutStats } from "@/lib/about-stats";
 
 export function AboutPreview() {
   const { t } = useLanguage();
+  const stats = getAboutStats(t);
 
   return (
     <section
@@ -225,7 +208,7 @@ export function AboutPreview() {
             >
               {stats.map((stat, index) => (
                 <motion.div
-                  key={stat.label}
+                  key={stat.id}
                   initial={{
                     opacity: 0,
                     y: 14,
@@ -304,7 +287,7 @@ export function AboutPreview() {
                 "
               >
                 <span>
-                  Découvrir notre histoire
+                  {t("home.about.cta")}
                 </span>
 
                 <span
