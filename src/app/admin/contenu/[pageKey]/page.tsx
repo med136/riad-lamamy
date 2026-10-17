@@ -6,6 +6,14 @@ import { useParams } from "next/navigation";
 import { ArrowLeft, ExternalLink, GripVertical, ImageIcon, Languages, Loader2, Save, UploadCloud } from "lucide-react";
 import toast from "react-hot-toast";
 import { ExperienceIconGuide } from "@/components/admin/ExperienceIconGuide";
+import { ExperienceStepsEditor } from "@/components/admin/ExperienceStepsEditor";
+import {
+  EXPERIENCE_STEPS_SETTING_KEY,
+  legacyExperienceSteps,
+  parseExperienceSteps,
+  validateExperienceSteps,
+} from "@/lib/experience-steps";
+import { baseMessages, type MessageKey } from "@/lib/i18n";
 import { findCmsPage, keyMatchesPrefixes } from "@/lib/cms/catalog";
 
 type TranslationItem = {
@@ -76,8 +84,23 @@ export default function ContentPageEditor() {
   const activeDefinition = page?.sections.find((section) => section.key === activeSection) ?? null;
   const activeTranslations = useMemo(() => {
     if (!activeDefinition) return [];
-    return translations.filter((item) => keyMatchesPrefixes(item.key, activeDefinition.translationPrefixes));
+    return translations.filter((item) =>
+      keyMatchesPrefixes(item.key, activeDefinition.translationPrefixes) &&
+      !(pageKey === "home" && activeDefinition.key === "experience" &&
+        /^home\\.experience\\.(morning|afternoon|evening|night)_(time|title|description|icon)$/.test(item.key)),
+    );
   }, [translations, activeDefinition]);
+
+  const experienceSteps = useMemo(() => {
+    const raw = sections.find((section) => section.sectionKey === "experience")
+      ?.settings?.[EXPERIENCE_STEPS_SETTING_KEY];
+    const saved = parseExperienceSteps(raw);
+    if (saved) return saved;
+    return legacyExperienceSteps((key, lang) => {
+      const entry = translations.find((item) => item.key === key);
+      return entry?.[lang] ?? baseMessages[lang][key as MessageKey] ?? "";
+    });
+  }, [sections, translations]);
 
   const activeSectionState = sections.find((section) => section.sectionKey === activeDefinition?.key) ?? null;
   const activeHeroImage = typeof activeSectionState?.settings?.heroImage === "string"
@@ -129,6 +152,17 @@ export default function ContentPageEditor() {
 
   const saveAll = async () => {
     if (!page) return;
+    const savedRaw = pageKey === "home"
+      ? sections.find((section) => section.sectionKey === "experience")
+        ?.settings?.[EXPERIENCE_STEPS_SETTING_KEY]
+      : undefined;
+    if (savedRaw !== undefined) {
+      const error = validateExperienceSteps(savedRaw);
+      if (error) {
+        toast.error(error);
+        return;
+      }
+    }
     setSaving(true);
     try {
       const translationRows = translations
@@ -289,7 +323,16 @@ export default function ContentPageEditor() {
                 })}</div> : <div className="mt-8 rounded-[16px] border border-dashed border-[#B28A47]/25 bg-[#F7F3EB]/55 p-6 text-center"><Languages className="mx-auto text-[#B28A47]" size={20}/><p className="mt-2 text-sm font-semibold text-[#2B1C17]">Aucune clé i18n reliée à cette section</p><p className="mt-1 text-xs text-[#6F625C]">La section reste contrôlable en visibilité. Les textes hardcodés pourront être migrés vers i18n progressivement.</p></div>}
 
                 {pageKey === "home" && activeDefinition.key === "experience" ? (
-                  <ExperienceIconGuide />
+                  <>
+                    <ExperienceStepsEditor
+                      steps={experienceSteps}
+                      language={language}
+                      onChange={(steps) => updateSectionSetting(
+                        "experience", EXPERIENCE_STEPS_SETTING_KEY, steps,
+                      )}
+                    />
+                    <ExperienceIconGuide />
+                  </>
                 ) : null}
               </>
             ) : null}
