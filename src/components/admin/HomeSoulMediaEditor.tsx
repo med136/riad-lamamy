@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ChangeEvent } from "react";
-import { Film, ImageIcon, Loader2, RotateCcw, UploadCloud } from "lucide-react";
+import { Film, ImageIcon, Loader2, RotateCcw } from "lucide-react";
 import toast from "react-hot-toast";
 import { createClient } from "@/lib/supabase/client";
 import {
