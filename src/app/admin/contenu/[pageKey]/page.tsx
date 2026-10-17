@@ -6,6 +6,8 @@ import { useParams } from "next/navigation";
 import { ArrowLeft, ExternalLink, GripVertical, ImageIcon, Languages, Loader2, Save, UploadCloud } from "lucide-react";
 import toast from "react-hot-toast";
 import { AboutStatsEditor } from "@/components/admin/AboutStatsEditor";
+import { HomeSoulMediaEditor } from "@/components/admin/HomeSoulMediaEditor";
+import { validateSoulSettings } from "@/lib/home-soul";
 import { AboutCardsEditor } from "@/components/admin/AboutCardsEditor";
 import {
   ABOUT_CARDS_SETTINGS_KEY,
@@ -209,6 +211,13 @@ export default function ContentPageEditor() {
         return;
       }
     }
+    if (pageKey === "home") {
+      const soulSettings = sections.find((section) => section.sectionKey === "soul")?.settings;
+      if (soulSettings) {
+        const error = validateSoulSettings(soulSettings);
+        if (error) { toast.error(error); return; }
+      }
+    }
     if (pageKey === "rooms") {
       const comfortRaw = sections.find((section) => section.sectionKey === "comfort")
         ?.settings?.[ROOM_COMFORT_FEATURES_SETTING_KEY];
@@ -396,6 +405,13 @@ export default function ContentPageEditor() {
                   const multiline = value.length > 90 || /(description|subtitle|answer|message)/i.test(item.key);
                   return <label key={item.key} className="block"><span className="mb-2 flex items-center justify-between gap-3"><span className="text-xs font-semibold capitalize text-[#5D514C]">{shortLabel}</span><code className="text-[9px] text-[#B28A47]">{item.key}</code></span>{multiline ? <textarea value={value} onChange={(e) => updateTranslation(item.key, e.target.value)} rows={4} className="w-full rounded-[14px] border border-[#B28A47]/18 bg-white px-4 py-3 text-sm leading-6 text-[#2B1C17] outline-none focus:border-[#0F5A46]/45"/> : <input value={value} onChange={(e) => updateTranslation(item.key, e.target.value)} className="h-12 w-full rounded-[14px] border border-[#B28A47]/18 bg-white px-4 text-sm text-[#2B1C17] outline-none focus:border-[#0F5A46]/45"/>}</label>;
                 })}</div> : <div className="mt-8 rounded-[16px] border border-dashed border-[#B28A47]/25 bg-[#F7F3EB]/55 p-6 text-center"><Languages className="mx-auto text-[#B28A47]" size={20}/><p className="mt-2 text-sm font-semibold text-[#2B1C17]">Aucune clé i18n reliée à cette section</p><p className="mt-1 text-xs text-[#6F625C]">La section reste contrôlable en visibilité. Les textes hardcodés pourront être migrés vers i18n progressivement.</p></div>}
+
+                {pageKey === "home" && activeDefinition.key === "soul" ? (
+                  <HomeSoulMediaEditor
+                    settings={activeSectionState?.settings ?? {}}
+                    onChange={(key, value) => updateSectionSetting("soul", key, value)}
+                  />
+                ) : null}
 
                 {pageKey === "home" && activeDefinition.key === "about" ? (
                   <AboutStatsEditor
