@@ -26,7 +26,7 @@ export function ServiceCmsFeatures({section}: {section:Section}) {
     return (
       <section className="py-14 sm:py-16">
         <div className="mx-auto mb-9 max-w-2xl text-center">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#B28A47]">{t("services.activities.kicker")}</p>
+          <p className="inline-flex items-center justify-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#B28A47]"><HeaderIcon size={14} aria-hidden="true"/>{t("services.activities.kicker")}</p>
           <h3 className="mt-3 font-serif text-[32px] font-medium leading-tight text-[#2B1C17] sm:text-[38px]">
             {t("services.activities.title")}
           </h3>
