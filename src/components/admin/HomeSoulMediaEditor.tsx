@@ -156,7 +156,7 @@ export function HomeSoulMediaEditor({ settings, onChange }: Props) {
         </label>
         <label className="mt-3 block space-y-1 text-xs font-semibold text-[#5D514C]">
           Lien du bouton (chemin interne)
-          <input type="text" maxLength={200} value={current.ctaHref}
+          <input type="text" maxLength={200} value={typeof settings.ctaHref === "string" ? settings.ctaHref : "/chambres"}
             onChange={(event) => onChange("ctaHref",event.target.value)}
             placeholder="/chambres"
             className="h-11 w-full rounded-xl border border-[#B28A47]/20 px-3 text-sm font-normal text-[#2B1C17]"/>
