@@ -10,6 +10,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/components/LanguageProvider";
+import { RoomGrid } from "@/components/RoomGrid";
+import { selectRoomPreviewItems } from "@/lib/room-preview";
 
 import {
   ArrowRight,
@@ -78,7 +80,7 @@ export function RoomPreview() {
               ? data.rooms
               : [];
 
-        setRooms(nextRooms.slice(0, 3));
+        setRooms(selectRoomPreviewItems(nextRooms));
       } catch (error) {
         if (
           (error as Error).name !==
@@ -176,16 +178,9 @@ export function RoomPreview() {
         "
       >
         <div className="site-container">
-          <div
-            className="
-              grid
-              grid-cols-1
-              gap-5
-              md:grid-cols-3
-            "
-          >
+          <RoomGrid>
             {Array.from({
-              length: 3,
+              length: 4,
             }).map((_, index) => (
               <div
                 key={index}
@@ -212,7 +207,7 @@ export function RoomPreview() {
                 </div>
               </div>
             ))}
-          </div>
+          </RoomGrid>
         </div>
       </section>
     );
@@ -332,14 +327,7 @@ export function RoomPreview() {
             =================================================== */}
 
         {rooms.length > 0 ? (
-          <div
-            className="
-              grid
-              grid-cols-1
-              gap-5
-              md:grid-cols-3
-            "
-          >
+          <RoomGrid>
             {rooms.map(
               (
                 room,
@@ -701,7 +689,7 @@ export function RoomPreview() {
                 );
               },
             )}
-          </div>
+          </RoomGrid>
         ) : (
           <div
             className="

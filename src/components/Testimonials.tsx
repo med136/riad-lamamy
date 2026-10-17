@@ -8,6 +8,7 @@ import {
 
 import { motion } from "framer-motion";
 import { useLanguage } from "@/components/LanguageProvider";
+import { ExternalReviewLinks } from "@/components/ExternalReviewLinks";
 
 import {
   Calendar,
@@ -1140,41 +1141,7 @@ export function Testimonials({
             de réservation.
           </p>
 
-          <div
-            className="
-              mt-5
-              flex
-              flex-wrap
-              justify-center
-              gap-x-6
-              gap-y-3
-            "
-          >
-            {[
-              "Booking.com",
-              "Google",
-              "TripAdvisor",
-              "Airbnb",
-            ].map(
-              (platform) => (
-                <span
-                  key={
-                    platform
-                  }
-                  className="
-                    text-sm
-                    font-semibold
-                    tracking-[0.01em]
-                    text-[#201A17]/60
-                  "
-                >
-                  {
-                    platform
-                  }
-                </span>
-              ),
-            )}
-          </div>
+          <ExternalReviewLinks />
 
           {/* CTA */}
 
