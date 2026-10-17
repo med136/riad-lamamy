@@ -42,7 +42,7 @@ export default function AboutPage() {
       <ContentSection pageKey="about" sectionKey="hero"><AboutHero /></ContentSection>
       <ContentSection pageKey="about" sectionKey="values"><Values /></ContentSection>
       <ContentSection pageKey="about" sectionKey="team"><Team /></ContentSection>
-      <Experience />
+      <ContentSection pageKey="about" sectionKey="experience"><Experience /></ContentSection>
     </main>
   );
 }
