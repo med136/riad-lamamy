@@ -1,40 +1,200 @@
 import {
+  AirVent,
+  Apple,
+  Armchair,
+  BadgeCheck,
+  Bath,
+  BedDouble,
+  Bike,
+  Binoculars,
+  BookOpen,
+  Building2,
+  BusFront,
+  CakeSlice,
+  CalendarCheck,
+  CalendarDays,
+  Camera,
+  CarFront,
+  ChefHat,
+  CircleCheck,
+  Clock3,
+  CloudMoon,
+  CloudSun,
   Coffee,
   Compass,
+  ConciergeBell,
+  CookingPot,
+  Croissant,
+  CupSoda,
+  DoorOpen,
+  Droplets,
+  Flower2,
+  Footprints,
+  Gift,
+  GlassWater,
+  Globe2,
+  HandHeart,
   Heart,
+  HeartHandshake,
+  House,
+  Info,
+  KeyRound,
+  Lamp,
+  Landmark,
+  Languages,
+  Leaf,
+  Library,
+  Luggage,
+  Mail,
+  Map,
   MapPin,
+  MessageCircle,
   Moon,
+  Mountain,
+  Music2,
+  Navigation,
+  Palette,
+  PartyPopper,
+  Phone,
+  Plane,
+  PlaneLanding,
+  PlaneTakeoff,
+  Route,
+  Sailboat,
+  ShieldCheck,
+  Ship,
+  ShoppingBag,
+  ShowerHead,
+  Smile,
+  Soup,
   Sparkles,
   Star,
+  Store,
+  Sun,
   Sunrise,
+  Sunset,
+  Ticket,
+  TrainFront,
+  Trees,
+  Umbrella,
+  Users,
+  Utensils,
+  Waves,
+  Wifi,
+  Wind,
+  Wine,
   type LucideIcon,
 } from "lucide-react";
 
-export type ExperienceIconCode =
-  | "sunrise"
-  | "compass"
-  | "coffee"
-  | "moon"
-  | "star"
-  | "heart"
-  | "map-pin"
-  | "sparkles";
+export const EXPERIENCE_ICON_CATEGORIES = [
+  { id: "moments", label: "Moments & ambiance" },
+  { id: "hebergement", label: "Riad & hébergement" },
+  { id: "gastronomie", label: "Cuisine & gastronomie" },
+  { id: "decouverte", label: "Découvrir Fès" },
+  { id: "bienetre", label: "Bien-être & détente" },
+  { id: "transport", label: "Transport & excursions" },
+  { id: "services", label: "Services & événements" },
+] as const;
+
+export type ExperienceIconCategory = (typeof EXPERIENCE_ICON_CATEGORIES)[number]["id"];
 
 export type ExperienceIconOption = {
-  code: ExperienceIconCode;
+  code: string;
+  label: string;
+  category: ExperienceIconCategory;
   icon: LucideIcon;
 };
 
-export const EXPERIENCE_ICON_OPTIONS: readonly ExperienceIconOption[] = [
-  { code: "sunrise", icon: Sunrise },
-  { code: "compass", icon: Compass },
-  { code: "coffee", icon: Coffee },
-  { code: "moon", icon: Moon },
-  { code: "star", icon: Star },
-  { code: "heart", icon: Heart },
-  { code: "map-pin", icon: MapPin },
-  { code: "sparkles", icon: Sparkles },
-];
+// Single allowlist shared by the admin guide and public Experience timeline.
+// Keep these identifiers stable: existing CMS translations persist the code.
+export const EXPERIENCE_ICON_OPTIONS = [
+  { code: "sunrise", label: "Lever du soleil", category: "moments", icon: Sunrise },
+  { code: "sun", label: "Soleil", category: "moments", icon: Sun },
+  { code: "sunset", label: "Coucher du soleil", category: "moments", icon: Sunset },
+  { code: "moon", label: "Nuit", category: "moments", icon: Moon },
+  { code: "cloud-sun", label: "Éclaircies", category: "moments", icon: CloudSun },
+  { code: "cloud-moon", label: "Soirée", category: "moments", icon: CloudMoon },
+  { code: "star", label: "Étoile", category: "moments", icon: Star },
+  { code: "sparkles", label: "Ambiance magique", category: "moments", icon: Sparkles },
+  { code: "clock-3", label: "Horaires", category: "moments", icon: Clock3 },
+  { code: "calendar-days", label: "Calendrier", category: "moments", icon: CalendarDays },
+  { code: "house", label: "Maison d’hôtes", category: "hebergement", icon: House },
+  { code: "bed-double", label: "Chambre", category: "hebergement", icon: BedDouble },
+  { code: "key-round", label: "Clé", category: "hebergement", icon: KeyRound },
+  { code: "door-open", label: "Accueil", category: "hebergement", icon: DoorOpen },
+  { code: "bath", label: "Bain", category: "hebergement", icon: Bath },
+  { code: "shower-head", label: "Douche", category: "hebergement", icon: ShowerHead },
+  { code: "wifi", label: "Wi-Fi", category: "hebergement", icon: Wifi },
+  { code: "armchair", label: "Salon", category: "hebergement", icon: Armchair },
+  { code: "lamp", label: "Éclairage", category: "hebergement", icon: Lamp },
+  { code: "luggage", label: "Bagages", category: "hebergement", icon: Luggage },
+  { code: "concierge-bell", label: "Service en chambre", category: "hebergement", icon: ConciergeBell },
+  { code: "air-vent", label: "Climatisation", category: "hebergement", icon: AirVent },
+  { code: "coffee", label: "Thé et café", category: "gastronomie", icon: Coffee },
+  { code: "utensils", label: "Repas", category: "gastronomie", icon: Utensils },
+  { code: "cooking-pot", label: "Cuisine marocaine", category: "gastronomie", icon: CookingPot },
+  { code: "chef-hat", label: "Atelier cuisine", category: "gastronomie", icon: ChefHat },
+  { code: "soup", label: "Soupe et spécialités", category: "gastronomie", icon: Soup },
+  { code: "croissant", label: "Petit déjeuner", category: "gastronomie", icon: Croissant },
+  { code: "cake-slice", label: "Pâtisseries", category: "gastronomie", icon: CakeSlice },
+  { code: "glass-water", label: "Boissons", category: "gastronomie", icon: GlassWater },
+  { code: "cup-soda", label: "Rafraîchissements", category: "gastronomie", icon: CupSoda },
+  { code: "apple", label: "Produits frais", category: "gastronomie", icon: Apple },
+  { code: "wine", label: "Dîner et boissons", category: "gastronomie", icon: Wine },
+  { code: "compass", label: "Exploration", category: "decouverte", icon: Compass },
+  { code: "map-pin", label: "Localisation", category: "decouverte", icon: MapPin },
+  { code: "map", label: "Plan de ville", category: "decouverte", icon: Map },
+  { code: "navigation", label: "Itinéraire", category: "decouverte", icon: Navigation },
+  { code: "route", label: "Parcours", category: "decouverte", icon: Route },
+  { code: "camera", label: "Photographie", category: "decouverte", icon: Camera },
+  { code: "landmark", label: "Monuments", category: "decouverte", icon: Landmark },
+  { code: "building-2", label: "Architecture", category: "decouverte", icon: Building2 },
+  { code: "shopping-bag", label: "Souks", category: "decouverte", icon: ShoppingBag },
+  { code: "store", label: "Boutiques", category: "decouverte", icon: Store },
+  { code: "library", label: "Patrimoine culturel", category: "decouverte", icon: Library },
+  { code: "binoculars", label: "Visite guidée", category: "decouverte", icon: Binoculars },
+  { code: "languages", label: "Langues", category: "decouverte", icon: Languages },
+  { code: "footprints", label: "Balade à pied", category: "decouverte", icon: Footprints },
+  { code: "mountain", label: "Excursions", category: "decouverte", icon: Mountain },
+  { code: "trees", label: "Nature et jardins", category: "decouverte", icon: Trees },
+  { code: "heart", label: "Bien-être", category: "bienetre", icon: Heart },
+  { code: "leaf", label: "Nature", category: "bienetre", icon: Leaf },
+  { code: "flower-2", label: "Spa et relaxation", category: "bienetre", icon: Flower2 },
+  { code: "waves", label: "Hammam", category: "bienetre", icon: Waves },
+  { code: "droplets", label: "Soin et eau", category: "bienetre", icon: Droplets },
+  { code: "wind", label: "Air frais", category: "bienetre", icon: Wind },
+  { code: "smile", label: "Détente", category: "bienetre", icon: Smile },
+  { code: "hand-heart", label: "Attention personnalisée", category: "bienetre", icon: HandHeart },
+  { code: "heart-handshake", label: "Hospitalité", category: "bienetre", icon: HeartHandshake },
+  { code: "umbrella", label: "Terrasse et repos", category: "bienetre", icon: Umbrella },
+  { code: "car-front", label: "Voiture", category: "transport", icon: CarFront },
+  { code: "plane", label: "Avion", category: "transport", icon: Plane },
+  { code: "bus-front", label: "Autocar", category: "transport", icon: BusFront },
+  { code: "train-front", label: "Train", category: "transport", icon: TrainFront },
+  { code: "bike", label: "Vélo", category: "transport", icon: Bike },
+  { code: "ticket", label: "Billet et entrée", category: "transport", icon: Ticket },
+  { code: "ship", label: "Bateau", category: "transport", icon: Ship },
+  { code: "sailboat", label: "Excursion en bateau", category: "transport", icon: Sailboat },
+  { code: "plane-takeoff", label: "Départ", category: "transport", icon: PlaneTakeoff },
+  { code: "plane-landing", label: "Arrivée", category: "transport", icon: PlaneLanding },
+  { code: "calendar-check", label: "Réservation", category: "services", icon: CalendarCheck },
+  { code: "phone", label: "Téléphone", category: "services", icon: Phone },
+  { code: "mail", label: "E-mail", category: "services", icon: Mail },
+  { code: "message-circle", label: "Conversation", category: "services", icon: MessageCircle },
+  { code: "info", label: "Informations", category: "services", icon: Info },
+  { code: "shield-check", label: "Sécurité", category: "services", icon: ShieldCheck },
+  { code: "badge-check", label: "Qualité", category: "services", icon: BadgeCheck },
+  { code: "users", label: "Groupe", category: "services", icon: Users },
+  { code: "globe-2", label: "Voyage international", category: "services", icon: Globe2 },
+  { code: "gift", label: "Cadeau", category: "services", icon: Gift },
+  { code: "book-open", label: "Lecture et culture", category: "services", icon: BookOpen },
+  { code: "music-2", label: "Musique", category: "services", icon: Music2 },
+  { code: "palette", label: "Art et artisanat", category: "services", icon: Palette },
+  { code: "party-popper", label: "Célébration", category: "services", icon: PartyPopper },
+  { code: "circle-check", label: "Service inclus", category: "services", icon: CircleCheck },
+] as const satisfies readonly ExperienceIconOption[];
+
+export type ExperienceIconCode = (typeof EXPERIENCE_ICON_OPTIONS)[number]["code"];
 
 const DEFAULT_ICON_CODE: ExperienceIconCode = "sparkles";
 
@@ -50,7 +210,6 @@ export function getExperienceIconOption(
   return (
     requestedIcon ??
     EXPERIENCE_ICON_OPTIONS.find((option) => option.code === fallbackCode) ??
-    EXPERIENCE_ICON_OPTIONS[EXPERIENCE_ICON_OPTIONS.length - 1]
+    EXPERIENCE_ICON_OPTIONS.find((option) => option.code === DEFAULT_ICON_CODE)!
   );
 }
-
