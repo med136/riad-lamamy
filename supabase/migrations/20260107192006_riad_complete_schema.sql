@@ -41,25 +41,25 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 -- 2. TABLE DES CHAMBRES
 -- ============================================================================
 DO $$ BEGIN
-    DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'room_category') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'room_category') THEN
   CREATE TYPE room_category AS ENUM ('standard', 'deluxe', 'suite', 'family', 'presidentielle');
-END IF; END $$; 
+END IF;
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
 DO $$ BEGIN
-    DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'bed_type') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'bed_type') THEN
   CREATE TYPE bed_type AS ENUM ('simple', 'double', 'king', 'queen', 'twin');
-END IF; END $$; 
+END IF;
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
 DO $$ BEGIN
-    DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'room_status') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'room_status') THEN
   CREATE TYPE room_status AS ENUM ('available', 'occupied', 'maintenance', 'cleaning', 'reserved');
-END IF; END $$; 
+END IF;
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
@@ -111,17 +111,17 @@ CREATE TABLE IF NOT EXISTS public.rooms (
 -- 3. TABLE DES RÉSERVATIONS (VERSION CORRIGÉE)
 -- ============================================================================
 DO $$ BEGIN
-    DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'booking_status') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'booking_status') THEN
   CREATE TYPE booking_status AS ENUM ('pending', 'confirmed', 'checked_in', 'checked_out', 'cancelled', 'no_show');
-END IF; END $$; 
+END IF;
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
 DO $$ BEGIN
-    DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_status') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_status') THEN
   CREATE TYPE payment_status AS ENUM ('pending', 'partial', 'paid', 'refunded', 'failed');
-END IF; END $$; 
+END IF;
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
@@ -195,17 +195,17 @@ CREATE TABLE IF NOT EXISTS public.bookings (
 -- 4. TABLE DES SERVICES
 -- ============================================================================
 DO $$ BEGIN
-    DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'service_category') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'service_category') THEN
   CREATE TYPE service_category AS ENUM ('restauration', 'spa', 'transport', 'activite', 'sur_mesure');
-END IF; END $$; 
+END IF;
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
 DO $$ BEGIN
-    DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'service_frequency') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'service_frequency') THEN
   CREATE TYPE service_frequency AS ENUM ('unique', 'quotidien', 'hebdomadaire');
-END IF; END $$; 
+END IF;
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
@@ -305,9 +305,9 @@ CREATE TABLE IF NOT EXISTS public.reviews (
 -- 7. TABLE DES MESSAGES DE CONTACT
 -- ============================================================================
 DO $$ BEGIN
-    DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'contact_subject') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'contact_subject') THEN
   CREATE TYPE contact_subject AS ENUM ('reservation', 'information', 'service', 'reclamation', 'partenariat', 'autre');
-END IF; END $$; 
+END IF;
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
@@ -367,17 +367,17 @@ CREATE TABLE IF NOT EXISTS public.availability (
 -- 9. TABLE DES TARIFS SPÉCIAUX
 -- ============================================================================
 DO $$ BEGIN
-    DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'discount_type') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'discount_type') THEN
   CREATE TYPE discount_type AS ENUM ('percentage', 'fixed', 'nights');
-END IF; END $$; 
+END IF;
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
 DO $$ BEGIN
-    DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'discount_applies_to') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'discount_applies_to') THEN
   CREATE TYPE discount_applies_to AS ENUM ('all', 'room_only', 'services_only');
-END IF; END $$; 
+END IF;
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
@@ -415,9 +415,9 @@ CREATE TABLE IF NOT EXISTS public.discounts (
 -- 10. TABLE DES GALERIES
 -- ============================================================================
 DO $$ BEGIN
-    DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'gallery_category') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'gallery_category') THEN
   CREATE TYPE gallery_category AS ENUM ('chambres', 'restaurant', 'spa', 'jardin', 'piscine', 'evenement', 'architecture');
-END IF; END $$; 
+END IF;
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
@@ -525,11 +525,21 @@ BEGIN
 END $$;
 
 -- Index pour les avis
-CREATE INDEX IF NOT EXISTS idx_reviews_overall_rating ON public.reviews(overall_rating DESC);
-CREATE INDEX IF NOT EXISTS idx_reviews_booking_id ON public.reviews(booking_id);
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='reviews' AND column_name='overall_rating') THEN
+        CREATE INDEX IF NOT EXISTS idx_reviews_overall_rating ON public.reviews(overall_rating DESC);
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='reviews' AND column_name='booking_id') THEN
+        CREATE INDEX IF NOT EXISTS idx_reviews_booking_id ON public.reviews(booking_id);
+    END IF;
+END $$;
 
 -- Index pour les messages de contact
-CREATE INDEX IF NOT EXISTS idx_contact_messages_status ON public.contact_messages(status);
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='contact_messages' AND column_name='status') THEN
+        CREATE INDEX IF NOT EXISTS idx_contact_messages_status ON public.contact_messages(status);
+    END IF;
+END $$;
 CREATE INDEX IF NOT EXISTS idx_contact_messages_created_at ON public.contact_messages(created_at DESC);
 
 -- ============================================================================
@@ -640,7 +650,7 @@ END $$;
 
 -- Fonction pour vérifier la disponibilité d'une chambre
 CREATE OR REPLACE FUNCTION check_room_availability(
-    p_room_id UUID,
+    p_room_id BIGINT,
     p_check_in DATE,
     p_check_out DATE
 )
@@ -653,8 +663,8 @@ BEGIN
     FROM public.bookings
     WHERE room_id = p_room_id
     AND status NOT IN ('cancelled', 'no_show')
-    AND check_in_date < p_check_out
-    AND check_out_date > p_check_in;
+    AND check_in < p_check_out
+    AND check_out > p_check_in;
     
     RETURN overlapping_bookings = 0;
 END;
@@ -662,11 +672,11 @@ $$ language 'plpgsql';
 
 -- Fonction pour calculer le prix d'un séjour
 CREATE OR REPLACE FUNCTION calculate_booking_price(
-    p_room_id UUID,
+    p_room_id BIGINT,
     p_check_in DATE,
     p_check_out DATE,
-    p_adults_count INTEGER,
-    p_children_count INTEGER
+    p_adults_count INTEGER DEFAULT 2,
+    p_children_count INTEGER DEFAULT 0
 )
 RETURNS DECIMAL(10,2) AS $$
 DECLARE
@@ -679,7 +689,7 @@ BEGIN
     v_nights := p_check_out - p_check_in;
     
     -- Prix de base par nuit
-    SELECT base_price_per_night INTO v_base_price
+    SELECT base_price INTO v_base_price
     FROM public.rooms WHERE id = p_room_id;
     
     v_total_price := 0;
@@ -688,10 +698,11 @@ BEGIN
     -- Calcul jour par jour
     FOR i IN 1..v_nights LOOP
         -- Vérifier s'il y a un prix spécifique pour cette date
-        SELECT COALESCE(price, v_base_price)
-        INTO v_daily_price
-        FROM public.availability
-        WHERE room_id = p_room_id AND date = v_current_date;
+        SELECT COALESCE(
+            (SELECT price FROM public.availability
+             WHERE room_id = p_room_id AND date = v_current_date),
+            v_base_price
+        ) INTO v_daily_price;
         
         v_total_price := v_total_price + v_daily_price;
         v_current_date := v_current_date + 1;
