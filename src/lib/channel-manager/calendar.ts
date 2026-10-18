@@ -29,3 +29,8 @@ export function overlapsRange(checkIn: string, checkOut: string, from: string, t
 }
 
 export const sourceLabel = (source: string) => ({ direct: 'Direct', airbnb: 'Airbnb', booking: 'Booking.com', expedia: 'Expedia', vrbo: 'Vrbo', tripadvisor: 'Tripadvisor', custom: 'iCal' })[source] ?? source;
+
+export function calendarMonthBounds(year: number, zeroBasedMonth: number) {
+  const date = (value: Date) => `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`;
+  return { from: date(new Date(year, zeroBasedMonth, 1)), to: date(new Date(year, zeroBasedMonth + 1, 1)) };
+}
