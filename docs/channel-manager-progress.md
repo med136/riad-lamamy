@@ -47,6 +47,9 @@ Plan: `docs/superpowers/plans/2026-10-17-channel-manager.md`
 | 2026-10-17 | Channel security unit suite | PASS — AES-256-GCM roundtrip/tamper/wrong-key and SSRF public/private/mixed-DNS cases; 12/12 focused tests total |
 | 2026-10-17 | Focused security ESLint + TypeScript | PASS |
 | 2026-10-17 | iCalendar parser/exporter tests | PASS — folded Unicode, dates/timestamps, cancellation, recurrence rejection, opaque privacy-safe export; focused suite 16/16 |
+| 2026-10-18 | Sync reconciliation/service tests | PASS — create, idempotent touch, update, explicit cancel, two-observation missing cancel, conflict, disabled skip; focused suite 21/21 |
+| 2026-10-18 | Real sync persistence test | PASS — imported block prevents direct booking, repeat does not duplicate, cancellation releases inventory, local overlap creates conflict and preserves local stay |
+| 2026-10-18 | Sync TypeScript, focused ESLint, and `supabase db lint` | PASS |
 
 ## Migration status
 

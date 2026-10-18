@@ -67,6 +67,8 @@ create table public.reservation_conflicts (
 );
 
 alter table public.reservations
+  add column external_missing_observations integer not null default 0
+    check (external_missing_observations >= 0),
   add constraint reservations_channel_id_fkey foreign key (channel_id)
     references public.booking_channels(id) on delete set null,
   add constraint reservations_channel_mapping_id_fkey foreign key (channel_mapping_id)
