@@ -50,6 +50,8 @@ Plan: `docs/superpowers/plans/2026-10-17-channel-manager.md`
 | 2026-10-18 | Sync reconciliation/service tests | PASS — create, idempotent touch, update, explicit cancel, two-observation missing cancel, conflict, disabled skip; focused suite 21/21 |
 | 2026-10-18 | Real sync persistence test | PASS — imported block prevents direct booking, repeat does not duplicate, cancellation releases inventory, local overlap creates conflict and preserves local stay |
 | 2026-10-18 | Sync TypeScript, focused ESLint, and `supabase db lint` | PASS |
+| 2026-10-18 | Admin channel API contracts | PASS — all channel CRUD/mapping/validation/sync/run/token routes use admin wrapper; mutations enforce origin; secret DTO/token rules verified |
+| 2026-10-18 | Admin channel validation + targeted ESLint + TypeScript | PASS |
 
 ## Migration status
 
