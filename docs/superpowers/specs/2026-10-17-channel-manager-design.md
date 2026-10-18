@@ -1,6 +1,6 @@
 # Dar LaMamy — Channel Manager Design
 
-Date: 2026-10-17  
+Date: 2026-10-17
 Status: approved design, pending implementation plan
 
 ## 1. Objective

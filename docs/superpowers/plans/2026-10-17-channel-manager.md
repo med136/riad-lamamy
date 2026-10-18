@@ -50,7 +50,7 @@ Create `src/lib/channel-manager/schema-audit.test.ts` asserting that missing can
 
 - [ ] **Step 2: Run the focused test and verify it fails**
 
-Run: `node --test --experimental-strip-types src/lib/channel-manager/schema-audit.test.ts`  
+Run: `node --test --experimental-strip-types src/lib/channel-manager/schema-audit.test.ts`
 Expected: FAIL because the audit module does not exist.
 
 - [ ] **Step 3: Implement the audit module and read-only script**

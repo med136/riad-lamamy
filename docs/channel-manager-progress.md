@@ -1,8 +1,8 @@
 # Channel Manager Progress
 
-Updated: 2026-10-18  
-Branch: `codex/channel-manager`  
-Specification: `docs/superpowers/specs/2026-10-17-channel-manager-design.md`  
+Updated: 2026-10-18
+Branch: `codex/channel-manager`
+Specification: `docs/superpowers/specs/2026-10-17-channel-manager-design.md`
 Plan: `docs/superpowers/plans/2026-10-17-channel-manager.md`
 
 ## Milestones
