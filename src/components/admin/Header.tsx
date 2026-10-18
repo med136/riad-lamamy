@@ -11,6 +11,7 @@ const routeTitles: Record<string, string> = {
   '/admin/traductions': 'Traductions',
   '/admin/chambres': 'Chambres',
   '/admin/reservations': 'Réservations',
+  '/admin/canaux': 'Canaux & calendriers',
   '/admin/galerie': 'Galerie',
   '/admin/services': 'Services',
   '/admin/temoignages': 'Témoignages',

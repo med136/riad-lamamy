@@ -57,6 +57,8 @@ Plan: `docs/superpowers/plans/2026-10-17-channel-manager.md`
 | 2026-10-18 | Calendar/scheduler API contracts | PASS — opaque hash token, privacy-only fields, no-store response, fail-closed bearer authentication; 2/2 |
 | 2026-10-18 | Scheduler migration rebuild + database lint | PASS — full local reset and no schema errors |
 | 2026-10-18 | Scheduler targeted ESLint + TypeScript | PASS |
+| 2026-10-18 | Channel admin interface contracts | PASS — create/edit, room mappings, token rotation, validation, activation, manual sync, and run history; 2/2 |
+| 2026-10-18 | Channel admin targeted ESLint + TypeScript | PASS (one pre-existing optimized-image warning in shared sidebar) |
 
 ## Migration status
 
