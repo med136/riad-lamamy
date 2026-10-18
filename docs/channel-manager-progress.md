@@ -1,6 +1,6 @@
 # Channel Manager Progress
 
-Updated: 2026-10-17  
+Updated: 2026-10-18  
 Branch: `codex/channel-manager`  
 Specification: `docs/superpowers/specs/2026-10-17-channel-manager-design.md`  
 Plan: `docs/superpowers/plans/2026-10-17-channel-manager.md`
@@ -11,8 +11,8 @@ Plan: `docs/superpowers/plans/2026-10-17-channel-manager.md`
 | --- | --- | --- |
 | Baseline and schema audit | Complete | Live read-only audit completed; 2 unit tests and TypeScript passed |
 | Phase 0 direct reservations | Verified (DB/domain) | Fresh local rebuild, 11/11 DB tests, 5/5 focused unit tests, targeted lint, TypeScript, and production build pass; isolated HTTP smoke pending |
-| Phase 1 iCalendar channels | In progress | Core channel/mapping/run/conflict schema, RLS, and redacted DTOs verified locally |
-| Phase 2 automation and operations | Not started | — |
+| Phase 1 iCalendar channels | Verified (backend) | Secure import/export, reconciliation, channel APIs, tokens, and real persistence tests pass; admin UI remains |
+| Phase 2 automation and operations | In progress | Protected scheduler, leases, retries, health, and local concurrency test pass; operations UI remains |
 | Final security and end-to-end verification | Not started | — |
 
 ## Resolved baseline defects
@@ -52,6 +52,11 @@ Plan: `docs/superpowers/plans/2026-10-17-channel-manager.md`
 | 2026-10-18 | Sync TypeScript, focused ESLint, and `supabase db lint` | PASS |
 | 2026-10-18 | Admin channel API contracts | PASS — all channel CRUD/mapping/validation/sync/run/token routes use admin wrapper; mutations enforce origin; secret DTO/token rules verified |
 | 2026-10-18 | Admin channel validation + targeted ESLint + TypeScript | PASS |
+| 2026-10-18 | Scheduler unit suite | PASS — lock isolation, failure isolation, release guarantee, and bounded transient retry; 4/4 |
+| 2026-10-18 | Real scheduler lease test | PASS — exactly one concurrent claimant, owner-only release, disabled mapping rejection |
+| 2026-10-18 | Calendar/scheduler API contracts | PASS — opaque hash token, privacy-only fields, no-store response, fail-closed bearer authentication; 2/2 |
+| 2026-10-18 | Scheduler migration rebuild + database lint | PASS — full local reset and no schema errors |
+| 2026-10-18 | Scheduler targeted ESLint + TypeScript | PASS |
 
 ## Migration status
 
