@@ -17,6 +17,15 @@ const supabaseHostname = (() => {
   return null;
 })();
 
+const supabaseOrigin = (() => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "";
+  try {
+    return new URL(url).origin;
+  } catch {
+    return null;
+  }
+})();
+
 const supabaseHosts = Array.from(
   new Set(
     [
@@ -40,7 +49,7 @@ const securityHeaders = [
       "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self' data:",
-      "connect-src 'self' https:",
+      `connect-src 'self' https:${supabaseOrigin?.startsWith("http:") ? ` ${supabaseOrigin}` : ""}`,
       "frame-ancestors 'self'",
     ].join("; "),
   },

@@ -11,9 +11,9 @@ Plan: `docs/superpowers/plans/2026-10-17-channel-manager.md`
 | --- | --- | --- |
 | Baseline and schema audit | Complete | Live read-only audit completed; 2 unit tests and TypeScript passed |
 | Phase 0 direct reservations | Verified (DB/domain) | Fresh local rebuild, 11/11 DB tests, 5/5 focused unit tests, targeted lint, TypeScript, and production build pass; isolated HTTP smoke pending |
-| Phase 1 iCalendar channels | Verified (backend) | Secure import/export, reconciliation, channel APIs, tokens, and real persistence tests pass; admin UI remains |
-| Phase 2 automation and operations | In progress | Protected scheduler, leases, retries, health, and local concurrency test pass; operations UI remains |
-| Final security and end-to-end verification | Not started | — |
+| Phase 1 iCalendar channels | Verified | Secure import/export, reconciliation, channel APIs, tokens, persistence tests, and admin UI pass |
+| Phase 2 automation and operations | Verified | Protected scheduler, leases, retries, health, central calendar, conflict transaction, and operations UI pass |
+| Final security and end-to-end verification | Verified locally | Full local matrix and Playwright desktop/mobile pass; production rollout and real provider activation require approval |
 
 ## Resolved baseline defects
 
@@ -63,6 +63,14 @@ Plan: `docs/superpowers/plans/2026-10-17-channel-manager.md`
 | 2026-10-18 | Real conflict resolution transaction | PASS — imported block cancelled and conflict resolved atomically with admin audit identity |
 | 2026-10-18 | Calendar/conflict full local rebuild + database lint | PASS — no schema errors |
 | 2026-10-18 | Production build after calendar/conflict UI | PASS — 70 routes/pages generated (network access used only for declared Google fonts) |
+| 2026-10-18 | Global admin mutation origin policy | PASS — 7/7 admin-auth tests; every `/api/admin/*` mutation is fail-closed on missing/mismatched Origin |
+| 2026-10-18 | Final channel unit suite | PASS — 28/28 |
+| 2026-10-18 | Final API/auth/UI suite | PASS — 15/15 |
+| 2026-10-18 | Final real Supabase integration suite | PASS — 16/16, zero skipped |
+| 2026-10-18 | Playwright local desktop/mobile | PASS — unauthorized redirect, local admin login, disabled channel creation, independent room mapping, channel editor/history, central calendar, filters, conflict empty state, and responsive menu/layout |
+| 2026-10-18 | Scheduler HTTP security smoke | PASS — missing bearer 401; valid local bearer 200; cross-origin admin mutation 403 |
+| 2026-10-18 | Repository-wide `npm run lint` | BASELINE DEFECT — 127 legacy errors/39 warnings; changed scopes pass targeted lint (shared sidebar retains one existing image warning) |
+| 2026-10-18 | Final TypeScript + production build + diff check | PASS |
 
 ## Migration status
 
@@ -74,6 +82,7 @@ Plan: `docs/superpowers/plans/2026-10-17-channel-manager.md`
 
 - Real Booking.com/Airbnb partner APIs are Phase 3 and require provider approval; they are not required for the iCalendar release.
 - Production scheduler activation, real channel URLs, production migration application, and live smoke tests require explicit approval.
+- The local Playwright build exposed one unrelated dashboard baseline error (`reviews.overall_rating` is absent); channel/calendar pages remained operational and their API calls succeeded.
 
 ## Rollback posture
 
