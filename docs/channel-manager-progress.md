@@ -59,6 +59,10 @@ Plan: `docs/superpowers/plans/2026-10-17-channel-manager.md`
 | 2026-10-18 | Scheduler targeted ESLint + TypeScript | PASS |
 | 2026-10-18 | Channel admin interface contracts | PASS — create/edit, room mappings, token rotation, validation, activation, manual sync, and run history; 2/2 |
 | 2026-10-18 | Channel admin targeted ESLint + TypeScript | PASS (one pre-existing optimized-image warning in shared sidebar) |
+| 2026-10-18 | Central calendar and conflict unit/API tests | PASS — half-open boundaries, privacy projection, guarded routes, explicit resolution actions; 4/4 |
+| 2026-10-18 | Real conflict resolution transaction | PASS — imported block cancelled and conflict resolved atomically with admin audit identity |
+| 2026-10-18 | Calendar/conflict full local rebuild + database lint | PASS — no schema errors |
+| 2026-10-18 | Production build after calendar/conflict UI | PASS — 70 routes/pages generated (network access used only for declared Google fonts) |
 
 ## Migration status
 
