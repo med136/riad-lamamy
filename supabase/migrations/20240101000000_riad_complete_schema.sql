@@ -224,6 +224,8 @@ BEGIN
         END IF;
     ELSE
         -- Créer la table bookings si elle n'existe pas
+        CREATE SEQUENCE IF NOT EXISTS public.booking_seq START 1;
+
         CREATE TABLE public.bookings (
             id BIGSERIAL PRIMARY KEY,
             booking_code VARCHAR(20) UNIQUE DEFAULT 'RIA' || to_char(CURRENT_DATE, 'YYMM') || '-' || LPAD(nextval('booking_seq'::regclass)::text, 4, '0'),
@@ -253,8 +255,6 @@ BEGIN
             updated_at TIMESTAMP DEFAULT NOW()
         );
         
-        -- Créer la séquence pour les codes de réservation
-        CREATE SEQUENCE IF NOT EXISTS public.booking_seq START 1;
     END IF;
 END $$;
 
@@ -679,7 +679,23 @@ ON CONFLICT (slug) DO UPDATE SET
 -- 19. Vue pour les chambres disponibles
 CREATE OR REPLACE VIEW public.available_rooms AS
 SELECT 
-    r.*,
+    r.id,
+    r.room_number,
+    r.name,
+    r.description,
+    r.category,
+    r.price,
+    r.size_m2,
+    r.capacity,
+    r.amenities,
+    r.images,
+    r.bed_type,
+    r.has_balcony,
+    r.has_terrace,
+    r.has_jacuzzi,
+    r.featured_image_url,
+    r.created_at,
+    r.updated_at,
     a.date,
     COALESCE(a.price, r.price) as daily_price,
     COALESCE(a.is_available, true) as is_available

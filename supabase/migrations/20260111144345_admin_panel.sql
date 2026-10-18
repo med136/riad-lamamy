@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS reservations (
   guest_email TEXT NOT NULL,
   guest_phone TEXT,
   guest_count INTEGER DEFAULT 1,
-  room_id UUID REFERENCES rooms(id),
+  room_id BIGINT REFERENCES rooms(id),
   check_in DATE NOT NULL,
   check_out DATE NOT NULL,
   total_amount DECIMAL(10,2) NOT NULL,
@@ -135,7 +135,8 @@ END IF; END $$;
 DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'idx_reservations_dates') THEN
   CREATE INDEX idx_reservations_dates ON reservations(check_in, check_out);
 END IF; END $$;
-DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'idx_rooms_status') THEN
+DO $$ BEGIN IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='rooms' AND column_name='status')
+AND NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'idx_rooms_status') THEN
   CREATE INDEX idx_rooms_status ON rooms(status);
 END IF; END $$;
 DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'idx_activity_logs_user') THEN

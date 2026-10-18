@@ -18,10 +18,23 @@ ADD COLUMN IF NOT EXISTS base_price DECIMAL(10,2);
 ALTER TABLE public.rooms
 ADD COLUMN IF NOT EXISTS order_index INTEGER DEFAULT 0;
 
--- Si la colonne base_price est NULL et base_price_per_night existe, copier les valeurs
-UPDATE public.rooms
-SET base_price = base_price_per_night
-WHERE base_price IS NULL AND base_price_per_night IS NOT NULL;
+ALTER TABLE public.rooms
+ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'available';
+
+-- Copier le prix depuis la colonne historique réellement disponible.
+DO $$ BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'rooms' AND column_name = 'base_price_per_night'
+  ) THEN
+    EXECUTE 'UPDATE public.rooms SET base_price = base_price_per_night WHERE base_price IS NULL AND base_price_per_night IS NOT NULL';
+  ELSIF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'rooms' AND column_name = 'price'
+  ) THEN
+    UPDATE public.rooms SET base_price = price WHERE base_price IS NULL AND price IS NOT NULL;
+  END IF;
+END $$;
 
 -- Créer les slugs si la colonne est vide
 UPDATE public.rooms

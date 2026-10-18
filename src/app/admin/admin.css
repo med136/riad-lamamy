@@ -316,3 +316,42 @@
   .admin-layout h1.text-3xl,
   .admin-layout h1.text-4xl { font-size: 1.8rem !important; }
 }
+.admin-layout .input {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(178, 138, 71, 0.22);
+  border-radius: 14px;
+  background: #fffdf8;
+  padding: 0.65rem 0.85rem;
+  color: #2b1c17;
+  font-size: 0.75rem;
+  outline: none;
+}
+
+.admin-layout .input:focus {
+  border-color: rgba(15, 90, 70, 0.55);
+  box-shadow: 0 0 0 3px rgba(15, 90, 70, 0.1);
+}
+
+.admin-layout .btn-primary,
+.admin-layout .btn-secondary,
+.admin-layout .btn-danger {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  transition: 160ms ease;
+}
+
+.admin-layout .btn-primary { background: #0f5a46; color: #fffdf8; }
+.admin-layout .btn-secondary { border: 1px solid rgba(178, 138, 71, 0.25); background: #fffdf8; color: #0f5a46; }
+.admin-layout .btn-danger { border: 1px solid rgba(185, 58, 58, 0.2); background: #fff7f7; color: #a52d2d; }
+.admin-layout .btn-primary:hover { background: #083d31; }
+.admin-layout .btn-secondary:hover { background: #f8f5ef; }
+.admin-layout .btn-danger:hover { background: #feecec; }
+.admin-layout button:disabled { cursor: not-allowed; opacity: 0.5; }

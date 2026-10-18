@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/adminClient'
-import { getAdminAccessDecision } from '@/lib/admin-auth'
+import { getAdminAccessDecision, isTrustedAdminMutationOrigin } from '@/lib/admin-auth'
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -39,6 +39,11 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   const concernsAdmin = pathname === '/admin' || pathname.startsWith('/admin/') ||
     pathname === '/api/admin' || pathname.startsWith('/api/admin/')
+
+  const expectedOrigin = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin).origin
+  if (!isTrustedAdminMutationOrigin(pathname, request.method, request.headers.get('origin'), expectedOrigin)) {
+    return NextResponse.json({ error: 'invalid_origin' }, { status: 403 })
+  }
 
   let hasAdminProfile = false
   if (user && concernsAdmin) {
