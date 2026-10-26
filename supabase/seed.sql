@@ -20,7 +20,7 @@ INSERT INTO testimonials (guest_name, guest_country, rating, content, approved, 
 ON CONFLICT DO NOTHING;
 
 -- Images pour la galerie
-INSERT INTO gallery (title, description, image_url, category, featured) VALUES
+INSERT INTO gallery (title, description, image_url, category, is_featured) VALUES
 ('Cour intérieure', 'La magnifique cour centrale avec sa fontaine', '/images/gallery/cour-interieure.jpg', 'architecture', true),
 ('Suite Royale', 'Vue sur la chambre principale de la Suite Royale', '/images/gallery/suite-royale.jpg', 'chambres', true),
 ('Terrasse panoramique', 'Vue depuis la terrasse sur les toits de Marrakech', '/images/gallery/terrasse.jpg', 'vues', true),

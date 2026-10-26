@@ -426,7 +426,7 @@ export default function BookingForm() {
         !availData.available
       ) {
         toast.error(
-          availData.error ||
+          getReservationErrorMessage(availData.reason || availData.error) ||
             availData.message ||
             "Chambre indisponible pour ces dates",
         );
@@ -461,7 +461,7 @@ export default function BookingForm() {
 
       if (!pricingRes.ok) {
         toast.error(
-          pricingData.error ||
+          getReservationErrorMessage(pricingData.error) ||
             "Erreur lors du calcul du prix",
         );
         return;
@@ -520,7 +520,7 @@ export default function BookingForm() {
 
       if (!response.ok) {
         toast.error(
-          data.error ||
+          getReservationErrorMessage(data.error) ||
             "Erreur lors de la création de la réservation",
         );
 
@@ -1516,6 +1516,19 @@ export default function BookingForm() {
       </form>
     </div>
   );
+}
+
+function getReservationErrorMessage(code?: string) {
+  const messages: Record<string, string> = {
+    availability_conflict:
+      "Cette chambre vient d’être réservée pour ces dates. Vos informations sont conservées : choisissez simplement d’autres dates.",
+    room_unavailable: "Chambre indisponible pour ces dates.",
+    capacity_exceeded: "Le nombre de voyageurs dépasse la capacité de la chambre.",
+    invalid_dates: "Les dates sélectionnées ne respectent pas les conditions de réservation.",
+    room_not_found: "Cette chambre n’est plus disponible.",
+  };
+
+  return code ? messages[code] : undefined;
 }
 
 /* ============================================================

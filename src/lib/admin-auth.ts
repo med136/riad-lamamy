@@ -22,3 +22,15 @@ export function getAdminAccessDecision(
   if (!hasAdminProfile) return isAdminApi ? "forbidden" : "redirect-login";
   return "allow";
 }
+
+export function isTrustedAdminMutationOrigin(
+  pathname: string,
+  method: string,
+  origin: string | null,
+  expectedOrigin: string,
+) {
+  const isAdminApi = pathname === "/api/admin" || pathname.startsWith("/api/admin/");
+  const isMutation = ["POST", "PUT", "PATCH", "DELETE"].includes(method.toUpperCase());
+  if (!isAdminApi || !isMutation) return true;
+  return origin === expectedOrigin;
+}

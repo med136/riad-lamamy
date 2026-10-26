@@ -97,3 +97,9 @@ npm run seed:demo-homepage -- --force
 
 Le projet est compatible Vercel. Configurez les variables d'environnement,
 déployez puis vérifiez les routes publiques et l'admin.
+
+## Canaux de réservation
+
+L’administration inclut des canaux configurables Airbnb, Booking.com, Expedia/Vrbo, Tripadvisor et iCalendar personnalisé. Les réservations directes et les blocages importés partagent une protection d’inventaire autoritaire au niveau de la base, avec calendrier central et workflow de conflits.
+
+La configuration opérationnelle, les secrets requis, les contrôles de déploiement, le scheduler et le rollback sont documentés dans [docs/channel-manager-runbook.md](docs/channel-manager-runbook.md). La migration de production et l’activation du scheduler exigent une approbation explicite.
