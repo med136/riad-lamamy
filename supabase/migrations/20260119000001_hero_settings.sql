@@ -29,6 +29,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS hero_settings_updated_at ON public.hero_settings;
 CREATE TRIGGER hero_settings_updated_at
   BEFORE UPDATE ON public.hero_settings
   FOR EACH ROW

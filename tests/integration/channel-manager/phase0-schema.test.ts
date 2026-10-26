@@ -5,6 +5,8 @@ import test from "node:test";
 import { createClient } from "@supabase/supabase-js";
 
 const migrationDirectory = path.join(process.cwd(), "supabase", "migrations");
+const readMigration = (name: string) =>
+  readFileSync(path.join(migrationDirectory, name), "utf8");
 const migrationName = readdirSync(migrationDirectory).find((name) =>
   name.endsWith("_channel_manager_phase0.sql"),
 );
@@ -101,6 +103,18 @@ test("gallery relations use the canonical identifiers", () => {
 
   assert.match(gallerySql, /room_id\s+uuid\s+references public\.rooms\(id\)/i);
   assert.match(gallerySql, /service_id\s+bigint\s+references public\.services\(id\)/i);
+  assert.match(gallerySql, /add column if not exists room_id/i);
+  assert.match(gallerySql, /add column if not exists service_id/i);
+});
+
+test("pending Hero migrations tolerate objects created manually in production", () => {
+  const settingsSql = readMigration("20260119000001_hero_settings.sql");
+  const carouselSql = readMigration("20260119000003_carousel_images.sql");
+
+  assert.match(settingsSql, /drop trigger if exists hero_settings_updated_at/i);
+  assert.match(carouselSql, /create index if not exists idx_hero_carousel_images_hero_settings_id/i);
+  assert.match(carouselSql, /create index if not exists idx_hero_carousel_images_display_order/i);
+  assert.match(carouselSql, /drop trigger if exists hero_carousel_images_updated_at/i);
 });
 
 test("local seed uses the canonical gallery featured column", () => {
