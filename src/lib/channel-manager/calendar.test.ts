@@ -13,7 +13,7 @@ test('builds stable local calendar month boundaries without UTC shifting', () =>
 })
 
 test('projects minimal operations data and hides imported synthetic identities', () => {
-  const [item] = projectCalendarRows([{ id:'r1', reference:'EXT-1', guest_name:'External availability', room_id:2, check_in:'2030-05-01', check_out:'2030-05-02', status:'blocked', source:'airbnb', channel_id:'c1', rooms:{name:'Atlas'}, booking_channels:{name:'Airbnb principal',provider:'airbnb'} }])
+  const [item] = projectCalendarRows([{ id:'r1', reference:'EXT-1', guest_name:'External availability', room_id:'4e8cb34c-f09f-4fc5-b847-0645c349276a', check_in:'2030-05-01', check_out:'2030-05-02', status:'blocked', source:'airbnb', channel_id:'c1', rooms:{name:'Atlas'}, booking_channels:{name:'Airbnb principal',provider:'airbnb'} }])
   assert.equal(item.guestName, 'Disponibilité externe')
   assert.equal(item.roomName, 'Atlas')
   assert.equal(item.channelName, 'Airbnb principal')

@@ -22,7 +22,7 @@ export type BookingChannelRow = {
 export type ChannelRoomMappingRow = {
   id: string;
   channel_id: string;
-  room_id: number;
+  room_id: string;
   enabled: boolean;
   external_room_id: string | null;
   export_token_hash: string | null;

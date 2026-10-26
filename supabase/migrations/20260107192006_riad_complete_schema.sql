@@ -650,7 +650,7 @@ END $$;
 
 -- Fonction pour vérifier la disponibilité d'une chambre
 CREATE OR REPLACE FUNCTION check_room_availability(
-    p_room_id BIGINT,
+    p_room_id UUID,
     p_check_in DATE,
     p_check_out DATE
 )
@@ -672,7 +672,7 @@ $$ language 'plpgsql';
 
 -- Fonction pour calculer le prix d'un séjour
 CREATE OR REPLACE FUNCTION calculate_booking_price(
-    p_room_id BIGINT,
+    p_room_id UUID,
     p_check_in DATE,
     p_check_out DATE,
     p_adults_count INTEGER DEFAULT 2,

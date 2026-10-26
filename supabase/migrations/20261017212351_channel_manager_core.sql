@@ -19,7 +19,7 @@ create table public.booking_channels (
 create table public.channel_room_mappings (
   id uuid primary key default gen_random_uuid(),
   channel_id uuid not null references public.booking_channels(id) on delete cascade,
-  room_id bigint not null references public.rooms(id) on delete restrict,
+  room_id uuid not null references public.rooms(id) on delete restrict,
   enabled boolean not null default false,
   external_room_id text,
   export_token_hash text,

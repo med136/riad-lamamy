@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS reservations (
   guest_email TEXT NOT NULL,
   guest_phone TEXT,
   guest_count INTEGER DEFAULT 1,
-  room_id BIGINT REFERENCES rooms(id),
+  room_id UUID REFERENCES rooms(id),
   check_in DATE NOT NULL,
   check_out DATE NOT NULL,
   total_amount DECIMAL(10,2) NOT NULL,

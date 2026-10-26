@@ -5,7 +5,7 @@ import { syncMapping, type SyncDependencies } from "./service.ts";
 const mapping = {
   id: "mapping-1",
   channelId: "channel-1",
-  roomId: 7,
+  roomId: "4e8cb34c-f09f-4fc5-b847-0645c349276a",
   enabled: true,
   channelEnabled: true,
   encryptedUrl: "encrypted",

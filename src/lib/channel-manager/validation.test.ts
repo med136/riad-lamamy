@@ -9,5 +9,6 @@ test("validates supported providers, UUIDs, intervals and HTTPS URLs", () => {
   assert.equal(channelCreateSchema.safeParse({ name: "Bad", provider: "custom", connectionType: "import", unknown: true }).success, false);
   assert.equal(channelUpdateSchema.safeParse({ syncIntervalMinutes: 14 }).success, false);
   assert.equal(mappingCreateSchema.safeParse({ roomId: -1 }).success, false);
+  assert.equal(mappingCreateSchema.safeParse({ roomId: "4e8cb34c-f09f-4fc5-b847-0645c349276a" }).success, true);
   assert.equal(uuidSchema.safeParse("not-a-uuid").success, false);
 });

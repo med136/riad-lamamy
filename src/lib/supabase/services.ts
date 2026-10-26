@@ -17,7 +17,7 @@ export const roomService = {
     return data
   },
   
-  async getRoomDetails(roomId: number) {
+  async getRoomDetails(roomId: string) {
     const supabase = createClient()
     
     const { data, error } = await supabase

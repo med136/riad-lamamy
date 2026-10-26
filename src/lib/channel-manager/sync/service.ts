@@ -9,7 +9,7 @@ export type SyncTrigger = "manual" | "scheduled" | "retry" | "validation";
 export type SyncMappingRecord = {
   id: string;
   channelId: string;
-  roomId: number;
+  roomId: string;
   enabled: boolean;
   channelEnabled: boolean;
   encryptedUrl: string | null;
@@ -25,7 +25,7 @@ export type SyncDependencies = {
   fetchCalendar(url: string): Promise<{ body: string; finalUrl: string }>;
   parseCalendar(text: string, source: string): ParsedCalendarEvent[];
   loadExisting(mappingId: string): Promise<ExistingExternalReservation[]>;
-  loadLocalReservations(roomId: number): Promise<LocalReservation[]>;
+  loadLocalReservations(roomId: string): Promise<LocalReservation[]>;
   applyPlan(plan: ReconciliationPlan, mapping: SyncMappingRecord): Promise<SyncCounts>;
   startRun(run: { mappingId: string; channelId: string; trigger: SyncTrigger }): Promise<string>;
   finishRun(runId: string, result: { status: string; fetched: number; counts: SyncCounts; errorCode?: string }): Promise<void>;

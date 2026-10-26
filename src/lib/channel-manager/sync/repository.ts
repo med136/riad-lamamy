@@ -145,7 +145,7 @@ export function createSyncRepository(client: Client) {
       return {
         id: mapping.id,
         channelId: channel.id,
-        roomId: Number(mapping.room_id),
+        roomId: String(mapping.room_id),
         enabled: mapping.enabled,
         channelEnabled: channel.enabled,
         encryptedUrl: channel.import_url_encrypted,
@@ -167,7 +167,7 @@ export function createSyncRepository(client: Client) {
         missingObservations: Number(row.external_missing_observations ?? 0),
       }));
     },
-    async loadLocalReservations(roomId: number) {
+    async loadLocalReservations(roomId: string) {
       const { data, error } = await client
         .from("reservations")
         .select("id, check_in, check_out, status")
