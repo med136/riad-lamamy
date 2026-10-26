@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/adminClient";
 import { createDirectReservation } from "@/lib/reservations/domain";
 import { ReservationError } from "@/lib/reservations/errors";
 import { createReservationRepository } from "@/lib/reservations/repository";
+import { parseRoomIdentifier } from "@/lib/reservations/room-identifier";
 
 export async function GET(req: Request) {
   try {
@@ -38,8 +39,8 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const roomId = Number(body.room_id);
-    if (!body.guest_name || !body.guest_email || !Number.isInteger(roomId)) {
+    const roomId = parseRoomIdentifier(body.room_id);
+    if (!body.guest_name || !body.guest_email || !roomId) {
       return NextResponse.json({ error: "invalid_request" }, { status: 400 });
     }
     const result = await createDirectReservation(

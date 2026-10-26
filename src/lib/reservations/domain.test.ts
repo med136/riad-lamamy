@@ -8,7 +8,7 @@ import {
 import { ReservationError } from "./errors.ts";
 
 const room = {
-  id: 7,
+  id: "e46fc167-333c-4913-a970-83791e5fd2b5",
   name: "Suite Atlas",
   basePrice: 100,
   maxGuests: 4,
@@ -38,7 +38,7 @@ const dependencies = (overrides: Partial<ReservationDependencies> = {}): Reserva
 });
 
 const input = {
-  roomId: 7,
+  roomId: "e46fc167-333c-4913-a970-83791e5fd2b5",
   checkIn: "2035-07-01",
   checkOut: "2035-07-03",
   adults: 3,
@@ -49,7 +49,7 @@ test("quotes seasonal nights and guest supplements from canonical room data", as
   const quote = await quoteReservation(input, dependencies());
 
   assert.deepEqual(quote, {
-    roomId: 7,
+    roomId: "e46fc167-333c-4913-a970-83791e5fd2b5",
     roomName: "Suite Atlas",
     checkIn: "2035-07-01",
     checkOut: "2035-07-03",

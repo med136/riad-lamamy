@@ -1,10 +1,11 @@
 import { isAvailabilityConflict, ReservationError } from "./errors.ts";
+import type { RoomIdentifier } from "./room-identifier.ts";
 
 export type SeasonalPrice = { start: string; end: string; price: number };
 export type ClosedDate = string | { start: string; end?: string };
 
 export type ReservationRoom = {
-  id: number;
+  id: RoomIdentifier;
   name: string;
   basePrice: number;
   maxGuests: number;
@@ -22,7 +23,7 @@ export type BookingSettings = {
 };
 
 export type QuoteInput = {
-  roomId: number;
+  roomId: RoomIdentifier;
   checkIn: string;
   checkOut: string;
   adults: number;
@@ -30,7 +31,7 @@ export type QuoteInput = {
 };
 
 export type ReservationQuote = {
-  roomId: number;
+  roomId: RoomIdentifier;
   roomName: string;
   checkIn: string;
   checkOut: string;
@@ -62,9 +63,9 @@ export type AuthoritativeCreateInput = DirectReservationInput & {
 };
 
 export type ReservationDependencies = {
-  getRoom(roomId: number): Promise<ReservationRoom | null>;
+  getRoom(roomId: RoomIdentifier): Promise<ReservationRoom | null>;
   getSettings(): Promise<BookingSettings>;
-  hasActiveOverlap(roomId: number, checkIn: string, checkOut: string): Promise<boolean>;
+  hasActiveOverlap(roomId: RoomIdentifier, checkIn: string, checkOut: string): Promise<boolean>;
   createAuthoritatively(input: AuthoritativeCreateInput): Promise<{
     id: string;
     reference: string;

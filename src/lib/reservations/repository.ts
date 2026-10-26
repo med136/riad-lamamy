@@ -18,16 +18,16 @@ export function createReservationRepository(client: DatabaseClient): Reservation
     async getRoom(roomId): Promise<ReservationRoom | null> {
       const { data, error } = await client
         .from("rooms")
-        .select("id, name, base_price, max_guests, status, seasonal_prices")
+        .select("*")
         .eq("id", roomId)
         .maybeSingle();
       if (error) throw error;
       if (!data) return null;
       return {
-        id: Number(data.id),
+        id: String(data.id),
         name: data.name,
-        basePrice: numberOr(data.base_price, 0),
-        maxGuests: numberOr(data.max_guests, 2),
+        basePrice: numberOr(data.base_price ?? data.price ?? data.base_price_per_night, 0),
+        maxGuests: numberOr(data.max_guests ?? data.capacity, 2),
         status: data.status ?? "available",
         seasonalPrices: data.seasonal_prices ?? null,
       };
@@ -56,7 +56,7 @@ export function createReservationRepository(client: DatabaseClient): Reservation
         .from("reservations")
         .select("id", { count: "exact", head: true })
         .eq("room_id", roomId)
-        .in("status", ["pending", "confirmed", "blocked"])
+        .neq("status", "cancelled")
         .lt("check_in", checkOut)
         .gt("check_out", checkIn);
       if (error) throw error;

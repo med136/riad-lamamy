@@ -3,12 +3,13 @@ import { quoteReservation } from "@/lib/reservations/domain";
 import { ReservationError } from "@/lib/reservations/errors";
 import { createReservationRepository } from "@/lib/reservations/repository";
 import { createAdminClient } from "@/lib/supabase/adminClient";
+import { parseRoomIdentifier } from "@/lib/reservations/room-identifier";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const roomId = Number(body.room_id);
-    if (!Number.isInteger(roomId)) {
+    const roomId = parseRoomIdentifier(body.room_id);
+    if (!roomId) {
       return NextResponse.json({ error: "invalid_request" }, { status: 400 });
     }
     const quote = await quoteReservation(
