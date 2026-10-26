@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS public.hero_carousel_images (
 );
 
 -- Index pour améliorer les performances
-CREATE INDEX idx_hero_carousel_images_hero_settings_id ON public.hero_carousel_images(hero_settings_id);
-CREATE INDEX idx_hero_carousel_images_display_order ON public.hero_carousel_images(display_order);
+CREATE INDEX IF NOT EXISTS idx_hero_carousel_images_hero_settings_id ON public.hero_carousel_images(hero_settings_id);
+CREATE INDEX IF NOT EXISTS idx_hero_carousel_images_display_order ON public.hero_carousel_images(display_order);
 
 -- Trigger pour mettre à jour updated_at
 CREATE OR REPLACE FUNCTION update_hero_carousel_images_updated_at()
@@ -21,6 +21,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS hero_carousel_images_updated_at ON public.hero_carousel_images;
 CREATE TRIGGER hero_carousel_images_updated_at
   BEFORE UPDATE ON public.hero_carousel_images
   FOR EACH ROW
