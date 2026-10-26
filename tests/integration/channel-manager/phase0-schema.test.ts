@@ -57,19 +57,19 @@ test("legacy migrations do not nest anonymous DO blocks", () => {
     legacySql,
     /create index if not exists idx_reviews_overall_rating[\s\S]*?on public\.reviews\(overall_rating desc\);(?![\s\S]*?end if)/i,
   );
-  assert.match(legacySql, /check_room_availability\s*\(\s*p_room_id\s+bigint/i);
-  assert.match(legacySql, /calculate_booking_price\s*\(\s*p_room_id\s+bigint/i);
+  assert.match(legacySql, /check_room_availability\s*\(\s*p_room_id\s+uuid/i);
+  assert.match(legacySql, /calculate_booking_price\s*\(\s*p_room_id\s+uuid/i);
   assert.match(legacySql, /and check_in < p_check_out[\s\S]*and check_out > p_check_in/i);
   assert.match(legacySql, /select base_price into v_base_price/i);
 });
 
-test("admin reservations use the canonical numeric room identifier", () => {
+test("admin reservations use the canonical UUID room identifier", () => {
   const adminSql = readFileSync(
     path.join(migrationDirectory, "20260111144345_admin_panel.sql"),
     "utf8",
   );
 
-  assert.match(adminSql, /room_id\s+bigint\s+references\s+rooms\(id\)/i);
+  assert.match(adminSql, /room_id\s+uuid\s+references\s+rooms\(id\)/i);
   assert.match(
     adminSql,
     /if exists[\s\S]*columns[\s\S]*column_name='status'[\s\S]*idx_rooms_status/i,
@@ -93,13 +93,13 @@ test("room normalization backfills price only from columns that exist", () => {
   assert.match(roomFixSql, /add column if not exists status/i);
 });
 
-test("gallery relations use canonical numeric identifiers", () => {
+test("gallery relations use the canonical identifiers", () => {
   const gallerySql = readFileSync(
     path.join(migrationDirectory, "20260119_update_gallery_relations.sql"),
     "utf8",
   );
 
-  assert.match(gallerySql, /room_id\s+bigint\s+references public\.rooms\(id\)/i);
+  assert.match(gallerySql, /room_id\s+uuid\s+references public\.rooms\(id\)/i);
   assert.match(gallerySql, /service_id\s+bigint\s+references public\.services\(id\)/i);
 });
 
@@ -134,7 +134,7 @@ test("Phase 0 migration provides a zero-overlap preflight before enabling the co
 
 test("Phase 0 migration exposes one authoritative reservation RPC", () => {
   assert.match(sql, /create or replace function public\.create_reservation_authoritatively/i);
-  assert.match(sql, /p_room_id\s+bigint/i);
+  assert.match(sql, /p_room_id\s+uuid/i);
   assert.match(sql, /raise exception[\s\S]*availability_conflict/i);
   assert.match(sql, /grant execute[\s\S]*service_role/i);
   assert.match(sql, /revoke all[\s\S]*from public/i);

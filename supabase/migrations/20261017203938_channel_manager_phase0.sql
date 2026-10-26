@@ -87,7 +87,7 @@ create index if not exists reservations_source_idx
 
 create or replace function public.reservation_overlap_preflight()
 returns table (
-  room_id bigint,
+  room_id uuid,
   first_reservation_id uuid,
   second_reservation_id uuid,
   first_check_in date,
@@ -159,7 +159,7 @@ create or replace function public.create_reservation_authoritatively(
   p_guest_email text,
   p_guest_phone text,
   p_guest_count integer,
-  p_room_id bigint,
+  p_room_id uuid,
   p_check_in date,
   p_check_out date,
   p_total_amount numeric,
@@ -249,8 +249,8 @@ end;
 $$;
 
 revoke all on function public.create_reservation_authoritatively(
-  text, text, text, text, integer, bigint, date, date, numeric, numeric, text, text, text, text
+  text, text, text, text, integer, uuid, date, date, numeric, numeric, text, text, text, text
 ) from public, anon, authenticated;
 grant execute on function public.create_reservation_authoritatively(
-  text, text, text, text, integer, bigint, date, date, numeric, numeric, text, text, text, text
+  text, text, text, text, integer, uuid, date, date, numeric, numeric, text, text, text, text
 ) to service_role;

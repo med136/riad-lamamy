@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-type ExportRoom = { id: number; name: string };
+type ExportRoom = { id: string; name: string };
 type ExportReservation = {
   id: string;
   checkIn: string;
@@ -14,7 +14,7 @@ type ExportReservation = {
 };
 
 const compactDate = (value: string) => value.replaceAll("-", "");
-const opaqueUid = (roomId: number, reservationId: string) =>
+const opaqueUid = (roomId: string, reservationId: string) =>
   `${createHash("sha256").update(`${roomId}:${reservationId}`).digest("hex")}@darlamamy.local`;
 
 export function buildAvailabilityCalendar(room: ExportRoom, reservations: ExportReservation[]) {

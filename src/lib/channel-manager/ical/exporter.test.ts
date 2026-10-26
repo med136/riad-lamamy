@@ -4,7 +4,7 @@ import { buildAvailabilityCalendar } from "./exporter.ts";
 
 test("exports opaque all-day blocks with CRLF framing and no sensitive fields", () => {
   const calendar = buildAvailabilityCalendar(
-    { id: 4, name: "Suite Atlas" },
+    { id: "4e8cb34c-f09f-4fc5-b847-0645c349276a", name: "Suite Atlas" },
     [
       {
         id: "reservation-secret-id",

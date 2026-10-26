@@ -28,7 +28,7 @@ test("mapping DTO exposes token hint and presence, never token hash", () => {
   const dto = toMappingAdminDto({
     id: "4ce4e43c-a8f7-4bba-870e-20fa41b4ff23",
     channel_id: "8a1e94d6-a128-46bb-a772-7b509a11c201",
-    room_id: 4,
+    room_id: "4e8cb34c-f09f-4fc5-b847-0645c349276a",
     enabled: false,
     external_room_id: null,
     export_token_hash: "sha256-secret",

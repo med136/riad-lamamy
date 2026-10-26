@@ -22,7 +22,7 @@ export const channelUpdateSchema = z
   })
   .strict();
 export const mappingCreateSchema = z
-  .object({ roomId: z.number().int().positive(), externalRoomId: z.string().trim().max(200).nullable().optional() })
+  .object({ roomId: z.uuid(), externalRoomId: z.string().trim().max(200).nullable().optional() })
   .strict();
 export const mappingUpdateSchema = z
   .object({ enabled: z.boolean().optional(), externalRoomId: z.string().trim().max(200).nullable().optional() })

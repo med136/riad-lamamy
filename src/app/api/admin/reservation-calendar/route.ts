@@ -4,7 +4,7 @@ import { withAdminRoute } from '@/lib/api/admin-route'
 import { projectCalendarRows } from '@/lib/channel-manager/calendar'
 
 const querySchema = z.object({
-  from: z.iso.date(), to: z.iso.date(), roomId: z.coerce.number().int().positive().optional(),
+  from: z.iso.date(), to: z.iso.date(), roomId: z.uuid().optional(),
   source: z.string().trim().max(40).optional(), status: z.string().trim().max(40).optional(), channelId: z.uuid().optional(),
 })
 

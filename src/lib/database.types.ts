@@ -67,7 +67,7 @@ export interface Database {
       }
       rooms: {
         Row: {
-          id: number
+          id: string
           room_number: string | null
           name: string
           description: string | null
@@ -87,7 +87,7 @@ export interface Database {
           updated_at: string | null
         }
         Insert: {
-          id?: number
+          id?: string
           room_number?: string | null
           name: string
           description?: string | null
@@ -107,7 +107,7 @@ export interface Database {
           updated_at?: string | null
         }
         Update: {
-          id?: number
+          id?: string
           room_number?: string | null
           name?: string
           description?: string | null
@@ -147,7 +147,7 @@ export interface Database {
           guest_first_name: string | null
           guest_last_name: string | null
           profile_id: string | null
-          room_id: number | null
+          room_id: string | null
           payment_status: string | null
           amount_paid: number | null
           confirmed_at: string | null
@@ -175,7 +175,7 @@ export interface Database {
           guest_first_name?: string | null
           guest_last_name?: string | null
           profile_id?: string | null
-          room_id?: number | null
+          room_id?: string | null
           payment_status?: string | null
           amount_paid?: number | null
           confirmed_at?: string | null
@@ -203,7 +203,7 @@ export interface Database {
           guest_first_name?: string | null
           guest_last_name?: string | null
           profile_id?: string | null
-          room_id?: number | null
+          room_id?: string | null
           payment_status?: string | null
           amount_paid?: number | null
           confirmed_at?: string | null
@@ -315,21 +315,21 @@ export interface Database {
       availability: {
         Row: {
           id: number
-          room_id: number | null
+          room_id: string | null
           date: string
           price: number | null
           is_available: boolean
         }
         Insert: {
           id?: number
-          room_id?: number | null
+          room_id?: string | null
           date: string
           price?: number | null
           is_available?: boolean
         }
         Update: {
           id?: number
-          room_id?: number | null
+          room_id?: string | null
           date?: string
           price?: number | null
           is_available?: boolean
@@ -551,7 +551,7 @@ export interface Database {
     Views: {
       available_rooms: {
         Row: {
-          id: number | null
+          id: string | null
           room_number: string | null
           name: string | null
           description: string | null
@@ -577,7 +577,7 @@ export interface Database {
     Functions: {
       check_room_availability: {
         Args: {
-          p_room_id: number
+          p_room_id: string
           p_check_in: string
           p_check_out: string
         }
@@ -585,7 +585,7 @@ export interface Database {
       }
       calculate_booking_price: {
         Args: {
-          p_room_id: number
+          p_room_id: string
           p_check_in: string
           p_check_out: string
           p_adults_count?: number

@@ -1,6 +1,6 @@
 -- Ajouter les colonnes de relations à la table gallery
 ALTER TABLE public.gallery
-ADD COLUMN room_id BIGINT REFERENCES public.rooms(id) ON DELETE CASCADE,
+ADD COLUMN room_id UUID REFERENCES public.rooms(id) ON DELETE CASCADE,
 ADD COLUMN service_id BIGINT REFERENCES public.services(id) ON DELETE CASCADE;
 
 -- Index pour améliorer les performances

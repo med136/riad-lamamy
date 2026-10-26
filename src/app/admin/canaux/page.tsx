@@ -5,7 +5,7 @@ import { Activity, CalendarSync, CheckCircle2, Copy, Link2, Loader2, Play, Plus,
 import toast from 'react-hot-toast'
 import type { ChannelAdminDto, ChannelConnectionType, ChannelProvider, MappingAdminDto } from '@/lib/channel-manager/types'
 
-type Room = { id: number; name: string }
+type Room = { id: string; name: string }
 type SyncRun = { id: string; trigger: string; status: string; fetched_count: number; created_count: number; updated_count: number; cancelled_count: number; conflict_count: number; error_code: string | null; started_at: string }
 
 const providers: Array<{ value: ChannelProvider; label: string }> = [
@@ -76,7 +76,7 @@ export default function ChannelsPage() {
   }, success)
 
   const addMapping = () => selected && roomId && action('mapping', async () => {
-    await api(`/api/admin/channels/${selected.id}/mappings`, { method: 'POST', body: JSON.stringify({ roomId: Number(roomId) }) })
+    await api(`/api/admin/channels/${selected.id}/mappings`, { method: 'POST', body: JSON.stringify({ roomId }) })
     await loadDetails(selected.id); setRoomId('')
   }, 'Chambre liée au canal')
 

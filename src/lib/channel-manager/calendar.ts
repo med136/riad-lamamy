@@ -1,12 +1,12 @@
 export type CalendarReservationRow = {
-  id: string; reference: string; guest_name: string; room_id: number | null; check_in: string; check_out: string;
+  id: string; reference: string; guest_name: string; room_id: string | null; check_in: string; check_out: string;
   status: string; source: string; channel_id: string | null;
   rooms?: { name: string } | Array<{ name: string }> | null;
   booking_channels?: { name: string; provider: string } | Array<{ name: string; provider: string }> | null;
 };
 
 export type CalendarItem = {
-  id: string; reference: string; guestName: string; roomId: number | null; roomName: string;
+  id: string; reference: string; guestName: string; roomId: string | null; roomName: string;
   checkIn: string; checkOut: string; status: string; source: string; channelId: string | null; channelName: string | null;
 };
 

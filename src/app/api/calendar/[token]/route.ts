@@ -28,7 +28,7 @@ export async function GET(_request: Request, context: Context) {
   if (reservationError) return new Response("Calendar unavailable", { status: 503 });
   const room = Array.isArray(mapping.rooms) ? mapping.rooms[0] : mapping.rooms;
   const calendar = buildAvailabilityCalendar(
-    { id: Number(mapping.room_id), name: room?.name ?? "Room" },
+    { id: String(mapping.room_id), name: room?.name ?? "Room" },
     (reservations ?? []).map((reservation) => ({
       id: reservation.id,
       checkIn: reservation.check_in,

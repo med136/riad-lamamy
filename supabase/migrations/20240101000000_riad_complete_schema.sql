@@ -101,7 +101,7 @@ BEGIN
     ELSE
         -- Créer la table rooms si elle n'existe pas
         CREATE TABLE public.rooms (
-            id BIGSERIAL PRIMARY KEY,
+            id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
             room_number VARCHAR(10) UNIQUE,
             name VARCHAR(100) NOT NULL,
             description TEXT,
@@ -194,7 +194,7 @@ BEGIN
         -- Ajouter room_id
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
                        WHERE table_name = 'bookings' AND column_name = 'room_id' AND table_schema = 'public') THEN
-            ALTER TABLE public.bookings ADD COLUMN room_id BIGINT REFERENCES public.rooms(id) ON DELETE RESTRICT;
+            ALTER TABLE public.bookings ADD COLUMN room_id UUID REFERENCES public.rooms(id) ON DELETE RESTRICT;
         END IF;
         
         -- Ajouter payment_status
@@ -245,7 +245,7 @@ BEGIN
             guest_first_name VARCHAR(100),
             guest_last_name VARCHAR(100),
             profile_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
-            room_id BIGINT REFERENCES public.rooms(id) ON DELETE RESTRICT,
+            room_id UUID REFERENCES public.rooms(id) ON DELETE RESTRICT,
             payment_status VARCHAR(20) DEFAULT 'pending',
             amount_paid DECIMAL(10,2) DEFAULT 0,
             confirmed_at TIMESTAMP,
@@ -333,7 +333,7 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'availability' AND table_schema = 'public') THEN
         CREATE TABLE public.availability (
             id BIGSERIAL PRIMARY KEY,
-            room_id BIGINT REFERENCES public.rooms(id),
+            room_id UUID REFERENCES public.rooms(id),
             date DATE NOT NULL,
             price DECIMAL(10,2),
             is_available BOOLEAN DEFAULT TRUE,
@@ -557,7 +557,7 @@ END $$;
 
 -- 16. Fonction pour vérifier la disponibilité
 CREATE OR REPLACE FUNCTION public.check_room_availability(
-    p_room_id BIGINT,
+    p_room_id UUID,
     p_check_in DATE,
     p_check_out DATE
 )
@@ -579,7 +579,7 @@ $$ language 'plpgsql';
 
 -- 17. Fonction pour calculer le prix
 CREATE OR REPLACE FUNCTION public.calculate_booking_price(
-    p_room_id BIGINT,
+    p_room_id UUID,
     p_check_in DATE,
     p_check_out DATE,
     p_adults_count INTEGER DEFAULT 2,
