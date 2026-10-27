@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdminSession, UnauthorizedAdminError } from "@/lib/auth/admin";
 import { createAdminClient } from "@/lib/supabase/adminClient";
 import { ZodError } from "zod";
+import { isTrustedOrigin } from "@/lib/admin-auth";
 
 export class ForbiddenAdminError extends Error {}
 export class InvalidOriginError extends Error {}
@@ -9,7 +10,7 @@ export class InvalidOriginError extends Error {}
 const assertTrustedOrigin = (request: Request) => {
   const origin = request.headers.get("origin");
   const expected = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? request.url).origin;
-  if (!origin || origin !== expected) throw new InvalidOriginError("invalid_origin");
+  if (!isTrustedOrigin(origin, expected)) throw new InvalidOriginError("invalid_origin");
 };
 
 export async function withAdminRoute(

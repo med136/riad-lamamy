@@ -36,3 +36,22 @@ test("refuse toute mutation API admin sans Origin exact", () => {
   assert.equal(isTrustedAdminMutationOrigin("/api/admin/rooms", "GET", null, expected), true);
   assert.equal(isTrustedAdminMutationOrigin("/api/public/settings", "POST", null, expected), true);
 });
+
+test("accepte uniquement les variantes www et apex du domaine canonique", () => {
+  assert.equal(
+    isTrustedAdminMutationOrigin("/api/admin/channels", "POST", "https://www.darlamamy.com", "https://darlamamy.com"),
+    true,
+  );
+  assert.equal(
+    isTrustedAdminMutationOrigin("/api/admin/channels", "POST", "https://darlamamy.com", "https://www.darlamamy.com"),
+    true,
+  );
+  assert.equal(
+    isTrustedAdminMutationOrigin("/api/admin/channels", "POST", "http://darlamamy.com", "https://darlamamy.com"),
+    false,
+  );
+  assert.equal(
+    isTrustedAdminMutationOrigin("/api/admin/channels", "POST", "https://fake-darlamamy.com", "https://darlamamy.com"),
+    false,
+  );
+});
